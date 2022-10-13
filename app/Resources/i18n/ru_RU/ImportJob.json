@@ -2,7 +2,7 @@
   "fields": {
     "importFeed": "Импортный фид",
     "state": "Статус",
-    "start": "Н ",
+    "start": "Начало",
     "end": "Окончание",
     "createdCount": "Создано",
     "updatedCount": "Обновлено",
