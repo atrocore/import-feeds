@@ -122,12 +122,13 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
             ];
             if (entity) {
                 let fields = this.getMetadata().get(['entityDefs', entity, 'fields']) || {};
+                let links = this.getMetadata().get(['entityDefs', entity, 'links']) || {};
                 result.id = {
                     type: 'varchar'
                 };
                 Object.keys(fields).forEach(name => {
                     let field = fields[name];
-                    if (!field.disabled && !notAvailableFieldsList.includes(name) && !notAvailableTypes.includes(field.type) && !field.importDisabled) {
+                    if (!field.disabled && !notAvailableFieldsList.includes(name) && !notAvailableTypes.includes(field.type) && !field.importDisabled && !links[name]) {
                         result[name] = field;
                     }
                 });
