@@ -67,6 +67,7 @@ class ImportTypeSimple extends QueueManagerBase
             "delimiter"               => $feed->getDelimiter(),
             "enclosure"               => $feed->getEnclosure(),
             "isFileHeaderRow"         => $feed->isFileHeaderRow(),
+            "adapter"                 => $feed->getFeedField('adapter'),
             "action"                  => $feed->get('fileDataAction'),
             "attachmentId"            => $attachmentId,
             "data"                    => $feed->getConfiguratorData(),
