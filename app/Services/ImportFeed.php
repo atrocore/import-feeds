@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
@@ -157,6 +158,11 @@ class ImportFeed extends Base
 
     public function runImport(string $importFeedId, string $attachmentId): string
     {
+        $event = $this->dispatchEvent('beforeRunImport', new Event(['importFeedId' => $importFeedId, 'attachmentId' => $attachmentId]));
+
+        $importFeedId = $event->getArgument('importFeedId');
+        $attachmentId = $event->getArgument('attachmentId');
+
         $feed = $this->getImportFeed($importFeedId);
 
         // firstly, validate feed
