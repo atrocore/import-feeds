@@ -148,6 +148,15 @@
       "filterDisabled": true,
       "required": false
     },
+    "adapter": {
+      "type": "enum",
+      "options": [
+        ""
+      ],
+      "notStorable": true,
+      "dataField": true,
+      "prohibitedEmptyValue": false
+    },
     "createdAt": {
       "type": "datetime",
       "readOnly": true

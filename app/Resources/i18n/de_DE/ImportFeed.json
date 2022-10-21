@@ -1,5 +1,6 @@
 {
   "fields": {
+    "adapter": "Adapter",
     "proceedAlreadyProceeded": "Wiederholte Datensatzbearbeitung erlauben",
     "connection": "Verbindung",
     "format": "Format",

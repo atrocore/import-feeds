@@ -1,5 +1,6 @@
 {
   "fields": {
+    "adapter": "Адаптер",
     "proceedAlreadyProceeded": "Позволять повторную обработку записи данных",
     "connection": "Соединение",
     "format": "Формат",
