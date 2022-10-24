@@ -107,7 +107,7 @@ class JsonToVerticalArray
                 foreach (explode('.', $name) as $part) {
                     $nameParts[] = $part;
                     if ($checkParts && strpos($part, 'collection{') !== false) {
-                        preg_match_all("/^collection\{(\d)\}$/", $part, $matches);
+                        preg_match_all("/^collection\{([0-9]*)\}$/", $part, $matches);
                         $num = (int)$matches[1][0];
                         $checkParts = false;
                         if ($i === $num) {
