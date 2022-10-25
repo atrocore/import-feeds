@@ -155,7 +155,8 @@
       ],
       "notStorable": true,
       "dataField": true,
-      "prohibitedEmptyValue": false
+      "prohibitedEmptyValue": false,
+      "view": "import:views/import-feed/fields/adapter"
     },
     "createdAt": {
       "type": "datetime",
