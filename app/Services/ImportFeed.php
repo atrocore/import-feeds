@@ -158,11 +158,6 @@ class ImportFeed extends Base
 
     public function runImport(string $importFeedId, string $attachmentId): string
     {
-        $event = $this->dispatchEvent('beforeRunImport', new Event(['importFeedId' => $importFeedId, 'attachmentId' => $attachmentId]));
-
-        $importFeedId = $event->getArgument('importFeedId');
-        $attachmentId = $event->getArgument('attachmentId');
-
         $feed = $this->getImportFeed($importFeedId);
 
         // firstly, validate feed
@@ -170,7 +165,12 @@ class ImportFeed extends Base
 
         $serviceName = $this->getImportTypeService($feed);
 
-        $data = $this->getServiceFactory()->create($serviceName)->prepareJobData($feed, $attachmentId);
+        $service = $this->getServiceFactory()->create($serviceName);
+        if (method_exists($service, 'runImport')) {
+            return $service->runImport($feed, $attachmentId);
+        }
+
+        $data = $service->prepareJobData($feed, $attachmentId);
         $data['data']['importJobId'] = $this->createImportJob($feed, $feed->getFeedField('entity'), $attachmentId)->get('id');
 
         $this->push($this->getName($feed), $serviceName, $data);
@@ -265,7 +265,7 @@ class ImportFeed extends Base
      *
      * @return bool
      */
-    protected function push(string $name, string $serviceName, array $data = []): bool
+    public function push(string $name, string $serviceName, array $data = []): bool
     {
         return $this->getInjection('queueManager')->push($name, $serviceName, $data);
     }
@@ -330,7 +330,7 @@ class ImportFeed extends Base
      *
      * @return string
      */
-    protected function getName(ImportFeedEntity $feed): string
+    public function getName(ImportFeedEntity $feed): string
     {
         return $this->translate("Import") . ": <strong>{$feed->get("name")}</strong>";
     }
@@ -352,7 +352,7 @@ class ImportFeed extends Base
      *
      * @return ImportJob
      */
-    protected function createImportJob(ImportFeedEntity $feed, string $entityType, string $attachmentId): ImportJob
+    public function createImportJob(ImportFeedEntity $feed, string $entityType, string $attachmentId): ImportJob
     {
         $entity = $this->getEntityManager()->getEntity('ImportJob');
         $entity->set('name', date('Y-m-d H:i:s'));

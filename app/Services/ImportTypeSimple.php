@@ -49,13 +49,13 @@ class ImportTypeSimple extends QueueManagerBase
     private array $channels = [];
     private array $products = [];
 
-    public function prepareJobData(ImportFeed $feed, string $attachmentId): array
+    public function prepareJobData(ImportFeed $feed, string $attachmentId, bool $skipValidation = false): array
     {
         if (empty($attachmentId) || empty($file = $this->getEntityManager()->getEntity('Attachment', $attachmentId))) {
             throw new NotFound($this->translate('noSuchFile', 'exceptions', 'ImportFeed'));
         }
 
-        if (!$this->isFileValid($feed, $file)) {
+        if (!$skipValidation && !$this->isFileValid($feed, $file)) {
             throw new BadRequest($this->translate('theFileDoesNotMatchTheTemplate', 'exceptions', 'ImportFeed'));
         }
 
