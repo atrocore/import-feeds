@@ -105,7 +105,7 @@ class Link extends Varchar
                         $foreignImportBy = $config['foreignImportBy'];
 
                         if (count($foreignColumn) === 1) {
-                            $foreignValues = explode($config['fieldDelimiterForRelation'], $row[$foreignColumn[0]]);
+                            $foreignValues = explode($config['fieldDelimiterForRelation'], (string)$row[$foreignColumn[0]]);
                         } else {
                             foreach ($foreignColumn as $column) {
                                 $foreignValues[] = $row[$column];
