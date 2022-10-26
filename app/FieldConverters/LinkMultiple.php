@@ -81,7 +81,13 @@ class LinkMultiple extends Varchar
         }
 
         if (empty($config['replaceRelation'])) {
-            $inputRow->{$config['name'] . 'AddOnlyMode'} = 1;
+            if (property_exists($inputRow, $fieldName) && empty($inputRow->$fieldName)) {
+                unset($inputRow->$fieldName);
+            } elseif (property_exists($inputRow, $config['name']) && empty($inputRow->{$config['name']})) {
+                unset($inputRow->{$config['name']});
+            } else {
+                $inputRow->{$config['name'] . 'AddOnlyMode'} = 1;
+            }
         }
     }
 
