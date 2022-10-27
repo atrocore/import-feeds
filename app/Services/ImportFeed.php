@@ -184,7 +184,7 @@ class ImportFeed extends Base
 
         $this
             ->getInjection('eventManager')
-            ->dispatch('ImportFeedService', 'importJobsCreated', new Event(['importFeedId' => $importFeedId]));
+            ->dispatch('ImportFeedService', 'afterImportJobsCreations', new Event(['importFeedId' => $importFeedId]));
 
         return true;
     }
