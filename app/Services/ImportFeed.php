@@ -158,6 +158,13 @@ class ImportFeed extends Base
 
     public function runImport(string $importFeedId, string $attachmentId): bool
     {
+        $event = $this
+            ->getInjection('eventManager')
+            ->dispatch('ImportFeedService', 'beforeRunImport', new Event(['importFeedId' => $importFeedId, 'attachmentId' => $attachmentId]));
+
+        $importFeedId = $event->getArgument('importFeedId');
+        $attachmentId = $event->getArgument('attachmentId');
+
         $feed = $this->getImportFeed($importFeedId);
 
         // firstly, validate feed
