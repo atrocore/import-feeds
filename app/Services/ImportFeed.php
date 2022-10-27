@@ -248,6 +248,25 @@ class ImportFeed extends Base
         }
     }
 
+    protected function duplicateImportHttpHeaders(Entity $entity, Entity $duplicatingEntity): void
+    {
+        $headers = $duplicatingEntity->get('importHttpHeaders');
+
+        if (empty($headers) || count($headers) === 0) {
+            return;
+        }
+
+        foreach ($headers as $header) {
+            $data = $header->toArray();
+            unset($data['id']);
+            $data['importFeedId'] = $entity->get('id');
+
+            $newHeader = $this->getEntityManager()->getEntity('ImportHttpHeader');
+            $newHeader->set($data);
+            $this->getEntityManager()->saveEntity($newHeader);
+        }
+    }
+
     /**
      * @param string $key
      *
