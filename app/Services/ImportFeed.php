@@ -175,6 +175,10 @@ class ImportFeed extends Base
 
         $this->push($this->getName($feed), $serviceName, $data);
 
+        $this
+            ->getInjection('eventManager')
+            ->dispatch('ImportFeedService', 'importJobsCreated', new Event(['importFeedId' => $importFeedId]));
+
         return true;
     }
 
