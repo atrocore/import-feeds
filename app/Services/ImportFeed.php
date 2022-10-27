@@ -156,8 +156,15 @@ class ImportFeed extends Base
         }
     }
 
-    public function runImport(string $importFeedId, string $attachmentId): string
+    public function runImport(string $importFeedId, string $attachmentId): bool
     {
+        $event = $this
+            ->getInjection('eventManager')
+            ->dispatch('ImportFeedService', 'beforeRunImport', new Event(['importFeedId' => $importFeedId, 'attachmentId' => $attachmentId]));
+
+        $importFeedId = $event->getArgument('importFeedId');
+        $attachmentId = $event->getArgument('attachmentId');
+
         $feed = $this->getImportFeed($importFeedId);
 
         // firstly, validate feed
@@ -175,7 +182,11 @@ class ImportFeed extends Base
 
         $this->push($this->getName($feed), $serviceName, $data);
 
-        return $data['data']['importJobId'];
+        $this
+            ->getInjection('eventManager')
+            ->dispatch('ImportFeedService', 'afterImportJobsCreations', new Event(['importFeedId' => $importFeedId]));
+
+        return true;
     }
 
     public function findLinkedEntities($id, $link, $params)
