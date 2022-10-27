@@ -156,7 +156,7 @@ class ImportFeed extends Base
         }
     }
 
-    public function runImport(string $importFeedId, string $attachmentId): string
+    public function runImport(string $importFeedId, string $attachmentId): bool
     {
         $feed = $this->getImportFeed($importFeedId);
 
@@ -175,7 +175,7 @@ class ImportFeed extends Base
 
         $this->push($this->getName($feed), $serviceName, $data);
 
-        return $data['data']['importJobId'];
+        return true;
     }
 
     public function findLinkedEntities($id, $link, $params)

@@ -35,8 +35,6 @@ class ImportFeed extends Base
             return true;
         }
 
-        $this->getServiceFactory()->create('ImportFeed')->runImport($importFeedId, '');
-
-        return true;
+        return $this->getServiceFactory()->create('ImportFeed')->runImport($importFeedId, '');
     }
 }
