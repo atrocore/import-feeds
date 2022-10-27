@@ -72,14 +72,22 @@ class ImportJob extends Base
 
         parent::afterSave($entity, $options);
 
-        if (!empty($importFeed = $entity->get('importFeed'))) {
-            $jobs = $this->where(['importFeedId' => $importFeed->get('id'), 'state' => 'Success'])->order('createdAt')->find();
-            $jobsCount = count($jobs);
+        $importFeed = $entity->get('importFeed');
+        if (!empty($importFeed)) {
+            $jobs = $this
+                ->where([
+                    'importFeedId' => $importFeed->get('id'),
+                    'state'        => [
+                        'Success',
+                        'Failed',
+                        'Canceled'
+                    ]
+                ])
+                ->order('createdAt')
+                ->limit(2000, 100)
+                ->find();
             foreach ($jobs as $job) {
-                if ($jobsCount > $importFeed->get('jobsMax')) {
-                    $this->getEntityManager()->removeEntity($job);
-                    $jobsCount--;
-                }
+                $this->getEntityManager()->removeEntity($job);
             }
         }
     }

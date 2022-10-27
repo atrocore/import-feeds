@@ -154,8 +154,7 @@
       "type": "link"
     },
     "sortOrder": {
-      "type": "int",
-      "default": 0
+      "type": "int"
     }
   },
   "links": {
@@ -177,7 +176,7 @@
     }
   },
   "collection": {
-    "sortBy": "createdAt",
+    "sortBy": "sortOrder",
     "asc": true
   },
   "indexes": {

@@ -24,7 +24,6 @@
     "emptyValue": "Пустое значение",
     "nullValue": "Нулевое значение",
     "markForNotLinkedAttribute": "Пометка непривязанного атрибута",
-    "jobsMax": "Количество успешных заданий импорта",
     "fieldDelimiterForRelation": "Разделитель полей для связи"
   },
   "links": {

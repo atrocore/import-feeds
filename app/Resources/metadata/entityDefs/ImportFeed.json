@@ -15,12 +15,6 @@
       "filterDisabled": true,
       "noLoad": true
     },
-    "jobsMax": {
-      "type": "int",
-      "required": true,
-      "min": 1,
-      "default": 10
-    },
     "isActive": {
       "type": "bool"
     },

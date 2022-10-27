@@ -24,7 +24,6 @@
     "emptyValue": "Empty Value",
     "nullValue": "Null Value",
     "markForNotLinkedAttribute": "Mark for a not linked attribute",
-    "jobsMax": "Amount of \"Success\" Import Jobs to be stored",
     "fieldDelimiterForRelation": "Field Delimiter for Relation"
   },
   "links": {

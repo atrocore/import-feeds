@@ -21,7 +21,6 @@
     "emptyValue": "Leerer Wert",
     "nullValue": "Nullwert",
     "markForNotLinkedAttribute": "Markierung für ein nicht verknüpftes Attribut",
-    "jobsMax": "Anzahl der zu speichernden \"Erfolg\" Importaufträge",
     "fieldDelimiterForRelation": "Feldtrennzeichen für Relation"
   },
   "links": {

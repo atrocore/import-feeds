@@ -31,7 +31,21 @@ use Import\FieldConverters\Varchar;
 
 class ImportConfiguratorItem extends Base
 {
-    protected $mandatorySelectAttributeList = ['importFeedId', 'importBy', 'createIfNotExist', 'replaceRelation', 'default', 'type', 'attributeId', 'scope', 'locale', 'sortOrder', 'foreignColumn', 'foreignImportBy'];
+    protected $mandatorySelectAttributeList
+        = [
+            'importFeedId',
+            'importBy',
+            'createIfNotExist',
+            'replaceRelation',
+            'default',
+            'type',
+            'attributeId',
+            'scope',
+            'locale',
+            'sortOrder',
+            'foreignColumn',
+            'foreignImportBy'
+        ];
 
     public function prepareEntityForOutput(Entity $entity)
     {
@@ -72,12 +86,7 @@ class ImportConfiguratorItem extends Base
     public function updateEntity($id, $data)
     {
         if (property_exists($data, '_sortedIds')) {
-            foreach ($data->_sortedIds as $k => $id) {
-                if (!empty($item = $this->getRepository()->get($id))) {
-                    $item->set('sortOrder', $k * 10);
-                    $this->getEntityManager()->saveEntity($item);
-                }
-            }
+            $this->getRepository()->updateSortOrder($data->_sortedIds);
             return $this->readEntity($id);
         }
 

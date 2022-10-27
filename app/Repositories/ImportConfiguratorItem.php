@@ -31,6 +31,19 @@ use Espo\ORM\Entity;
 
 class ImportConfiguratorItem extends Base
 {
+    public function updateSortOrder(array $ids): void
+    {
+        foreach ($ids as $k => $id) {
+            $this
+                ->getConnection()
+                ->createQueryBuilder()
+                ->update('import_configurator_item')
+                ->set('sort_order', ':sortOrder')->setParameter('sortOrder', $k)
+                ->where('id=:id')->setParameter('id', $id)
+                ->executeQuery();
+        }
+    }
+
     protected function beforeSave(Entity $entity, array $options = [])
     {
         if (empty($importFeed = $entity->get('importFeed'))) {
@@ -68,6 +81,13 @@ class ImportConfiguratorItem extends Base
                 throw new BadRequest($this->getInjection('language')->translate('wrongFieldsNumber', 'exceptions', 'ImportConfiguratorItem'));
             }
         }
+
+        $last = $this
+            ->where(['importFeedId' => $entity->get('importFeedId')])
+            ->order('sortOrder', 'DESC')
+            ->findOne();
+
+        $entity->set('sortOrder', empty($last) ? 0 : (int)$last->get('sortOrder') + 1);
 
         parent::beforeSave($entity, $options);
     }
