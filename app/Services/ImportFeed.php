@@ -156,14 +156,15 @@ class ImportFeed extends Base
         }
     }
 
-    public function runImport(string $importFeedId, string $attachmentId): bool
+    public function runImport(string $importFeedId, string $attachmentId, \stdClass $payload = null): bool
     {
         $event = $this
             ->getInjection('eventManager')
-            ->dispatch('ImportFeedService', 'beforeRunImport', new Event(['importFeedId' => $importFeedId, 'attachmentId' => $attachmentId]));
+            ->dispatch('ImportFeedService', 'beforeRunImport', new Event(['importFeedId' => $importFeedId, 'attachmentId' => $attachmentId, 'payload' => $payload]));
 
         $importFeedId = $event->getArgument('importFeedId');
         $attachmentId = $event->getArgument('attachmentId');
+        $payload = $event->getArgument('payload');
 
         $feed = $this->getImportFeed($importFeedId);
 
@@ -174,11 +175,11 @@ class ImportFeed extends Base
 
         $service = $this->getServiceFactory()->create($serviceName);
         if (method_exists($service, 'runImport')) {
-            return $service->runImport($feed, $attachmentId);
+            return $service->runImport($feed, $attachmentId, $payload);
         }
 
         $data = $service->prepareJobData($feed, $attachmentId);
-        $data['data']['importJobId'] = $this->createImportJob($feed, $feed->getFeedField('entity'), $attachmentId)->get('id');
+        $data['data']['importJobId'] = $this->createImportJob($feed, $feed->getFeedField('entity'), $attachmentId, $payload)->get('id');
 
         $this->push($this->getName($feed), $serviceName, $data);
 
@@ -375,19 +376,13 @@ class ImportFeed extends Base
         return "ImportType" . ucfirst($feed->get('type'));
     }
 
-    /**
-     * @param ImportFeedEntity $feed
-     * @param string           $entityType
-     * @param string           $attachmentId
-     *
-     * @return ImportJob
-     */
-    public function createImportJob(ImportFeedEntity $feed, string $entityType, string $attachmentId): ImportJob
+    public function createImportJob(ImportFeedEntity $feed, string $entityType, string $attachmentId, \stdClass $payload = null): ImportJob
     {
         $entity = $this->getEntityManager()->getEntity('ImportJob');
         $entity->set('name', date('Y-m-d H:i:s'));
         $entity->set('importFeedId', $feed->get('id'));
         $entity->set('entityName', $entityType);
+        $entity->set('payload', $payload);
         if (!empty($attachmentId)) {
             $entity->set('attachmentId', $attachmentId);
         }

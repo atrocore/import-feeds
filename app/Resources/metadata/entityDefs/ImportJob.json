@@ -91,6 +91,20 @@
       "noLoad": true,
       "importDisabled": true
     },
+    "payload": {
+      "type": "jsonObject",
+      "notStorable": true,
+      "layoutDetailDisabled": true,
+      "layoutDetailSmallDisabled": true,
+      "layoutListDisabled": true,
+      "layoutListSmallDisabled": true,
+      "layoutMassUpdateDisabled": true,
+      "filterDisabled": true,
+      "exportDisabled": true,
+      "importDisabled": true,
+      "textFilterDisabled": true,
+      "emHidden": true
+    },
     "createdAt": {
       "type": "datetime",
       "readOnly": true
