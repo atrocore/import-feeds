@@ -83,7 +83,7 @@ class ImportJob extends Base
                         'Canceled'
                     ]
                 ])
-                ->order('createdAt')
+                ->order('createdAt', 'DESC')
                 ->limit(2000, 100)
                 ->find();
             foreach ($jobs as $job) {
