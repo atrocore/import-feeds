@@ -90,6 +90,10 @@ class ImportFeed extends Base
         if ($entity->getFeedField('emptyValue') === $entity->getFeedField('nullValue')) {
             throw new BadRequest($this->getLanguage()->translate("nullNoneSame", "exceptions", "ImportFeed"));
         }
+
+        if (empty($entity->getFeedField('allColumns'))) {
+            throw new BadRequest($this->getLanguage()->translate("allColumnsEmpty", "exceptions", "ImportFeed"));
+        }
     }
 
     protected function setFeedFieldsToDataJson(Entity $entity): void

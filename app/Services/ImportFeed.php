@@ -46,31 +46,66 @@ class ImportFeed extends Base
         }
     }
 
-    /**
-     * @param string $attachmentId
-     * @param object $request
-     *
-     * @return array
-     * @throws BadRequest
-     */
-    public function getFileColumns(string $attachmentId, $request): array
+    public function parseFileColumns(\stdClass $payload): array
     {
-        $attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId);
+        if (!property_exists($payload, 'attachmentId')) {
+            throw new BadRequest($this->exception("noSuchFile"));
+        }
+
+        $attachment = $this->getEntityManager()->getEntity('Attachment', $payload->attachmentId);
         if (empty($attachment)) {
             throw new BadRequest($this->exception("noSuchFile"));
         }
 
-        $method = "validate{$request->get('format')}File";
-        if (method_exists($this, $method)) {
-            $this->$method($attachmentId);
+        if (property_exists($payload, 'format')) {
+            $method = "validate{$payload->format}File";
+            if (method_exists($this, $method)) {
+                $this->$method($attachment->get('id'));
+            }
         }
 
-        // prepare settings
-        $delimiter = (!empty($request->get('delimiter'))) ? $request->get('delimiter') : ';';
-        $enclosure = ($request->get('enclosure') == 'singleQuote') ? "'" : '"';
-        $isFileHeaderRow = (is_null($request->get('isHeaderRow'))) ? true : !empty($request->get('isHeaderRow'));
+        $maxSize = 1024 * 1024 * 2; // 2 MB
 
-        return $this->getFileParser($request->get('format'))->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
+        if ($attachment->get('size') > $maxSize) {
+            $name = str_replace("{{fileName}}", $attachment->get('name'), $this->translate('parseFile'));
+            $id = $this
+                ->getInjection('queueManager')
+                ->createQueueItem($name, 'BackgroundFileParser', ['payload' => $payload]);
+            return [
+                'jobId' => $id
+            ];
+        }
+
+        return $this->getFileColumns($payload);
+    }
+
+    public function getFileColumns(\stdClass $payload): array
+    {
+        if (!property_exists($payload, 'attachmentId')) {
+            throw new BadRequest($this->exception("noSuchFile"));
+        }
+
+        $attachment = $this->getEntityManager()->getEntity('Attachment', $payload->attachmentId);
+        if (empty($attachment)) {
+            throw new BadRequest($this->exception("noSuchFile"));
+        }
+
+        if (!property_exists($payload, 'format') || empty($payload->format)) {
+            throw new BadRequest('Format is required.');
+        }
+
+        $method = "validate{$payload->format}File";
+        if (method_exists($this, $method)) {
+            $this->$method($attachment->get('id'));
+        }
+
+        $delimiter = (property_exists($payload, 'delimiter') && !empty($payload->delimiter)) ? $payload->delimiter : ';';
+        $enclosure = (property_exists($payload, 'enclosure') && $payload->enclosure == 'singleQuote') ? "'" : '"';
+        $isFileHeaderRow = (property_exists($payload, 'isHeaderRow') && is_null($payload->isHeaderRow)) ? true : !empty($payload->isHeaderRow);
+
+        return $this
+            ->getFileParser($payload->format)
+            ->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
     }
 
     public function validateXMLFile(string $attachmentId): void
@@ -147,12 +182,6 @@ class ImportFeed extends Base
 
         if (!in_array($attachment->get('type'), $excelTypes)) {
             throw new BadRequest($this->getInjection('language')->translate('excelExpected', 'exceptions', 'ImportFeed'));
-        }
-
-        $maxSize = 1000 * 1000 * 2;
-
-        if ($attachment->get('size') > $maxSize) {
-            throw new BadRequest($this->getInjection('language')->translate('excelFileTooBig', 'exceptions', 'ImportFeed'));
         }
     }
 

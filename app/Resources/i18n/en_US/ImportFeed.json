@@ -32,6 +32,7 @@
     "configuratorItems": "Configurator"
   },
   "labels": {
+    "parseFile": "File Parsing: {{fileName}}",
     "creatingImportJobs": "Creating Import Jobs...",
     "currency": "Currency",
     "unit": "Unit",
@@ -66,8 +67,8 @@
     "importNow": "Are you sure you want to import data from the selected source?"
   },
   "exceptions": {
+    "allColumnsEmpty": "Source Fields should be recognized.",
     "noFeedFileFound": "Feed file is missing.",
-    "excelFileTooBig": "Excel file is too big. Use CSV instead.",
     "nullNoneMarkForNotLinkedAttributeSame": "Mark for a not linked attribute, empty value and null value should have unique values, only one value can be empty.",
     "measureIsNotSet": "Measure for the attribute \"%s\" is not set.",
     "noSpecified": "No '%s' specified.",

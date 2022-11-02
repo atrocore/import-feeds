@@ -32,19 +32,17 @@ use Espo\Core\Exceptions\Forbidden;
  */
 class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 {
-    public function actionGetFileColumns($params, $data, $request): array
+    public function actionParseFileColumns($params, $data, $request): array
     {
-        // checking request
-        if (!$request->isGet() || empty($params['attachmentId'])) {
+        if (!$request->isPost()) {
             throw new BadRequest();
         }
 
-        // checking rules
         if (!$this->getAcl()->check($this->name, 'read')) {
             throw new Forbidden();
         }
 
-        return $this->getRecordService()->getFileColumns($params['attachmentId'], $request);
+        return $this->getRecordService()->parseFileColumns($data);
     }
 
     public function actionRunImport($params, $data, $request): bool
