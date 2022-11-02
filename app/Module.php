@@ -44,30 +44,6 @@ class Module extends AbstractModule
     {
         parent::prepareApiDocs($data, $schemas);
 
-        $data['paths']["/ImportFeed/{attachmentId}/fileColumns"]['get'] = [
-            'tags'        => ['ImportFeed'],
-            "summary"     => "Get file columns",
-            "description" => "Get file columns",
-            "operationId" => "getFileColumns",
-            'security'    => [['Authorization-Token' => []]],
-            'parameters'  => [
-                [
-                    "name"     => "attachmentId",
-                    "in"       => "path",
-                    "required" => true,
-                    "schema"   => [
-                        "type" => "string",
-                    ]
-                ],
-            ],
-            "responses"   => OpenApiGenerator::prepareResponses([
-                "type"  => "array",
-                "items" => [
-                    "type" => "object"
-                ]
-            ]),
-        ];
-
         $data['paths']["/ImportFeed/action/runImport"]['post'] = [
             'tags'        => ['ImportFeed'],
             "summary"     => "Run import",

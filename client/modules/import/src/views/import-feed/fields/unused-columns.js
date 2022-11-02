@@ -84,6 +84,22 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
             });
         },
 
+        readAllColumnsFromJob(jobId) {
+            this.ajaxGetRequest(`QueueItem/${jobId}`).success(queueItem => {
+                if (queueItem.status === 'Canceled') {
+                    $('.attachment-upload .remove-attachment').click();
+                } else if (queueItem.status === 'Success') {
+                    this.model.set('allColumns', queueItem.data.allColumns);
+                } else {
+                    setTimeout(() => {
+                        this.readAllColumnsFromJob(jobId);
+                    }, 4000);
+                }
+            }).error(response => {
+                $('.attachment-upload .remove-attachment').click();
+            });
+        },
+
         loadFileColumns() {
             let fileId = this.model.get('fileId');
             if (!fileId) {
@@ -92,14 +108,21 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
 
             let data = {
                 importFeedId: this.model.get('id'),
+                attachmentId: fileId,
                 format: this.model.get('format'),
                 delimiter: this.model.get('fileFieldDelimiter'),
                 enclosure: this.model.get('fileTextQualifier'),
                 isHeaderRow: this.model.get('isFileHeaderRow') ? 1 : 0
             };
 
-            this.ajaxGetRequest(`ImportFeed/${fileId}/fileColumns`, data).success(response => {
-                this.model.set('allColumns', response);
+            this.ajaxPostRequest(`ImportFeed/action/ParseFileColumns`, data).success(response => {
+                if (response.jobId) {
+                    Backbone.trigger('showQueuePanel');
+                    this.$el.html('<img class="preloader" style="height:19px;margin-top:6px;margin-left:-8px;" src="client/img/atro-loader.svg"/>');
+                    this.readAllColumnsFromJob(response.jobId);
+                } else {
+                    this.model.set('allColumns', response);
+                }
             });
         },
 
