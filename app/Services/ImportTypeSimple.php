@@ -49,14 +49,10 @@ class ImportTypeSimple extends QueueManagerBase
     private array $channels = [];
     private array $products = [];
 
-    public function prepareJobData(ImportFeed $feed, string $attachmentId, bool $skipValidation = false): array
+    public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
         if (empty($attachmentId) || empty($file = $this->getEntityManager()->getEntity('Attachment', $attachmentId))) {
             throw new NotFound($this->translate('noSuchFile', 'exceptions', 'ImportFeed'));
-        }
-
-        if (!$skipValidation && !$this->isFileValid($feed, $file)) {
-            throw new BadRequest($this->translate('theFileDoesNotMatchTheTemplate', 'exceptions', 'ImportFeed'));
         }
 
         $result = [
@@ -348,6 +344,23 @@ class ImportTypeSimple extends QueueManagerBase
             foreach ($fileData as $line => $fileLine) {
                 foreach ($fileLine as $k => $v) {
                     $result[$line][$allColumns[$k]] = $v;
+                }
+            }
+        }
+
+        /**
+         * Validation
+         */
+        if (!empty($result)) {
+            foreach ($data['data']['configuration'] as $item) {
+                $columns = $item['column'];
+                if (empty($columns) || !is_array($columns)) {
+                    continue 1;
+                }
+                foreach ($columns as $column) {
+                    if (!in_array($column, array_keys($result[0]))) {
+                        throw new BadRequest($this->translate('theFileDoesNotMatchTheTemplate', 'exceptions', 'ImportFeed'));
+                    }
                 }
             }
         }
