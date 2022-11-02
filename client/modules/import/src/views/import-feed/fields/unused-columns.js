@@ -22,10 +22,12 @@
 Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/multi-enum',
     Dep => Dep.extend({
 
+        jobId: null,
+
         setup() {
             Dep.prototype.setup.call(this);
 
-            ['file', 'fileFieldDelimiter', 'fileTextQualifier', 'isFileHeaderRow'].forEach(fieldName => {
+            ['file', 'format', 'fileFieldDelimiter', 'fileTextQualifier', 'isFileHeaderRow'].forEach(fieldName => {
                 let action = fieldName === 'file' ? 'fileUpdate' : 'change:' + fieldName;
                 this.listenTo(this.model, action, () => {
                     if (this.getParentView().getView(fieldName).mode === 'edit') {
@@ -89,8 +91,8 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
             });
         },
 
-        readAllColumnsFromJob(jobId) {
-            this.ajaxGetRequest(`QueueItem/${jobId}`).success(queueItem => {
+        readAllColumnsFromJob() {
+            this.ajaxGetRequest(`QueueItem/${this.jobId}`).success(queueItem => {
                 if (queueItem.status === 'Canceled') {
                     $('.attachment-upload .remove-attachment').click();
                     this.model.set('allColumns', []);
@@ -99,7 +101,7 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
                     this.model.set('allColumns', queueItem.data.allColumns);
                 } else {
                     setTimeout(() => {
-                        this.readAllColumnsFromJob(jobId);
+                        this.readAllColumnsFromJob();
                     }, 4000);
                 }
             }).error(response => {
@@ -128,10 +130,13 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
 
             this.ajaxPostRequest(`ImportFeed/action/ParseFileColumns`, data).success(response => {
                 if (response.jobId) {
+                    if (this.jobId !== null) {
+                        this.ajaxPutRequest(`QueueItem/${this.jobId}`, {status: "Canceled"}, {async: false});
+                    }
+                    this.jobId = response.jobId;
                     Backbone.trigger('showQueuePanel');
                     this.$el.html('<img alt="preloader" class="preloader" style="height:19px;margin-top:6px;margin-left:-8px" src="client/img/atro-loader.svg" />');
-                    ;
-                    this.readAllColumnsFromJob(response.jobId);
+                    this.readAllColumnsFromJob();
                 } else {
                     this.model.set('allColumns', response);
                 }
