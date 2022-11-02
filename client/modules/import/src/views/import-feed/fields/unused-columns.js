@@ -25,8 +25,13 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
         setup() {
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'fileUpdate change:fileFieldDelimiter change:fileTextQualifier change:isFileHeaderRow', () => {
-                this.loadFileColumns();
+            ['file', 'fileFieldDelimiter', 'fileTextQualifier', 'isFileHeaderRow'].forEach(fieldName => {
+                let action = fieldName === 'file' ? 'fileUpdate' : 'change:' + fieldName;
+                this.listenTo(this.model, action, () => {
+                    if (this.getParentView().getView(fieldName).mode === 'edit') {
+                        this.loadFileColumns();
+                    }
+                });
             });
 
             this.loadUnusedColumns();
@@ -57,7 +62,7 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
         loadUnusedColumns() {
             const allColumns = this.model.get('allColumns') || [];
 
-            if (!this.model.get('id')) {
+            if (!this.model.get('id') || allColumns === []) {
                 this.model.set('unusedColumns', allColumns);
                 this.reRender();
                 return;
@@ -88,6 +93,8 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
             this.ajaxGetRequest(`QueueItem/${jobId}`).success(queueItem => {
                 if (queueItem.status === 'Canceled') {
                     $('.attachment-upload .remove-attachment').click();
+                    this.model.set('allColumns', []);
+                    this.$el.html('');
                 } else if (queueItem.status === 'Success') {
                     this.model.set('allColumns', queueItem.data.allColumns);
                 } else {
@@ -97,10 +104,14 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
                 }
             }).error(response => {
                 $('.attachment-upload .remove-attachment').click();
+                this.model.set('allColumns', []);
+                this.$el.html('');
             });
         },
 
         loadFileColumns() {
+            this.model.set('allColumns', []);
+
             let fileId = this.model.get('fileId');
             if (!fileId) {
                 return;
@@ -118,7 +129,8 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
             this.ajaxPostRequest(`ImportFeed/action/ParseFileColumns`, data).success(response => {
                 if (response.jobId) {
                     Backbone.trigger('showQueuePanel');
-                    this.$el.html('<img class="preloader" style="height:19px;margin-top:6px;margin-left:-8px;" src="client/img/atro-loader.svg"/>');
+                    this.$el.html('<img alt="preloader" class="preloader" style="height:19px;margin-top:6px;margin-left:-8px" src="client/img/atro-loader.svg" />');
+                    ;
                     this.readAllColumnsFromJob(response.jobId);
                 } else {
                     this.model.set('allColumns', response);
