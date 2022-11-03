@@ -82,12 +82,14 @@ class ImportConfiguratorItem extends Base
             }
         }
 
-        $last = $this
-            ->where(['importFeedId' => $entity->get('importFeedId')])
-            ->order('sortOrder', 'DESC')
-            ->findOne();
+        if ($entity->isNew()) {
+            $last = $this
+                ->where(['importFeedId' => $entity->get('importFeedId')])
+                ->order('sortOrder', 'DESC')
+                ->findOne();
 
-        $entity->set('sortOrder', empty($last) ? 0 : (int)$last->get('sortOrder') + 1);
+            $entity->set('sortOrder', empty($last) ? 0 : (int)$last->get('sortOrder') + 1);
+        }
 
         parent::beforeSave($entity, $options);
     }
