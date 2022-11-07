@@ -26,14 +26,4 @@ namespace Import\FieldConverters;
 
 class Varchar extends Text
 {
-    public function convert(\stdClass $inputRow, array $config, array $row): void
-    {
-        parent::convert($inputRow, $config, $row);
-
-        $value = (string)$inputRow->{$config['name']};
-
-//        $value = preg_replace("/[\n\r\s]+/", " ", $value);
-
-        $inputRow->{$config['name']} = $value;
-    }
 }
