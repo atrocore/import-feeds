@@ -108,13 +108,10 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                 'available-currency',
                 'attachmentMultiple',
                 'currencyConverted',
-                'email',
                 'file',
                 'linkParent',
                 'personName',
-                'phone',
-                'autoincrement',
-                'number'
+                'autoincrement'
             ];
             let notAvailableFieldsList = [
                 'createdAt',
