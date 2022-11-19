@@ -26,6 +26,7 @@ namespace Import\Services;
 
 use Espo\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
+use Espo\ORM\EntityCollection;
 
 class ImportJob extends Base
 {
@@ -49,17 +50,36 @@ class ImportJob extends Base
         return array_values($result);
     }
 
+    public function prepareCollectionForOutput(EntityCollection $collection, array $selectParams = []): void
+    {
+        parent::prepareCollectionForOutput($collection, $selectParams);
+
+        $data = $this->getRepository()->getJobsCounts(array_column($collection->toArray(), 'id'));
+
+        foreach ($collection as $entity) {
+            $entity->set('createdCount', $data[$entity->get('id')]['createdCount']);
+            $entity->set('updatedCount', $data[$entity->get('id')]['updatedCount']);
+            $entity->set('deletedCount', $data[$entity->get('id')]['deletedCount']);
+            $entity->set('errorsCount', $data[$entity->get('id')]['errorsCount']);
+        }
+    }
+
     public function prepareEntityForOutput(Entity $entity)
     {
         parent::prepareEntityForOutput($entity);
 
-        // prepare id
-        $id = (string)$entity->get('id');
-
-        $entity->set('createdCount', $this->getLogCount('create', $id));
-        $entity->set('updatedCount', $this->getLogCount('update', $id));
-        $entity->set('deletedCount', $this->getLogCount('delete', $id));
-        $entity->set('errorsCount', $this->getLogCount('error', $id));
+        if (!$entity->has('createdCount')) {
+            $entity->set('createdCount', $this->getLogCount('create', (string)$entity->get('id')));
+        }
+        if (!$entity->has('updatedCount')) {
+            $entity->set('updatedCount', $this->getLogCount('update', (string)$entity->get('id')));
+        }
+        if (!$entity->has('deletedCount')) {
+            $entity->set('deletedCount', $this->getLogCount('delete', (string)$entity->get('id')));
+        }
+        if (!$entity->has('errorsCount')) {
+            $entity->set('errorsCount', $this->getLogCount('error', (string)$entity->get('id')));
+        }
     }
 
     protected function getLogCount(string $type, string $importJobId): int

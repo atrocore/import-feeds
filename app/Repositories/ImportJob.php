@@ -119,6 +119,27 @@ class ImportJob extends Base
         parent::afterRemove($entity, $options);
     }
 
+    public function getJobsCounts(array $ids): array
+    {
+        $data = $this->getConnection()->createQueryBuilder()
+            ->select('id')
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='create' AND import_job_id=import_job.id) createdCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='update' AND import_job_id=import_job.id) updatedCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='delete' AND import_job_id=import_job.id) deletedCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='error' AND import_job_id=import_job.id) errorsCount")
+            ->from('import_job')
+            ->where('id IN (:ids)')->setParameter('ids', $ids, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->andWhere('deleted=0')
+            ->fetchAllAssociative();
+
+        $res = [];
+        foreach ($data as $v) {
+            $res[$v['id']] = $v;
+        }
+
+        return $res;
+    }
+
     public function generateErrorsAttachment(Entity $importJob): bool
     {
         $errorLogs = $this
