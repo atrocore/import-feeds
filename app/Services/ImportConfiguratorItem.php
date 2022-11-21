@@ -85,8 +85,8 @@ class ImportConfiguratorItem extends Base
 
     public function updateEntity($id, $data)
     {
-        if (property_exists($data, '_sortedIds')) {
-            $this->getRepository()->updateSortOrder($data->_sortedIds);
+        if (property_exists($data, '_previousItemId') && property_exists($data, '_itemId')) {
+            $this->getRepository()->updatePosition((string)$data->_itemId, (string)$data->_previousItemId);
             return $this->readEntity($id);
         }
 

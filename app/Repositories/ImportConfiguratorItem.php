@@ -31,14 +31,38 @@ use Espo\ORM\Entity;
 
 class ImportConfiguratorItem extends Base
 {
-    public function updateSortOrder(array $ids): void
+    public function updatePosition(string $itemId, string $previousItemId): void
     {
+        $res = $this
+            ->getConnection()
+            ->createQueryBuilder()
+            ->select('id')
+            ->from('import_configurator_item')
+            ->where('deleted=0')
+            ->andWhere('import_feed_id=:importFeedId')->setParameter('importFeedId', $this->get($itemId)->get('importFeedId'))
+            ->orderBy('sort_order', 'ASC')
+            ->fetchFirstColumn();
+
+        $ids = [];
+        if (empty($previousItemId)) {
+            $ids[] = $itemId;
+        }
+
+        foreach ($res as $id) {
+            if (!in_array($id, $ids)) {
+                $ids[] = $id;
+            }
+            if ($id === $previousItemId) {
+                $ids[] = $itemId;
+            }
+        }
+
         foreach ($ids as $k => $id) {
             $this
                 ->getConnection()
                 ->createQueryBuilder()
                 ->update('import_configurator_item')
-                ->set('sort_order', ':sortOrder')->setParameter('sortOrder', $k)
+                ->set('sort_order', ':sortOrder')->setParameter('sortOrder', $k * 10)
                 ->where('id=:id')->setParameter('id', $id)
                 ->executeQuery();
         }
