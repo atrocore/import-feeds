@@ -53,7 +53,7 @@ class Link extends Varchar
                     $entityName = $this->getMetadata()->get(['entityDefs', $config['entity'], 'links', $config['name'], 'entity']);
                 }
 
-                $values = !is_array($value) ? explode($config['fieldDelimiterForRelation'], $value) : $value;
+                $values = !is_array($value) ? explode((string)$config['fieldDelimiterForRelation'], (string)$value) : $value;
 
                 $input = new \stdClass();
 
