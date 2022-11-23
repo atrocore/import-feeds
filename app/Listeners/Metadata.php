@@ -81,6 +81,10 @@ class Metadata extends AbstractListener
             ];
         }
 
+        if (!empty($data['clientDefs']['ImportFeed']['relationshipPanels']['configuratorItems'])) {
+            $data['clientDefs']['ImportFeed']['relationshipPanels']['configuratorItems']['dragDrop']['maxSize'] = $this->getConfig()->get('recordsPerPageSmall', 20);
+        }
+
         $event->setArgument('data', $data);
     }
 }
