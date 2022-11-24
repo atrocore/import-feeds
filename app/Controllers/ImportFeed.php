@@ -27,11 +27,21 @@ namespace Import\Controllers;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 
-/**
- * ImportFeed controller
- */
 class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 {
+    public function actionUnusedColumns($params, $data, $request): array
+    {
+        if (!$request->isGet()) {
+            throw new BadRequest();
+        }
+
+        if (!$this->getAcl()->check($this->name, 'read')) {
+            throw new Forbidden();
+        }
+
+        return $this->getRecordService()->getUnusedColumns((string)$request->get('importFeedId'));
+    }
+
     public function actionParseFileColumns($params, $data, $request): array
     {
         if (!$request->isPost()) {

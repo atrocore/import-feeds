@@ -27,6 +27,7 @@ namespace Import\Services;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
+use Espo\ORM\EntityCollection;
 use Import\FieldConverters\Varchar;
 
 class ImportConfiguratorItem extends Base
@@ -47,9 +48,74 @@ class ImportConfiguratorItem extends Base
             'foreignImportBy'
         ];
 
+    public function prepareCollectionForOutput(EntityCollection $collection, array $selectParams = []): void
+    {
+        parent::prepareCollectionForOutput($collection, $selectParams);
+
+        foreach ($collection as $entity) {
+            if (!empty($entity->get('importFeedId'))) {
+                $importFeedsIds[] = $entity->get('importFeedId');
+            }
+
+            if ($entity->get('type') === 'Attribute' && !empty($entity->get('attributeId'))) {
+                $attributesIds[] = $entity->get('attributeId');
+            }
+        }
+
+        if (empty($importFeedsIds)) {
+            return;
+        }
+
+        $importFeeds = $this
+            ->getEntityManager()
+            ->getRepository('ImportFeed')
+            ->where(['id' => $importFeedsIds])
+            ->find();
+
+        if (!empty($attributesIds)) {
+            $attributes = $this
+                ->getEntityManager()
+                ->getRepository('Attribute')
+                ->where(['id' => $attributesIds])
+                ->find();
+        }
+
+        foreach ($collection as $entity) {
+            foreach ($importFeeds as $importFeed) {
+                if ($importFeed->get('id') === $entity->get('importFeedId')) {
+                    $entity->set('entity', $importFeed->getFeedField('entity'));
+                    $entity->set('allColumns', $importFeed->getFeedField('allColumns'));
+                    $entity->set('unusedColumns', $importFeed->getUnusedColumns());
+                    break 1;
+                }
+            }
+
+            $fieldType = $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'fields', $entity->get('name'), 'type'], 'varchar');
+            if ($entity->get('type') === 'Attribute' && !empty($attributesIds)) {
+                foreach ($attributes as $attribute) {
+                    if ($attribute->get('id') === $entity->get('attributeId')) {
+                        $entity->set('name', $attribute->get('name'));
+                        $entity->set('attributeCode', $attribute->get('code'));
+                        $entity->set('attributeType', $attribute->get('type'));
+                        $entity->set('attributeTypeValue', $attribute->get('typeValue'));
+                        $entity->set('attributeIsMultilang', $attribute->get('isMultilang'));
+                        $fieldType = $attribute->get('type');
+                        break 1;
+                    }
+                }
+            }
+
+            $this->prepareDefaultField($fieldType, $entity);
+        }
+    }
+
     public function prepareEntityForOutput(Entity $entity)
     {
         parent::prepareEntityForOutput($entity);
+
+        if ($entity->has('entity')) {
+            return;
+        }
 
         if (empty($importFeed = $entity->get('importFeed'))) {
             return;

@@ -62,30 +62,7 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
         },
 
         loadUnusedColumns() {
-            const allColumns = this.model.get('allColumns') || [];
-
-            if (!this.model.get('id') || allColumns === []) {
-                this.model.set('unusedColumns', allColumns);
-                this.reRender();
-                return;
-            }
-
-            this.ajaxGetRequest(`ImportFeed/${this.model.get('id')}/configuratorItems`).success(response => {
-                let usedColumns = [];
-                (response.list || []).forEach(item => {
-                    (item.column || []).forEach(column => {
-                        usedColumns.push(column);
-                    });
-                });
-
-                let unusedColumns = [];
-
-                allColumns.forEach(column => {
-                    if (!usedColumns.includes(column)) {
-                        unusedColumns.push(column);
-                    }
-                })
-
+            this.ajaxGetRequest(`ImportFeed/action/unusedColumns`, {importFeedId: this.model.get('id')}).success(unusedColumns => {
                 this.model.set('unusedColumns', unusedColumns);
                 this.reRender();
             });

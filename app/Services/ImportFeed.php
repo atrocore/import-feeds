@@ -46,6 +46,28 @@ class ImportFeed extends Base
         }
     }
 
+    public function getUnusedColumns(string $importFeedId): array
+    {
+        $importFeed = $this->getEntity($importFeedId);
+
+        $unusedColumns = $importFeed->get('allColumns');
+        if (empty($unusedColumns)) {
+            return [];
+        }
+
+        foreach ($importFeed->get('configuratorItems') as $item) {
+            $columns = $item->get('column');
+            foreach ($columns as $column) {
+                $offset = array_search($column, $unusedColumns);
+                if ($offset !== false) {
+                    unset($unusedColumns[$offset]);
+                }
+            }
+        }
+
+        return array_values($unusedColumns);
+    }
+
     public function parseFileColumns(\stdClass $payload): array
     {
         if (!property_exists($payload, 'attachmentId')) {
