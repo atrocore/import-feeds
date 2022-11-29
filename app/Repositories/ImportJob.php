@@ -35,6 +35,19 @@ class ImportJob extends Base
 {
     public const IMPORT_ERRORS_COLUMN = 'Import Errors';
 
+    public function getImportJobsViaScope(string $scope): array
+    {
+        return $this->getConnection()->createQueryBuilder()
+            ->distinct()
+            ->select('ij.id, ij.name')
+            ->from('import_job_log', 'ijl')
+            ->leftJoin('ijl', 'import_job', 'ij', 'ij.id=ijl.import_job_id AND ij.deleted=0')
+            ->where('ijl.entity_name=:entityName')->setParameter('entityName', $scope)
+            ->andWhere('ijl.deleted=0')
+            ->andWhere('ij.id IS NOT NULL')
+            ->fetchAllAssociative();
+    }
+
     protected function beforeSave(Entity $entity, array $options = [])
     {
         $importFeed = $entity->get('importFeed');

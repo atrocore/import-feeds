@@ -32,22 +32,10 @@ class ImportJob extends Base
 {
     public function getImportJobsViaScope(string $scope): array
     {
-        $logs = $this
+        return $this
             ->getEntityManager()
-            ->getRepository('ImportJobLog')
-            ->select(['importJobId', 'importJobName'])
-            ->where(['entityName' => $scope])
-            ->find();
-
-        $result = [];
-        foreach ($logs as $log) {
-            $result[$log->get('importJobId')] = [
-                'id'   => $log->get('importJobId'),
-                'name' => $log->get('importJobName'),
-            ];
-        }
-
-        return array_values($result);
+            ->getRepository('ImportJob')
+            ->getImportJobsViaScope($scope);
     }
 
     public function prepareCollectionForOutput(EntityCollection $collection, array $selectParams = []): void
