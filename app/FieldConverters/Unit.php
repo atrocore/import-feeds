@@ -161,12 +161,18 @@ class Unit extends FloatValue
 
     protected function validateUnit(?string $unit, ?string $entityType, array $config): bool
     {
-        if ($unit === null) {
-            throw new BadRequest(sprintf($this->translate('noSpecified', 'exceptions', 'ImportFeed'), 'unit'));
-        }
-
-        if ($entityType === null) {
-            throw new BadRequest(sprintf($this->translate('noSpecified', 'exceptions', 'ImportFeed'), 'entity'));
+        if ($unit === null || $entityType === null) {
+            $key = $entityType === null ? 'entity' : 'unit';
+            $message = str_replace(['{{name}}', '{{key}}'], [$config['name'], $key], $this->translate('noSpecifiedField', 'exceptions', 'ImportFeed'));
+            if (!empty($config['attributeId'])) {
+                $attributeName = $config['attributeId'];
+                $attribute = $this->getEntityManager()->getRepository('Attribute')->get($config['attributeId']);
+                if (!empty($attribute)) {
+                    $attributeName = $attribute->get('name');
+                }
+                $message = str_replace(['{{name}}', '{{key}}'], [$attributeName, $key], $this->translate('noSpecifiedAttribute', 'exceptions', 'ImportFeed'));
+            }
+            throw new BadRequest($message);
         }
 
         // prepare result
