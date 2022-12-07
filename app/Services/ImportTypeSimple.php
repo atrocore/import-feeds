@@ -494,7 +494,7 @@ class ImportTypeSimple extends QueueManagerBase
             $converter->convert($inputRow, $conf, $row);
         } catch (IgnoreAttribute $e) {
             if (in_array(implode('_', $pavWhere), $this->updatedPav)) {
-                throw new BadRequest($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'));
+                throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
             }
 
             $this->deletedPav[] = implode('_', $pavWhere);
@@ -509,7 +509,7 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         if (in_array(implode('_', $pavWhere), $this->deletedPav)) {
-            throw new BadRequest($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'));
+            throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
         }
 
         $this->updatedPav[] = implode('_', $pavWhere);
