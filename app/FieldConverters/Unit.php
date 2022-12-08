@@ -149,6 +149,10 @@ class Unit extends FloatValue
             'unit'  => $entity->has('defaultUnit') ? $entity->get('defaultUnit') : $old['unit']
         ];
 
+        if (empty($unitData['unit'])) {
+            throw new BadRequest('Default unit is required.');
+        }
+
         $entity->set('default', Json::encode($unitData));
     }
 

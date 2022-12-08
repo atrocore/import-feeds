@@ -152,6 +152,10 @@ class Currency extends FloatValue
             'currency' => $entity->has('defaultCurrency') ? $entity->get('defaultCurrency') : $old['currency']
         ];
 
+        if (empty($unitData['currency'])) {
+            throw new BadRequest('Default currency is required.');
+        }
+
         $entity->set('default', Json::encode($currencyData));
     }
 
