@@ -67,6 +67,7 @@
     "importNow": "Are you sure you want to import data from the selected source?"
   },
   "exceptions": {
+    "convertValidationPrefix": "Error for value '{{value}}' from column '{{column}}': ",
     "allColumnsEmpty": "Source Fields should be recognized.",
     "noFeedFileFound": "Feed file is missing.",
     "nullNoneMarkForNotLinkedAttributeSame": "Mark for a not linked attribute, empty value and null value should have unique values, only one value can be empty.",

@@ -65,6 +65,7 @@
     "importNow": "Möchten Sie wirklich die Daten aus der ausgewählten Quelle importieren?"
   },
   "exceptions": {
+    "convertValidationPrefix": "Fehler für den Wert '{{value}}' aus der Spalte '{{column}}': ",
     "allColumnsEmpty": "Quellfelder sollten erkannt werden.",
     "noFeedFileFound": "Feeddatei fehlt.",
     "nullNoneMarkForNotLinkedAttributeSame": "Markierung für ein nicht verknüpftes Attribut, leerer Wert und Nullwert sollten eindeutige Werte haben, nur ein Wert kann leer sein.",
