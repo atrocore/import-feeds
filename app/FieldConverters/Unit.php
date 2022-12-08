@@ -56,7 +56,7 @@ class Unit extends FloatValue
                     try {
                         $value = $this->prepareFloatValue((string)$parts[0], $config);
                     } catch (BadRequest $e) {
-                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'unit'));
+                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), (string)$parts[0], 'unit'));
                     }
 
                     if (isset($parts[1])) {
@@ -80,7 +80,7 @@ class Unit extends FloatValue
                     try {
                         $value = $this->prepareFloatValue((string)$cellValue, $config);
                     } catch (BadRequest $e) {
-                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'unit'));
+                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), (string)$cellValue, 'unit'));
                     }
                 }
             }
