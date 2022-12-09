@@ -188,7 +188,7 @@ class ImportTypeSimple extends QueueManagerBase
                                 }
                                 $message = str_replace(['{{value}}', '{{column}}'], [implode(', ', $values), implode(', ', $item['column'])], $message);
                             }
-                            throw new BadRequest($message . $e->getMessage());
+                            throw new BadRequest($message . lcfirst($e->getMessage()));
                         }
                         if (!empty($entity)) {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->prepareValue($restore, $entity, $item);
@@ -505,17 +505,6 @@ class ImportTypeSimple extends QueueManagerBase
 
         try {
             $converter->convert($inputRow, $conf, $row);
-        } catch (BadRequest $e) {
-            $message = '';
-            if (array_key_exists('column', $conf)) {
-                $message = $this->translate('convertValidationPrefix', 'exceptions', 'ImportFeed');
-                $values = [];
-                foreach ($conf['column'] as $column) {
-                    $values[] = array_key_exists($column, $row) ? $row[$column] : '';
-                }
-                $message = str_replace(['{{value}}', '{{column}}'], [implode(', ', $values), implode(', ', $conf['column'])], $message);
-            }
-            throw new BadRequest($message . $e->getMessage());
         } catch (IgnoreAttribute $e) {
             if (in_array(implode('_', $pavWhere), $this->updatedPav)) {
                 throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
@@ -530,6 +519,17 @@ class ImportTypeSimple extends QueueManagerBase
             } else {
                 return false;
             }
+        } catch (BadRequest $e) {
+            $message = '';
+            if (array_key_exists('column', $conf)) {
+                $message = $this->translate('convertValidationPrefix', 'exceptions', 'ImportFeed');
+                $values = [];
+                foreach ($conf['column'] as $column) {
+                    $values[] = array_key_exists($column, $row) ? $row[$column] : '';
+                }
+                $message = str_replace(['{{value}}', '{{column}}'], [implode(', ', $values), implode(', ', $conf['column'])], $message);
+            }
+            throw new BadRequest($message . lcfirst($e->getMessage()));
         }
 
         if (in_array(implode('_', $pavWhere), $this->deletedPav)) {
