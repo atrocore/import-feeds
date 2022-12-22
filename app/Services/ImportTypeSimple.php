@@ -41,13 +41,10 @@ use Treo\Core\Exceptions\NotModified;
 
 class ImportTypeSimple extends QueueManagerBase
 {
-    private array $services = [];
     private array $restore = [];
     private array $updatedPav = [];
     private array $deletedPav = [];
     private int $iterations = 0;
-    private array $channels = [];
-    private array $products = [];
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
@@ -444,7 +441,7 @@ class ImportTypeSimple extends QueueManagerBase
         if ($entity->getEntityType() === 'Product') {
             $product = $entity;
         } elseif ($entity->getEntityType() === 'ProductAttributeValue') {
-            $product = $this->getProductViaId((string)$entity->get('productId'));
+            $product = $this->getEntityManager()->getEntity('Product', $entity->get('productId'));
             if (empty($product)) {
                 return true;
             }
@@ -468,15 +465,6 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return $result;
-    }
-
-    protected function getProductViaId(string $productId): ?Entity
-    {
-        if (!isset($this->products[$productId])) {
-            $this->products[$productId] = $this->getEntityManager()->getEntity('Product', $productId);
-        }
-
-        return $this->products[$productId];
     }
 
     protected function importAttribute(Entity $product, array $data): bool
@@ -559,7 +547,11 @@ class ImportTypeSimple extends QueueManagerBase
             }
 
             if (property_exists($inputRow, 'channelId')) {
-                $inputRow->channelName = $this->getChannel($inputRow->channelId)->get('name');
+                $channel = $this->getEntityManager()->getEntity('Channel', $inputRow->channelId);
+                if (empty($channel)) {
+                    throw new BadRequest("No such channel '$inputRow->channelId'.");
+                }
+                $inputRow->channelName = $channel->get('name');
             }
 
             $pavEntity = $service->createEntity($inputRow);
@@ -579,61 +571,14 @@ class ImportTypeSimple extends QueueManagerBase
         return true;
     }
 
-    protected function isFileValid(Entity $feed, Attachment $file): bool
-    {
-        $feedFile = $feed->get('file');
-        if (empty($feedFile)) {
-            throw new BadRequest($this->translate('noFeedFileFound', 'exceptions', 'ImportFeed'));
-        }
-
-        // prepare settings
-        $delimiter = $feed->getDelimiter();
-        $enclosure = $feed->getEnclosure();
-        $isFileHeaderRow = $feed->isFileHeaderRow();
-
-        $fileParser = $this->getService('ImportFeed')->getFileParser($feed->getFeedField('format'));
-
-        $fileColumns = $fileParser->getFileColumns($file, $delimiter, $enclosure, $isFileHeaderRow);
-
-        foreach ($feed->get('configuratorItems') as $item) {
-            $columns = $item->get('column');
-            if (empty($columns) || !is_array($columns)) {
-                continue 1;
-            }
-            foreach ($columns as $column) {
-                if (!in_array($column, $fileColumns)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
     protected function getService(string $name): Base
     {
-        if (!isset($this->services[$name])) {
-            $this->services[$name] = $this->getContainer()->get('serviceFactory')->create($name);
-        }
-
-        return $this->services[$name];
+        return $this->getContainer()->get('serviceFactory')->create($name);
     }
 
     protected function getMetadata(): Metadata
     {
         return $this->getContainer()->get('metadata');
-    }
-
-    protected function getChannel(string $channelId): Entity
-    {
-        if (!isset($this->channels[$channelId])) {
-            $this->channels[$channelId] = $this->getEntityManager()->getEntity('Channel', $channelId);
-            if (empty($this->channels[$channelId])) {
-                throw new BadRequest("No such channel '$channelId'.");
-            }
-        }
-
-        return $this->channels[$channelId];
     }
 
     protected function getEventManager(): Manager
