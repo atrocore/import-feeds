@@ -343,6 +343,12 @@ class ImportTypeSimple extends QueueManagerBase
 
         $fileParser = $this->getService('ImportFeed')->getFileParser($data['fileFormat']);
 
+        // for getting header row
+        $includedHeaderRow = $data['offset'] === 1 && !empty($data['isFileHeaderRow']);
+        if ($includedHeaderRow) {
+            $data['offset'] = 0;
+        }
+
         $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
         if (empty($fileData)) {
             throw new BadRequest('File is empty.');
@@ -353,7 +359,11 @@ class ImportTypeSimple extends QueueManagerBase
         if (in_array($data['fileFormat'], ['JSON', 'XML'])) {
             $result = $fileData;
         } else {
-            $allColumns = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow']);
+            $allColumns = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
+            if ($includedHeaderRow) {
+                $first = array_shift($fileData);
+            }
+
             foreach ($fileData as $line => $fileLine) {
                 foreach ($fileLine as $k => $v) {
                     $result[$line][$allColumns[$k]] = $v;

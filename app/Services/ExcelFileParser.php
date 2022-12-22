@@ -41,6 +41,8 @@ class ExcelFileParser extends CsvFileParser
             $data = [];
         }
 
+        unset($reader);
+
         $result = [];
         foreach ($data as $k => $row) {
             if ($k < $offset) {
@@ -48,6 +50,8 @@ class ExcelFileParser extends CsvFileParser
             }
             $result[] = $row;
         }
+
+        unset($data);
 
         if (!empty($limit)) {
             $limited = [];
@@ -58,6 +62,7 @@ class ExcelFileParser extends CsvFileParser
                 $limited[] = $v;
             }
             $result = $limited;
+            unset($limited);
         }
 
         return $result;

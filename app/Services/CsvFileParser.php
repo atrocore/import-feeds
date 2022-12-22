@@ -29,13 +29,15 @@ use Espo\Entities\Attachment;
 
 class CsvFileParser extends HasContainer
 {
-    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true): array
+    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null): array
     {
         // prepare result
         $result = [];
 
         // get data
-        $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
+        if ($data === null) {
+            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
+        }
 
         if (isset($data[0])) {
             if ($isFileHeaderRow && isset($data[1])) {
