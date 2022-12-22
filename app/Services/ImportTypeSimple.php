@@ -459,6 +459,14 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
+        /**
+         * @todo deprecated. Kept for backward compatibility
+         */
+        if (method_exists($this->getEntityManager()->getRepository('Product'), 'updateInconsistentAttributes')) {
+            $product->set('hasInconsistentAttributes', true);
+            $this->getEntityManager()->getRepository('Product')->updateInconsistentAttributes($product);
+        }
+
         return $result;
     }
 
