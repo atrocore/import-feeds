@@ -101,7 +101,9 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         while (!empty($inputData = $this->getInputData($data))) {
-            foreach ($inputData as $row) {
+            while (!empty($inputData)) {
+                $row = array_shift($inputData);
+
                 // push to imported file
                 if (!$hasAttachment) {
                     if (empty($firstRow)) {
@@ -438,20 +440,16 @@ class ImportTypeSimple extends QueueManagerBase
 
     protected function importAttributes(array $attributes, Entity $entity): bool
     {
-        if ($entity->getEntityType() === 'Product') {
-            $product = $entity;
-        } elseif ($entity->getEntityType() === 'ProductAttributeValue') {
-            $product = $this->getEntityManager()->getEntity('Product', $entity->get('productId'));
-            if (empty($product)) {
-                return true;
-            }
-        } else {
+        if ($entity->getEntityType() !== 'Product') {
             return true;
         }
 
+        $this->updatedPav = [];
+        $this->deletedPav = [];
+
         $result = false;
         foreach ($attributes as $attribute) {
-            if ($this->importAttribute($product, $attribute)) {
+            if ($this->importAttribute($entity, $attribute)) {
                 $result = true;
             }
         }
@@ -460,8 +458,8 @@ class ImportTypeSimple extends QueueManagerBase
          * @todo deprecated. Kept for backward compatibility
          */
         if (method_exists($this->getEntityManager()->getRepository('Product'), 'updateInconsistentAttributes')) {
-            $product->set('hasInconsistentAttributes', true);
-            $this->getEntityManager()->getRepository('Product')->updateInconsistentAttributes($product);
+            $entity->set('hasInconsistentAttributes', true);
+            $this->getEntityManager()->getRepository('Product')->updateInconsistentAttributes($entity);
         }
 
         return $result;
