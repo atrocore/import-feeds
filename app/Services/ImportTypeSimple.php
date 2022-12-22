@@ -449,9 +449,6 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        $product->set('hasInconsistentAttributes', true);
-        $this->getEntityManager()->getRepository($product->getEntityType())->updateInconsistentAttributes($product);
-
         return $result;
     }
 
