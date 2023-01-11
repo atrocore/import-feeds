@@ -25,6 +25,9 @@
       "type": "enum",
       "required": true,
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "simple"
+      ],
       "options": [
         "simple"
       ],
@@ -64,6 +67,11 @@
       "filterDisabled": true,
       "required": false,
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        ",",
+        ";",
+        "\\t"
+      ],
       "options": [
         ",",
         ";",
@@ -78,6 +86,12 @@
       "dataField": true,
       "filterDisabled": true,
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "CSV",
+        "Excel",
+        "JSON",
+        "XML"
+      ],
       "options": [
         "CSV",
         "Excel",
@@ -93,6 +107,10 @@
       "filterDisabled": true,
       "required": false,
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "doubleQuote",
+        "singleQuote"
+      ],
       "options": [
         "doubleQuote",
         "singleQuote"
@@ -103,6 +121,15 @@
       "type": "enum",
       "required": false,
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "create",
+        "update",
+        "delete",
+        "create_update",
+        "create_delete",
+        "update_delete",
+        "create_update_delete"
+      ],
       "options": [
         "create",
         "update",

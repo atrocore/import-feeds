@@ -38,6 +38,10 @@
       "type": "enum",
       "required": false,
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "Field",
+        "Attribute"
+      ],
       "options": [
         "Field",
         "Attribute"
@@ -77,6 +81,10 @@
     "scope": {
       "type": "enum",
       "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "Global",
+        "Channel"
+      ],
       "options": [
         "Global",
         "Channel"

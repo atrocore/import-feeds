@@ -11,6 +11,12 @@
     },
     "type": {
       "type": "enum",
+      "optionsIds": [
+        "create",
+        "update",
+        "delete",
+        "error"
+      ],
       "options": [
         "create",
         "update",
