@@ -54,7 +54,7 @@
       "layoutDetailSmallDisabled": false,
       "layoutListDisabled": false,
       "layoutListSmallDisabled": false,
-      "filterDisabled": true
+      "filterDisabled": false
     },
     "start": {
       "notNull": false,
