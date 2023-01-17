@@ -47,6 +47,15 @@
       "default": "Pending",
       "readOnly": true
     },
+    "message": {
+      "type": "varchar",
+      "readOnly": true,
+      "layoutDetailDisabled": false,
+      "layoutDetailSmallDisabled": false,
+      "layoutListDisabled": false,
+      "layoutListSmallDisabled": false,
+      "filterDisabled": true
+    },
     "start": {
       "notNull": false,
       "type": "datetime",
