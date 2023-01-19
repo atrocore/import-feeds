@@ -49,7 +49,7 @@
       "view": "import:views/import-job/fields/state-message"
     },
     "message": {
-      "type": "varchar",
+      "type": "text",
       "readOnly": true,
       "layoutDetailDisabled": false,
       "layoutDetailSmallDisabled": false,

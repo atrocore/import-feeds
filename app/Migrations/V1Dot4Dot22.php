@@ -28,7 +28,7 @@ class V1Dot4Dot22 extends Base
 {
     public function up(): void
     {
-        $this->execute("ALTER TABLE import_job ADD message VARCHAR(255) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`;");
+        $this->execute("ALTER TABLE import_job ADD message TEXT DEFAULT NULL COLLATE `utf8mb4_unicode_ci`;");
     }
 
     public function down(): void
