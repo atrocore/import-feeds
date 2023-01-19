@@ -45,7 +45,8 @@
         "DDDDDD"
       ],
       "default": "Pending",
-      "readOnly": true
+      "readOnly": true,
+      "view": "import:views/import-job/fields/state-message"
     },
     "message": {
       "type": "varchar",
