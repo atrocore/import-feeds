@@ -181,7 +181,7 @@ class LinkMultiple extends Varchar
             }
 
             if ($value !== null) {
-                $values = explode($config['delimiter'], $value);
+                $values = explode($config['delimiter'], (string)$value);
 
                 foreach ($values as $value) {
                     $result[] = [$value];
