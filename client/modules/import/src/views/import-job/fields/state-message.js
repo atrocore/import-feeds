@@ -22,10 +22,9 @@ Espo.define('import:views/import-job/fields/state-message', 'views/fields/colore
 
         afterRender() {
             Dep.prototype.afterRender.call(this);
-            if (this.model.get('message'))   {
+            if (this.mode === 'list' && this.model.get('message')) {
                 this.$el.attr('title', this.model.get('message'));
             }
-           
         }
     })
 );
