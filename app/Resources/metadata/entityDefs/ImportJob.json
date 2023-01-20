@@ -45,7 +45,17 @@
         "DDDDDD"
       ],
       "default": "Pending",
-      "readOnly": true
+      "readOnly": true,
+      "view": "import:views/import-job/fields/state-message"
+    },
+    "message": {
+      "type": "text",
+      "readOnly": true,
+      "layoutDetailDisabled": false,
+      "layoutDetailSmallDisabled": false,
+      "layoutListDisabled": false,
+      "layoutListSmallDisabled": false,
+      "filterDisabled": false
     },
     "start": {
       "notNull": false,

@@ -3,6 +3,7 @@
     "importFeed": "Импортный фид",
     "state": "Статус",
     "start": "Начало",
+    "message": "Сообщение",
     "end": "Окончание",
     "createdCount": "Создано",
     "updatedCount": "Обновлено",

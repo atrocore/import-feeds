@@ -28,6 +28,8 @@ use Espo\ORM\EntityCollection;
 
 class ImportJob extends Base
 {
+    protected $mandatorySelectAttributeList = ['message'];
+    
     public function getImportJobsViaScope(string $scope): array
     {
         return $this

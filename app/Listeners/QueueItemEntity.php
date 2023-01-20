@@ -53,6 +53,7 @@ class QueueItemEntity extends AbstractListener
 
         if ($importJob->get('state') !== $entity->get('status')) {
             $importJob->set('state', $entity->get('status'));
+            $importJob->set('message', $entity->get('message'));
             $this->getEntityManager()->saveEntity($importJob);
         }
 
