@@ -2,7 +2,7 @@
   "fields": {
     "importFeed": "Import Feed",
     "state": "State",
-    "massage": "Message",
+    "message": "Message",
     "start": "Start",
     "end": "End",
     "createdCount": "Created",
