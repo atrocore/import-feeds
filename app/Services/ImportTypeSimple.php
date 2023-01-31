@@ -446,7 +446,7 @@ class ImportTypeSimple extends QueueManagerBase
     protected function importAttributes(array $attributes, Entity $entity): bool
     {
         if ($entity->getEntityType() !== 'Product') {
-            return true;
+            return false;
         }
 
         $this->updatedPav = [];
