@@ -79,10 +79,11 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         $scope = $data['data']['entity'];
+        $entityService = $this->getService($scope);
 
         $ids = [];
 
-        $updatedIds = [];
+        $updatedRowsHashes = [];
 
         // prepare file row
         $fileRow = empty($data['offset']) ? 0 : (int)$data['offset'];
@@ -116,17 +117,15 @@ class ImportTypeSimple extends QueueManagerBase
                 $fileRow++;
 
                 try {
-                    $entity = $this->findExistEntity($this->getService($scope)->getEntityType(), $data['data'], $row);
-                    $id = null;
+                    // prepare where for finding existed entity
+                    $where = $this->prepareWhere($entityService->getEntityType(), $data['data'], $row);
 
-                    if (!empty($entity)) {
-                        $id = $entity->get('id');
-
-                        if (self::isDeleteAction($data['action'])) {
-                            $ids[] = $id;
-                        }
-
-                        if (in_array($id, $updatedIds)) {
+                    /**
+                     * Check if such row is already processed
+                     */
+                    if (!empty($where)) {
+                        $hash = md5(json_encode($where));
+                        if (in_array($hash, $updatedRowsHashes)) {
                             switch ($data['repeatProcessing']) {
                                 case 'repeat':
                                     break;
@@ -136,6 +135,16 @@ class ImportTypeSimple extends QueueManagerBase
                                 default:
                                     throw new BadRequest($this->translate('alreadyProceeded', 'exceptions', 'ImportFeed'));
                             }
+                        } else {
+                            $updatedRowsHashes[] = $hash;
+                        }
+                    }
+
+                    $id = null;
+                    if (!empty($entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $row))) {
+                        $id = $entity->get('id');
+                        if (self::isDeleteAction($data['action'])) {
+                            $ids[] = $id;
                         }
                     }
                 } catch (\Throwable $e) {
@@ -201,7 +210,7 @@ class ImportTypeSimple extends QueueManagerBase
                     }
 
                     if (empty($id)) {
-                        $updatedEntity = $this->getService($scope)->createEntity($input);
+                        $updatedEntity = $entityService->createEntity($input);
 
                         if (self::isDeleteAction($data['action'])) {
                             $ids[] = $updatedEntity->get('id');
@@ -212,12 +221,10 @@ class ImportTypeSimple extends QueueManagerBase
                     } else {
                         $notModified = true;
                         try {
-                            $updatedEntity = $this->getService($scope)->updateEntity($id, $input);
-                            $updatedIds[] = $id;
+                            $updatedEntity = $entityService->updateEntity($id, $input);
                             $this->saveRestoreRow('updated', $scope, [$id => $restore]);
                             $notModified = false;
                         } catch (NotModified $e) {
-                            $updatedIds[] = $id;
                         }
 
                         if ($this->importAttributes($attributes, $entity)) {
@@ -263,7 +270,7 @@ class ImportTypeSimple extends QueueManagerBase
             if (!empty($toDeleteRecords) && count($toDeleteRecords) > 0) {
                 foreach ($toDeleteRecords as $record) {
                     try {
-                        if ($this->getService($scope)->deleteEntity($record->get('id'))) {
+                        if ($entityService->deleteEntity($record->get('id'))) {
                             $this->log($scope, $importJob->get('id'), 'delete', null, $record->get('id'));
                         }
                     } catch (\Throwable $e) {
@@ -398,12 +405,11 @@ class ImportTypeSimple extends QueueManagerBase
         return $result;
     }
 
-    protected function findExistEntity(string $entityType, array $configuration, array $row): ?Entity
+    protected function prepareWhere(string $entityType, array $configuration, array $row): array
     {
         $where = [];
         foreach ($configuration['configuration'] as $item) {
             if (in_array($item['name'], $configuration['idField'])) {
-                $fields[] = $this->translate($item['name'], 'fields', $entityType);
                 $this
                     ->getService('ImportConfiguratorItem')
                     ->getFieldConverter($this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar'))
@@ -418,8 +424,20 @@ class ImportTypeSimple extends QueueManagerBase
             unset($where['channelId']);
         }
 
+        return $where;
+    }
+
+    protected function findExistEntity(string $entityType, array $configuration, array $where): ?Entity
+    {
         if (empty($where)) {
             return null;
+        }
+
+        $fields = [];
+        foreach ($configuration['configuration'] as $item) {
+            if (in_array($item['name'], $configuration['idField'])) {
+                $fields[] = $this->translate($item['name'], 'fields', $entityType);
+            }
         }
 
         if ($this->getEntityManager()->getRepository($entityType)->where($where)->count() > 1) {
