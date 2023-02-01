@@ -307,8 +307,10 @@ class ImportTypeSimple extends QueueManagerBase
         $log = $this->getEntityManager()->getEntity('ImportJobLog');
         $log->set('name', $row);
         $log->set('entityName', $entityName);
+        $log->set('entityId', '');
         $log->set('importJobId', $importJobId);
         $log->set('type', $type);
+        $log->set('rowNumber', 0);
 
         switch ($type) {
             case 'create':

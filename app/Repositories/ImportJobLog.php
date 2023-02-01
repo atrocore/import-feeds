@@ -28,4 +28,21 @@ use Espo\ORM\Entity;
 
 class ImportJobLog extends Base
 {
+    protected function beforeSave(Entity $entity, array $options = [])
+    {
+        if ($entity->get('entityName') === null) {
+            $entity->set('entityName', '');
+        }
+        if ($entity->get('entityId') === null) {
+            $entity->set('entityId', '');
+        }
+        if ($entity->get('type') === null) {
+            $entity->set('type', '');
+        }
+        if ($entity->get('rowNumber') === null) {
+            $entity->set('rowNumber', 0);
+        }
+
+        parent::beforeSave($entity, $options);
+    }
 }

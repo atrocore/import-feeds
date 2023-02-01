@@ -11,6 +11,7 @@
     },
     "type": {
       "type": "enum",
+      "len": 10,
       "optionsIds": [
         "create",
         "update",
@@ -28,10 +29,12 @@
     },
     "entityName": {
       "type": "varchar",
+      "len": 100,
       "readOnly": true
     },
     "entityId": {
       "type": "varchar",
+      "len": 30,
       "readOnly": true
     },
     "message": {
@@ -89,6 +92,16 @@
     "sortBy": "rowNumber",
     "asc": true,
     "fullTextSearch": false
+  },
+  "uniqueIndexes": {
+    "unique_job_log": [
+      "import_job_id",
+      "entity_id",
+      "type",
+      "entity_name",
+      "row_number",
+      "deleted"
+    ]
   },
   "indexes": {
     "name": {
