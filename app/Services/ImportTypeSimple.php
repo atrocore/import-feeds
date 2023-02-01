@@ -371,6 +371,7 @@ class ImportTypeSimple extends QueueManagerBase
         $result = [];
 
         if (in_array($data['fileFormat'], ['JSON', 'XML'])) {
+            $this->createConvertedFile($data, $fileData);
             $result = $fileData;
         } else {
             $allColumns = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
@@ -600,6 +601,41 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return true;
+    }
+
+    protected function createConvertedFile(array $data, array $rows): void
+    {
+        if (empty($rows[0]) || empty($data['data']['importJobId'])) {
+            return;
+        }
+
+        $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($data['data']['importJobId']);
+        if (empty($importJob)) {
+            return;
+        }
+
+        $csvData = [array_keys($rows[0])];
+        foreach ($rows as $row) {
+            $csvData[] = array_values($row);
+        }
+
+        $nameParts = explode('.', (string)$importJob->get('attachmentName'));
+        $ext = array_pop($nameParts);
+
+        $attachmentService = $this->getService('Attachment');
+
+        $inputData = new \stdClass();
+        $inputData->name = implode('.', $nameParts) . '.csv';
+        $inputData->contents = \Import\Core\Utils\Util::generateCsvContents($csvData);
+        $inputData->type = 'text/csv';
+        $inputData->relatedType = 'ImportJob';
+        $inputData->field = 'convertedFile';
+        $inputData->role = 'Attachment';
+
+        $attachment = $attachmentService->createEntity($inputData);
+
+        $importJob->set('convertedFileId', $attachment->get('id'));
+        $this->getEntityManager()->saveEntity($importJob, ['skipAll' => true]);
     }
 
     protected function getService(string $name): Base
