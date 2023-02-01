@@ -10,6 +10,7 @@
     "deletedCount": "Gelöscht",
     "errorsCount": "Fehler",
     "attachment": "Importierte Datei",
+    "convertedFile": "Konvertierte File",
     "errorsAttachment": "Fehlerdatei",
     "importJobLogs": "Fehlerlogs"
   },

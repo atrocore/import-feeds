@@ -1,7 +1,7 @@
 {
   "fields": {
     "adapter": "Adapter",
-    "proceedAlreadyProceeded": "Wiederholte Datensatzbearbeitung erlauben",
+    "repeatProcessing": "Wiederholte Datensatzbearbeitung",
     "connection": "Verbindung",
     "format": "Format",
     "entity": "Entität",
@@ -101,7 +101,15 @@
     "noEntityFound": "Kein Datensatz für die zugehörige Entität '%s' gefunden.",
     "listSeparatorNotAllowed": "Die Verwendung des Trennzeichens für Listenwerte im Wert für das Feld '%s' ist nicht erlaubt."
   },
+  "options": {
+    "repeatProcessing": {
+      "mistake": "Fehler bei wiederholten Datensatzverarbeitung erzeugen",
+      "repeat": "Wiederholte Datensatzverarbeitung zulassen",
+      "skip": "Wiederholte Datensätze überspringen"
+    }
+  },
   "tooltips": {
-    "file": "Diese Datei wird für die Konfiguration verwendet. Es kann eine Beispieldatei oder die zu importierende Datei sein."
+    "file": "Diese Datei wird für die Konfiguration verwendet. Es kann eine Beispieldatei oder die zu importierende Datei sein.",
+    "repeatProcessing": "Die Datensatzwiederholung wird durch Kennungen im Konfigurator bestimmt."
   }
 }

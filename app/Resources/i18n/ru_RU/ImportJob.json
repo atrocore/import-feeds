@@ -10,6 +10,7 @@
     "deletedCount": "Удалено",
     "errorsCount": "Ошибка",
     "attachment": "Файл импорта",
+    "convertedFile": "Конвертированный файл импорта",
     "errorsAttachment": "Файл ошибок",
     "importJobLogs": "Лог ошибок"
   },

@@ -210,7 +210,7 @@ class ImportJob extends Base
 
         $inputData = new \stdClass();
         $inputData->name = "{$name}.csv";
-        $inputData->contents = $this->generateCsvContents($errorsRows, $feed->getDelimiter(), $feed->getEnclosure());
+        $inputData->contents = \Import\Core\Utils\Util::generateCsvContents($errorsRows, $feed->getDelimiter(), $feed->getEnclosure());
         $inputData->type = 'text/csv';
         $inputData->relatedType = 'ImportJob';
         $inputData->field = 'errorsAttachment';
@@ -251,27 +251,6 @@ class ImportJob extends Base
         $this->getEntityManager()->saveEntity($importJob, ['skipAll' => true]);
 
         return true;
-    }
-
-    protected function generateCsvContents($data, $delimiter, $enclosure): string
-    {
-        // prepare file name
-        $fileName = 'data/tmp_import_file.csv';
-
-        // create file
-        $fp = fopen($fileName, 'w');
-        foreach ($data as $fields) {
-            fputcsv($fp, $fields, $delimiter, $enclosure);
-        }
-        fclose($fp);
-
-        // get contents
-        $contents = file_get_contents($fileName);
-
-        // delete file
-        unlink($fileName);
-
-        return $contents;
     }
 
     public function getQmJob(string $id): ?Entity

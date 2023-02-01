@@ -20,29 +20,28 @@
 
 declare(strict_types=1);
 
-namespace Import\Repositories;
+namespace Import\Core\Utils;
 
-use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Templates\Repositories\Base;
-use Espo\ORM\Entity;
-
-class ImportJobLog extends Base
+class Util
 {
-    protected function beforeSave(Entity $entity, array $options = [])
+    public static function generateCsvContents(array $data, string $delimiter = ',', string $enclosure = '"'): string
     {
-        if ($entity->get('entityName') === null) {
-            $entity->set('entityName', '');
-        }
-        if ($entity->get('entityId') === null) {
-            $entity->set('entityId', '');
-        }
-        if ($entity->get('type') === null) {
-            $entity->set('type', '');
-        }
-        if ($entity->get('rowNumber') === null) {
-            $entity->set('rowNumber', 0);
-        }
+        // prepare file name
+        $fileName = 'data/tmp_' . \Espo\Core\Utils\Util::generateId() . '.csv';
 
-        parent::beforeSave($entity, $options);
+        // create file
+        $fp = fopen($fileName, 'w');
+        foreach ($data as $fields) {
+            fputcsv($fp, $fields, $delimiter, $enclosure);
+        }
+        fclose($fp);
+
+        // get contents
+        $contents = file_get_contents($fileName);
+
+        // delete file
+        unlink($fileName);
+
+        return $contents;
     }
 }
