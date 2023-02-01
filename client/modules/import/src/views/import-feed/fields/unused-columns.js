@@ -47,6 +47,14 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
         afterRender() {
             Dep.prototype.afterRender.call(this);
 
+            if (this.mode === 'detail') {
+                if (this.$el.height() > 300) {
+                    this.$el.css('max-height', '300px');
+                    this.$el.css('overflow-x', 'hidden');
+                    this.$el.css('overflow-y', 'scroll');
+                }
+            }
+
             if (this.mode === 'detail' && ['JSON', 'XML'].includes(this.model.get('format'))) {
                 let items = [];
                 (this.model.get(this.name) || []).forEach(column => {
