@@ -95,6 +95,11 @@
       "noAsset": true,
       "readOnly": true
     },
+    "convertedFile": {
+      "type": "file",
+      "noAsset": true,
+      "readOnly": true
+    },
     "errorsAttachment": {
       "type": "file",
       "noAsset": true,
@@ -148,6 +153,11 @@
       "entity": "ImportFeed"
     },
     "attachment": {
+      "type": "belongsTo",
+      "entity": "Attachment",
+      "skipOrmDefs": true
+    },
+    "convertedFile": {
       "type": "belongsTo",
       "entity": "Attachment",
       "skipOrmDefs": true

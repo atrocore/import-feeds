@@ -60,8 +60,10 @@ class V1Dot4Dot26 extends Base
         $this->getPDO()->exec("ALTER TABLE import_job_log CHANGE entity_name entity_name VARCHAR(100) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
         $this->getPDO()->exec("ALTER TABLE import_job_log CHANGE entity_id entity_id VARCHAR(30) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
 
+        $this->getPDO()->exec("ALTER TABLE import_job ADD converted_file_id VARCHAR(24) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
+
         $this->getPDO()->exec(
-            "CREATE UNIQUE INDEX UNIQ_58FA52B877D1F4B18CDE572916EFC72D81257D5DC6B6CC86EB3B4E33 ON import_job_log (import_job_id, type, entity_name, entity_id, `row_number`, deleted)"
+            "CREATE UNIQUE INDEX UNIQ_58FA52B877D1F4B181257D5D8CDE572916EFC72DC6B6CC86EB3B4E33 ON import_job_log (import_job_id, entity_id, type, entity_name, `row_number`, deleted)"
         );
     }
 
