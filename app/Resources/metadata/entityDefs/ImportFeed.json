@@ -19,7 +19,21 @@
       "type": "bool"
     },
     "proceedAlreadyProceeded": {
-      "type": "bool"
+      "type": "enum",
+      "required": true,
+      "prohibitedEmptyValue": true,
+      "optionsIds": [
+        "mistake",
+        "repeat",
+        "skip"
+      ],
+      "options": [
+        "mistake",
+        "repeat",
+        "skip"
+      ],
+      "default": "mistake",
+      "tooltip": true
     },
     "type": {
       "type": "enum",
