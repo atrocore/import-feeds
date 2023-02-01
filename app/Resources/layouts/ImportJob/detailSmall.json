@@ -21,7 +21,9 @@
         {
           "name": "attachment"
         },
-        false
+        {
+          "name": "convertedFile"
+        }
       ],
       [
         {

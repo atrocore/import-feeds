@@ -9,7 +9,8 @@
     "updatedCount": "Updated",
     "deletedCount": "Deleted",
     "errorsCount": "Errors",
-    "attachment": "Imported file",
+    "attachment": "Imported File",
+    "convertedFile": "Converted File",
     "errorsAttachment": "Error file",
     "importJobLogs": "Error Logs"
   },
