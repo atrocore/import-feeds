@@ -120,6 +120,9 @@ class ImportJob extends Base
             $importFeedWithSuchAttachment = $this->where(['fileId' => $attachment->get('id')])->findOne();
             if (empty($importFeedWithSuchAttachment)) {
                 $this->getEntityManager()->removeEntity($attachment);
+                if (!empty($convertedFile = $entity->get('convertedFile'))) {
+                    $this->getEntityManager()->removeEntity($convertedFile);
+                }
             }
         }
 
