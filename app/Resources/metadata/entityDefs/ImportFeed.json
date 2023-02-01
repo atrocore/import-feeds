@@ -18,7 +18,7 @@
     "isActive": {
       "type": "bool"
     },
-    "proceedAlreadyProceeded": {
+    "repeatProcessing": {
       "type": "enum",
       "required": true,
       "prohibitedEmptyValue": true,

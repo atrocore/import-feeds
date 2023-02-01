@@ -37,6 +37,8 @@ class V1Dot4Dot26 extends Base
         foreach ($ids as $id) {
             $this->getPDO()->exec("UPDATE import_feed SET proceed_already_proceeded='repeat' WHERE id='$id'");
         }
+
+        $this->execute("ALTER TABLE import_feed RENAME COLUMN proceed_already_proceeded TO repeat_processing");
     }
 
     public function down(): void

@@ -51,18 +51,18 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         $result = [
-            "name"                    => $feed->get('name'),
-            "offset"                  => $feed->isFileHeaderRow() ? 1 : 0,
-            "limit"                   => \PHP_INT_MAX,
-            "fileFormat"              => $feed->getFeedField('format'),
-            "delimiter"               => $feed->getDelimiter(),
-            "enclosure"               => $feed->getEnclosure(),
-            "isFileHeaderRow"         => $feed->isFileHeaderRow(),
-            "adapter"                 => $feed->getFeedField('adapter'),
-            "action"                  => $feed->get('fileDataAction'),
-            "attachmentId"            => $attachmentId,
-            "data"                    => $feed->getConfiguratorData(),
-            "proceedAlreadyProceeded" => !empty($feed->get("proceedAlreadyProceeded")) ? 1 : 0
+            "name"             => $feed->get('name'),
+            "offset"           => $feed->isFileHeaderRow() ? 1 : 0,
+            "limit"            => \PHP_INT_MAX,
+            "fileFormat"       => $feed->getFeedField('format'),
+            "delimiter"        => $feed->getDelimiter(),
+            "enclosure"        => $feed->getEnclosure(),
+            "isFileHeaderRow"  => $feed->isFileHeaderRow(),
+            "adapter"          => $feed->getFeedField('adapter'),
+            "action"           => $feed->get('fileDataAction'),
+            "attachmentId"     => $attachmentId,
+            "data"             => $feed->getConfiguratorData(),
+            "repeatProcessing" => $feed->get("repeatProcessing")
         ];
 
         return $this
@@ -126,8 +126,16 @@ class ImportTypeSimple extends QueueManagerBase
                             $ids[] = $id;
                         }
 
-                        if (empty($data['proceedAlreadyProceeded']) && in_array($id, $updatedIds)) {
-                            throw new BadRequest($this->translate('alreadyProceeded', 'exceptions', 'ImportFeed'));
+                        if (in_array($id, $updatedIds)) {
+                            switch ($data['repeatProcessing']) {
+                                case 'repeat':
+                                    break;
+                                case 'skip':
+                                    continue 2;
+                                    break;
+                                default:
+                                    throw new BadRequest($this->translate('alreadyProceeded', 'exceptions', 'ImportFeed'));
+                            }
                         }
                     }
                 } catch (\Throwable $e) {

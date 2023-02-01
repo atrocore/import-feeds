@@ -1,7 +1,7 @@
 {
   "fields": {
     "adapter": "Adapter",
-    "proceedAlreadyProceeded": "Repeated data record processing",
+    "repeatProcessing": "Repeated data record processing",
     "connection": "Connection",
     "format": "Format",
     "entity": "Entity",
@@ -104,7 +104,7 @@
     "listSeparatorNotAllowed": "The usage of the List Value Separator in the value for the field '%s' is not allowed."
   },
   "options": {
-    "proceedAlreadyProceeded": {
+    "repeatProcessing": {
       "mistake": "Generate mistake for repeated records",
       "repeat": "Allow repeated data record processing",
       "skip": "Skip repeated data records"
@@ -112,6 +112,6 @@
   },
   "tooltips": {
     "file": "This file will be used to create the configuration. It could be an example file or file to be imported.",
-    "proceedAlreadyProceeded": "Data record repeating is determined by identifiers in the configurator."
+    "repeatProcessing": "Data record repeating is determined by identifiers in the configurator."
   }
 }
