@@ -141,7 +141,7 @@ class ImportTypeSimple extends QueueManagerBase
                     }
 
                     $id = null;
-                    if (!empty($entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $row))) {
+                    if (!empty($entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $where))) {
                         $id = $entity->get('id');
                         if (self::isDeleteAction($data['action'])) {
                             $ids[] = $id;
