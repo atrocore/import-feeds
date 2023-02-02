@@ -68,7 +68,8 @@ class Integer extends Varchar
         $checkValueUnStrict = number_format((float)$intValue, 0, $decimalMark, '');
 
         if (!in_array($value, [$checkValueStrict, $checkValueUnStrict])) {
-            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'integer'));
+            $type = $this->translate('int', 'fieldTypes', 'Admin');
+            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
         }
 
         return (int)$intValue;
