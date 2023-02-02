@@ -97,7 +97,7 @@
     "excelExpected": "Hochgeladene Datei ist ungültig. Excel-Datei wird erwartet.",
     "noSuchFile": "Keine solche Datei",
     "importFeedIsInactive": "Import Feed ist inaktiv",
-    "theFileDoesNotMatchTheTemplate": "Falsche Datei. Die Datei stimmt nicht mit der Vorlage überein. Möglicherweise enthält Ihre Datei die Spalte mit Fehlermeldungen, diese soll gelöscht werden.",
+    "missingSourceFieldAsIdentifiers": "Als Kennung markiertes Quellfeld '%s' fehlt.",
     "noEntityFound": "Kein Datensatz für die zugehörige Entität '%s' gefunden.",
     "listSeparatorNotAllowed": "Die Verwendung des Trennzeichens für Listenwerte im Wert für das Feld '%s' ist nicht erlaubt."
   },

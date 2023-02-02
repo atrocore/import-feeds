@@ -387,17 +387,20 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         /**
-         * Validation
+         * Validation.
          */
         if (!empty($result)) {
             foreach ($data['data']['configuration'] as $item) {
+                if (!in_array($item['name'], $data['data']['idField'])) {
+                    continue;
+                }
                 $columns = $item['column'];
                 if (empty($columns) || !is_array($columns)) {
                     continue 1;
                 }
                 foreach ($columns as $column) {
                     if (!in_array($column, array_keys($result[0]))) {
-                        throw new BadRequest($this->translate('theFileDoesNotMatchTheTemplate', 'exceptions', 'ImportFeed'));
+                        throw new BadRequest(sprintf($this->translate('missingSourceFieldAsIdentifiers', 'exceptions', 'ImportFeed'), $column));
                     }
                 }
             }

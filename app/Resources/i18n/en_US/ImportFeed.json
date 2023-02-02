@@ -99,7 +99,7 @@
     "excelExpected": "Uploaded file is not valid. Excel file is expected.",
     "noSuchFile": "No such file",
     "importFeedIsInactive": "Import feed is inactive",
-    "theFileDoesNotMatchTheTemplate": "Wrong file. The file does not match the template. Maybe your file contain the column with error messages, which should be deleted.",
+    "missingSourceFieldAsIdentifiers": "The Source Field '%s' marked as Identifier is missing.",
     "noEntityFound": "No data record found for the related entity '%s'.",
     "listSeparatorNotAllowed": "The usage of the List Value Separator in the value for the field '%s' is not allowed."
   },
