@@ -143,7 +143,19 @@ class Unit extends FloatValue
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
     {
-        $old = !$entity->isNew() ? Json::decode($entity->getFetched('default'), true) : ['value' => 0, 'unit' => ''];
+        $old = ['value' => 0, 'unit' => ''];
+        $default = null;
+
+        if (!$entity->isNew()) {
+            $default = @json_decode($entity->getFetched('default'), true);
+        } elseif (!empty($entity->get('default'))) {
+            $default = @json_decode($entity->get('default'), true);
+        }
+
+        if (is_array($default)) {
+            $old = $default;
+        }
+
         $unitData = [
             'value' => $entity->has('default') && strpos((string)$entity->get('default'), '{') === false ? $entity->get('default') : $old['value'],
             'unit'  => $entity->has('defaultUnit') ? $entity->get('defaultUnit') : $old['unit']
