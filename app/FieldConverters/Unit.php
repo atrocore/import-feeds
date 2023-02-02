@@ -54,7 +54,8 @@ class Unit extends FloatValue
                     try {
                         $value = $this->prepareFloatValue((string)$parts[0], $config);
                     } catch (BadRequest $e) {
-                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'unit'));
+                        $type = $this->translate('unit', 'fieldTypes', 'Admin');
+                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
                     }
 
                     if (isset($parts[1])) {
@@ -78,7 +79,8 @@ class Unit extends FloatValue
                     try {
                         $value = $this->prepareFloatValue((string)$cellValue, $config);
                     } catch (BadRequest $e) {
-                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'unit'));
+                        $type = $this->translate('unit', 'fieldTypes', 'Admin');
+                        throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
                     }
                 }
             }
@@ -141,7 +143,19 @@ class Unit extends FloatValue
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
     {
-        $old = !$entity->isNew() ? Json::decode($entity->getFetched('default'), true) : ['value' => 0, 'unit' => ''];
+        $old = ['value' => 0, 'unit' => ''];
+        $default = null;
+
+        if (!$entity->isNew()) {
+            $default = @json_decode($entity->getFetched('default'), true);
+        } elseif (!empty($entity->get('default'))) {
+            $default = @json_decode($entity->get('default'), true);
+        }
+
+        if (is_array($default)) {
+            $old = $default;
+        }
+
         $unitData = [
             'value' => $entity->has('default') && strpos((string)$entity->get('default'), '{') === false ? $entity->get('default') : $old['value'],
             'unit'  => $entity->has('defaultUnit') ? $entity->get('defaultUnit') : $old['unit']
@@ -223,7 +237,8 @@ class Unit extends FloatValue
                 try {
                     $value = $this->prepareFloatValue((string)$default['value'], $configuration);
                 } catch (BadRequest $e) {
-                    throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'unit'));
+                    $type = $this->translate('unit', 'fieldTypes', 'Admin');
+                    throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
                 }
             }
 

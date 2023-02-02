@@ -45,7 +45,8 @@ class Boolean extends Varchar
         }
 
         if (is_null(filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))) {
-            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, 'boolean'));
+            $type = $this->translate('bool', 'fieldTypes', 'Admin');
+            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
         }
 
         if (is_string($value) && (strtolower($value) === 'no' || strtolower($value) === 'false' || $value === '0')) {
