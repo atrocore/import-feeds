@@ -119,7 +119,11 @@ class Wysiwyg
 
     protected function ignoreAttribute($value, array $config): void
     {
-        if (isset($config['attributeId']) && $value === $config['markForNotLinkedAttribute']) {
+        if (!isset($config['attributeId'])) {
+            return;
+        }
+
+        if ($value === $config['markForNotLinkedAttribute']) {
             throw new IgnoreAttribute();
         }
     }
