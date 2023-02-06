@@ -70,7 +70,6 @@
     "convertValidationPrefix": "Ошибка значения '{{value}}' для колонки '{{column}}': ",
     "allColumnsEmpty": "Исходные поля должны быть распознаны.",
     "noFeedFileFound": "Файл фида отсутствует.",
-    "nullNoneMarkForNotLinkedAttributeSame": "Пометка несвязанного атрибута, пустое значение и нулл значение должны иметь уникальные значения, только одно значение может быть пустым.",
     "measureIsNotSet": "Мера для атрибута \"%s\" не задана.",
     "noSpecifiedField": "'{{key}}' не указан для поля '{{name}}'.",
     "noSpecifiedAttribute": "'{{key}}' не указан для атрибута '{{name}}'.",

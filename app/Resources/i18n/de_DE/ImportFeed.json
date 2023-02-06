@@ -68,7 +68,6 @@
     "convertValidationPrefix": "Fehler für den Wert '{{value}}' aus der Spalte '{{column}}': ",
     "allColumnsEmpty": "Quellfelder sollten erkannt werden.",
     "noFeedFileFound": "Feeddatei fehlt.",
-    "nullNoneMarkForNotLinkedAttributeSame": "Markierung für ein nicht verknüpftes Attribut, leerer Wert und Nullwert sollten eindeutige Werte haben, nur ein Wert kann leer sein.",
     "measureIsNotSet": "Maß für das Attribut \"%s\" ist nicht gesetzt.",
     "noSpecifiedField": "Für das Feld '{{name}}' ist keine '{{key}}' angegeben.",
     "noSpecifiedAttribute": "Für das Attribut '{{name}}' ist keine '{{key}}' angegeben.",

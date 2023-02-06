@@ -70,7 +70,6 @@
     "convertValidationPrefix": "Error for value '{{value}}' from column '{{column}}': ",
     "allColumnsEmpty": "Source Fields should be recognized.",
     "noFeedFileFound": "Feed file is missing.",
-    "nullNoneMarkForNotLinkedAttributeSame": "Mark for a not linked attribute, empty value and null value should have unique values, only one value can be empty.",
     "measureIsNotSet": "Measure for the attribute \"%s\" is not set.",
     "noSpecifiedField": "No '{{key}}' specified for the field '{{name}}'.",
     "noSpecifiedAttribute": "No '{{key}}' specified for the attribute '{{name}}'.",
