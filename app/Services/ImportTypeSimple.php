@@ -355,7 +355,9 @@ class ImportTypeSimple extends QueueManagerBase
             throw new BadRequest('No such Attachment.');
         }
 
+        /** @var AbstractFileParser $fileParser */
         $fileParser = $this->getService('ImportFeed')->getFileParser($data['fileFormat']);
+        $fileParser->setImportPayload($data);
 
         // for getting header row
         $includedHeaderRow = $data['offset'] === 1 && !empty($data['isFileHeaderRow']);

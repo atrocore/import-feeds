@@ -24,8 +24,12 @@ namespace Import\Core\Utils;
 
 class JsonToVerticalArray
 {
-    public static function mutate(string $json): array
+    private static ?array $importPayload;
+
+    public static function mutate(string $json, ?array $importPayload = null): array
     {
+        self::$importPayload = $importPayload;
+
         $array = @json_decode($json, true);
         if (empty($array)) {
             return [];
@@ -83,11 +87,34 @@ class JsonToVerticalArray
 
     protected static function toHorizontalArray(array $value, $key, &$result): void
     {
+        $nullValue = null;
+        $emptyValue = '';
+
+        /**
+         * Prepare NULL value and EMPTY value
+         */
+        $importPayload = self::$importPayload;
+        if (!empty($importPayload) && is_array($importPayload)) {
+            if (isset($importPayload['data']['configuration'][0]['nullValue'])) {
+                $nullValue = $importPayload['data']['configuration'][0]['nullValue'];
+            }
+            if (isset($importPayload['data']['configuration'][0]['emptyValue'])) {
+                $emptyValue = $importPayload['data']['configuration'][0]['emptyValue'];
+            }
+        }
+
         foreach ($value as $k => $v) {
             if (is_array($v)) {
                 self::toHorizontalArray($v, self::concatKeys($key, $k), $result);
             } else {
-                $result[self::concatKeys($key, $k)] = $v;
+                $value = $v;
+                if ($value === null) {
+                    $value = $nullValue;
+                }
+                if ($value === '') {
+                    $value = $emptyValue;
+                }
+                $result[self::concatKeys($key, $k)] = $value;
             }
         }
     }

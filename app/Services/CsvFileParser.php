@@ -22,10 +22,9 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
-use Espo\Core\Templates\Services\HasContainer;
 use Espo\Entities\Attachment;
 
-class CsvFileParser extends HasContainer
+class CsvFileParser extends AbstractFileParser
 {
     public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null): array
     {

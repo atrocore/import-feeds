@@ -22,28 +22,19 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
-use Espo\Entities\Attachment;
+use Espo\Core\Templates\Services\HasContainer;
 
-class JsonFileParser extends AbstractFileParser
+abstract class AbstractFileParser extends HasContainer
 {
-    public function getFileColumns(Attachment $attachment): array
-    {
-        $data = $this->getFileData($attachment);
-        if (empty($data[0])) {
-            return [];
-        }
+    protected ?array $importPayload = null;
 
-        return array_keys($data[0]);
+    public function setImportPayload(array $data): void
+    {
+        $this->importPayload = $data;
     }
 
-    public function getFileData(Attachment $attachment): array
+    public function getImportPayload(): ?array
     {
-        $contents = file_get_contents($attachment->getFilePath());
-
-        if (empty($contents)) {
-            return [];
-        }
-
-        return \Import\Core\Utils\JsonToVerticalArray::mutate($contents, $this->getImportPayload());
+        return $this->importPayload;
     }
 }

@@ -36,6 +36,6 @@ class XmlFileParser extends JsonFileParser
 
         $json = json_encode(simplexml_load_string($contents));
 
-        return \Import\Core\Utils\JsonToVerticalArray::mutate($json);
+        return \Import\Core\Utils\JsonToVerticalArray::mutate($json, $this->getImportPayload());
     }
 }
