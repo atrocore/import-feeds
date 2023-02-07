@@ -24,6 +24,7 @@ namespace Import\FieldConverters;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Utils\Json;
+use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 
 class Unit extends FloatValue
@@ -103,7 +104,9 @@ class Unit extends FloatValue
 
         if ($value !== null && !$this->validateUnit($unit, $config['entity'], $config)) {
             if (isset($config['attributeId'])) {
-                $message = sprintf($this->translate('incorrectAttributeUnit', 'exceptions', 'ImportFeed'), $unit, $this->getAttribute((string)$config['attributeId'])->get('name'));
+                $attribute = $this->getAttribute((string)$config['attributeId']);
+
+                $message = sprintf($this->translate('incorrectAttributeUnit', 'exceptions', 'ImportFeed'), $unit, $this->getAttributeName($attribute));
             } else {
                 $message = sprintf($this->translate('incorrectUnit', 'exceptions', 'ImportFeed'), $unit, $config['name']);
             }
@@ -184,7 +187,7 @@ class Unit extends FloatValue
                 $attributeName = $config['attributeId'];
                 $attribute = $this->getEntityManager()->getRepository('Attribute')->get($config['attributeId']);
                 if (!empty($attribute)) {
-                    $attributeName = $attribute->get('name');
+                    $attributeName = $this->getAttributeName($attribute);
                 }
                 $message = str_replace(['{{name}}', '{{key}}'], [$attributeName, $key], $this->translate('noSpecifiedAttribute', 'exceptions', 'ImportFeed'));
             }
@@ -216,7 +219,7 @@ class Unit extends FloatValue
         if (isset($config['attributeId'])) {
             $attribute = $this->getAttribute((string)$config['attributeId']);
             if (empty($attribute->get('typeValue')) || empty($attribute->get('typeValue')[0])) {
-                throw new BadRequest(sprintf($this->translate('measureIsNotSet', 'exceptions', 'ImportFeed'), $attribute->get('name')));
+                throw new BadRequest(sprintf($this->translate('measureIsNotSet', 'exceptions', 'ImportFeed'), $this->getAttributeName($attribute)));
             }
 
             return (string)$attribute->get('typeValue')[0];
@@ -264,5 +267,17 @@ class Unit extends FloatValue
         }
 
         return $attribute;
+    }
+
+    /**
+     * @param Entity $entity
+     *
+     * @return string
+     */
+    protected function getAttributeName(Entity $entity): string
+    {
+        $nameField = Util::toCamelCase('name_' . strtolower($this->container->get('language')->getLanguage()));
+
+        return $entity->has($nameField) ? $entity->get($nameField) : $entity->get('name');
     }
 }
