@@ -60,6 +60,9 @@ class JsonArray extends Varchar
         }
 
         $inputRow->{$config['name']} = $value;
+        if (empty($config['replaceRelation'])) {
+            $inputRow->{$config['name'] . 'AddOnlyMode'} = 1;
+        }
     }
 
     public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
