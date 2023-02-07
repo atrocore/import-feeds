@@ -16,7 +16,7 @@
     "type": "Type",
     "foreignColumn": "Source Field(s)",
     "foreignImportBy": "Related entity field(s)",
-    "replaceRelation": "Replace"
+    "replaceArray": "Replace"
   },
   "links": {
     "importFeed": "Import Feed",
@@ -41,6 +41,6 @@
     "createIfNotExist": "New data record for related entity will be created, if nothing is found based on provided data.",
     "foreignColumn": "This(these) field value(s) will be used to create related data record.",
     "foreignImportBy": "Choose related entity field(s) in your system, which should be used for insert based on the data provided in the select field \"Source Field(s)\". If only one data field is provided the \"Field Delimiter for Relation\" may apply. In other cases the amount of provided data fields and \"Related entity field(s)\" should be the same.",
-    "replaceRelation": "Per default the provided relation(s) are added to the existing ones. Set this checkbox if the latter should be replaced."
+    "replaceArray": "Per default the provided record(s) are added to the existing ones. Set this checkbox if the latter should be replaced."
   }
 }

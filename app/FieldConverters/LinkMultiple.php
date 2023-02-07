@@ -78,7 +78,7 @@ class LinkMultiple extends Varchar
             $inputRow->{$config['name']} = $inputRow->$fieldName;
         }
 
-        if (empty($config['replaceRelation'])) {
+        if (empty($config['replaceArray'])) {
             if (property_exists($inputRow, $fieldName) && empty($inputRow->$fieldName)) {
                 unset($inputRow->$fieldName);
             } elseif (property_exists($inputRow, $config['name']) && empty($inputRow->{$config['name']})) {

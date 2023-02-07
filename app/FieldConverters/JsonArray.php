@@ -60,7 +60,7 @@ class JsonArray extends Varchar
         }
 
         $inputRow->{$config['name']} = $value;
-        if (empty($config['replaceRelation'])) {
+        if (empty($config['replaceArray'])) {
             $inputRow->{$config['name'] . 'AddOnlyMode'} = 1;
         }
     }

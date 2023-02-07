@@ -35,7 +35,7 @@ class ImportConfiguratorItem extends Base
             'importFeedId',
             'importBy',
             'createIfNotExist',
-            'replaceRelation',
+            'replaceArray',
             'default',
             'type',
             'attributeId',

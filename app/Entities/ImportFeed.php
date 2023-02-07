@@ -139,7 +139,7 @@ class ImportFeed extends Base
                 'name'                      => $item->get('name'),
                 'column'                    => $item->get('column'),
                 'createIfNotExist'          => !empty($item->get('createIfNotExist')),
-                'replaceRelation'           => !empty($item->get('replaceRelation')),
+                'replaceArray'              => !empty($item->get('replaceArray')),
                 'foreignColumn'             => $item->get('foreignColumn'),
                 'foreignImportBy'           => $item->get('foreignImportBy'),
                 'default'                   => $item->get('default'),

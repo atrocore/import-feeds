@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-configurator-item/fields/replace-relation', 'views/fields/bool',
+Espo.define('import:views/import-configurator-item/fields/replace-array', 'views/fields/bool',
     Dep => Dep.extend({
 
         setup() {

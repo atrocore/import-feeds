@@ -28,7 +28,7 @@
           "name": "createIfNotExist"
         },
         {
-          "name": "replaceRelation"
+          "name": "replaceArray"
         }
       ],
       [

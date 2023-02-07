@@ -16,7 +16,7 @@
     "type": "Typ",
     "foreignColumn": "Quellfeld(er)",
     "foreignImportBy": "Feld(er) der verknüpften Entität",
-    "replaceRelation": "Ersetzen"
+    "replaceArray": "Ersetzen"
   },
   "links": {
     "importFeed": "Import Feed"
@@ -40,6 +40,6 @@
     "createIfNotExist": "Wenn anhand der bereitgestellten Daten nichts gefunden wird, wird ein neuer Datensatz für die verknüpfte Entität erstellt.",
     "foreignColumn": "Diese(r) Feldwert(e) werden (wird) verwendet, um zugehörige Datensätze zu Erstellen.",
     "foreignImportBy": "Wählen Sie Feld(er) der verknüpfter Entität in Ihrem System aus, das (die) fürs Einfügen basierend auf den in der Auswahlliste \"Quellfeld(er)\" bereitgestellten Daten verwendet wird (werden). Wenn nur ein Datenfeld bereitgestellt wird, kann \"Feldtrennzeichen für Relation\" angewendet werden. In anderen Fällen sollte die Anzahl der bereitgestellten Datenfelder und \"Feld(er) der verknüpften Entität\" gleich sein.",
-    "replaceRelation": "Standardmäßig werden die bereitgestellten Relationen zu den vorhandenen hinzugefügt. Setzen Sie dieses Kontrollkästchen, wenn letztere ersetzt werden sollten."
+    "replaceArray": "Standardmäßig werden die bereitgestellten Aufzeichnungen zu den vorhandenen hinzugefügt. Setzen Sie dieses Kontrollkästchen, wenn letztere ersetzt werden sollten."
   }
 }

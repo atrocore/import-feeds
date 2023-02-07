@@ -85,8 +85,8 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                     if (this.model.get('createIfNotExist')) {
                         extraInfo += `<br><span class="text-muted small">${this.translate('createIfNotExist', 'fields', 'ImportConfiguratorItem')}</span>`;
                     }
-                    if (type === 'linkMultiple' && this.model.get('replaceRelation')) {
-                        extraInfo += `<br><span class="text-muted small">${this.translate('replaceRelation', 'fields', 'ImportConfiguratorItem')}</span>`;
+                    if ((type === 'linkMultiple' || type === 'array' || type === 'multiEnum') && this.model.get('replaceArray')) {
+                        extraInfo += `<br><span class="text-muted small">${this.translate('replaceArray', 'fields', 'ImportConfiguratorItem')}</span>`;
                     }
                 }
             }

@@ -28,9 +28,9 @@
       "default": false,
       "tooltip": true
     },
-    "replaceRelation": {
+    "replaceArray": {
       "type": "bool",
-      "view": "import:views/import-configurator-item/fields/replace-relation",
+      "view": "import:views/import-configurator-item/fields/replace-array",
       "default": false,
       "tooltip": true
     },
