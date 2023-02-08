@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-configurator-item/fields/unused-columns', 'views/fields/array', function (Dep) {
+Espo.define('import:views/import-configurator-item/fields/source-fields', 'views/fields/array', function (Dep) {
     return Dep.extend({
 
-        detailTemplate: 'import:import-configurator-item/fields/unused-columns/detail',
+        detailTemplate: 'import:import-configurator-item/fields/source-fields/detail',
 
         getValueForDisplay() {
             return this.selected.sort((a, b) => a.localeCompare(b));

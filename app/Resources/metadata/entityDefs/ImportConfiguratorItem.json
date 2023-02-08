@@ -152,7 +152,7 @@
       "type": "array",
       "notStorable": true,
       "readOnly": true,
-      "view": "import:views/import-configurator-item/fields/unused-columns"
+      "view": "import:views/import-configurator-item/fields/source-fields"
     },
     "createdAt": {
       "type": "datetime",

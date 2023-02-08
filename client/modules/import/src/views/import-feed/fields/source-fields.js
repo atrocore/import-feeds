@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/multi-enum',
+Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi-enum',
     Dep => Dep.extend({
 
         jobId: null,
