@@ -40,6 +40,10 @@ class ImportFeed extends Base
         parent::prepareEntityForOutput($entity);
 
         foreach ($entity->getFeedFields() as $name => $value) {
+//            if ($name === 'allColumns'){
+//                $value[] = 'q1';
+//            }
+
             $entity->set($name, $value);
         }
     }
@@ -152,7 +156,10 @@ class ImportFeed extends Base
 
         $contents = file_get_contents($attachment->getFilePath());
 
-        $data = @json_decode($contents, true);
+        if (is_string($contents)) {
+            $data = @json_decode($contents, true);
+        }
+
         if (empty($data)) {
             throw new BadRequest($this->getInjection('language')->translate('jsonExpected', 'exceptions', 'ImportFeed'));
         }
