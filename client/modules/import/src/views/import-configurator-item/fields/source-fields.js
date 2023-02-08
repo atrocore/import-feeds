@@ -34,7 +34,11 @@ Espo.define('import:views/import-configurator-item/fields/source-fields', 'views
                 (this.model.get(this.name) || []).forEach(column => {
                     let parts = column.split('.');
                     let last = parts.pop();
-                    html += '<span style="width:100%;float:left"><span style="color: #bbb">' + parts.join('.') + '</span>.' + last + '</span>';
+                    if (parts.length === 0) {
+                        html += '<span style="width:100%;float:left">' + last + '</span>';
+                    } else {
+                        html += '<span style="width:100%;float:left"><span style="color: #bbb">' + parts.join('.') + '</span>.' + last + '</span>';
+                    }
                 });
 
                 this.$el.html(html);

@@ -51,7 +51,11 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
                 (this.model.get(this.name) || []).forEach(column => {
                     let parts = column.split('.');
                     let last = parts.pop();
-                    items.push('<span style="color: #bbb">' + parts.join('.') + '</span>.' + last);
+                    if (parts.length === 0) {
+                        items.push(last);
+                    } else {
+                        items.push('<span style="color: #bbb">' + parts.join('.') + '</span>.' + last);
+                    }
                 });
 
                 this.$el.html(items.join(', '));
