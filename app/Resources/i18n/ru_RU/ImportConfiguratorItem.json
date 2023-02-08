@@ -12,7 +12,7 @@
     "attribute": "Атрибут",
     "channel": "Канал",
     "scope": "Область действия",
-    "unusedColumns": "Неиспользуемые исходные поля",
+    "sourceFields": "Исходные поля",
     "type": "Тип",
     "foreignColumn": "Исходное поле(я)",
     "foreignImportBy": "Поле(я) связанной сущности",

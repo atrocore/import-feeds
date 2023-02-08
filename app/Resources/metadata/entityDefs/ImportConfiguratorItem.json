@@ -144,15 +144,11 @@
       "type": "varchar",
       "notStorable": true
     },
-    "allColumns": {
-      "type": "array",
-      "notStorable": true
-    },
-    "unusedColumns": {
+    "sourceFields": {
       "type": "array",
       "notStorable": true,
       "readOnly": true,
-      "view": "import:views/import-configurator-item/fields/unused-columns"
+      "view": "import:views/import-configurator-item/fields/source-fields"
     },
     "createdAt": {
       "type": "datetime",

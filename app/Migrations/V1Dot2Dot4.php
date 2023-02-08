@@ -57,8 +57,8 @@ class V1Dot2Dot4 extends \Treo\Core\Migration\Base
             $isFileHeaderRow = (is_null($feed->getFeedField('isHeaderRow'))) ? true : !empty($feed->getFeedField('isHeaderRow'));
 
             try {
-                $allColumns = $container->get('serviceFactory')->create('CsvFileParser')->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
-                $feed->setFeedField('allColumns', $allColumns);
+                $sourceFields = $container->get('serviceFactory')->create('CsvFileParser')->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
+                $feed->set('sourceFields', $sourceFields);
                 $em->saveEntity($feed);
 
                 $items = $feed->get('configuratorItems');
@@ -70,8 +70,8 @@ class V1Dot2Dot4 extends \Treo\Core\Migration\Base
                     if (!empty($columns = $item->get('column'))) {
                         $newColumns = [];
                         foreach ($columns as $column) {
-                            if (isset($allColumns[$column])) {
-                                $newColumns[] = $allColumns[$column];
+                            if (isset($sourceFields[$column])) {
+                                $newColumns[] = $sourceFields[$column];
                             }
                         }
                         $item->set('column', $newColumns);

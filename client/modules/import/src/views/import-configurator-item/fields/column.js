@@ -21,7 +21,7 @@ Espo.define('import:views/import-configurator-item/fields/column', 'views/fields
     Dep => Dep.extend({
 
         setup() {
-            this.params.options = this.model.get('allColumns') || [];
+            this.params.options = this.model.get('sourceFields') || [];
             this.translatedOptions = {};
 
             Dep.prototype.setup.call(this);

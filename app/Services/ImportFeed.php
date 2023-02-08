@@ -33,41 +33,15 @@ use Import\Entities\ImportJob;
 
 class ImportFeed extends Base
 {
-    protected $mandatorySelectAttributeList = ['allColumns'];
+    protected $mandatorySelectAttributeList = ['sourceFields'];
 
     public function prepareEntityForOutput(Entity $entity)
     {
         parent::prepareEntityForOutput($entity);
 
         foreach ($entity->getFeedFields() as $name => $value) {
-//            if ($name === 'allColumns'){
-//                $value[] = 'q1';
-//            }
-
             $entity->set($name, $value);
         }
-    }
-
-    public function getUnusedColumns(string $importFeedId): array
-    {
-        $importFeed = $this->getEntity($importFeedId);
-
-        $unusedColumns = $importFeed->get('allColumns');
-        if (empty($unusedColumns)) {
-            return [];
-        }
-
-        foreach ($importFeed->get('configuratorItems') as $item) {
-            $columns = $item->get('column');
-            foreach ($columns as $column) {
-                $offset = array_search($column, $unusedColumns);
-                if ($offset !== false) {
-                    unset($unusedColumns[$offset]);
-                }
-            }
-        }
-
-        return array_values($unusedColumns);
     }
 
     public function parseFileColumns(\stdClass $payload): array
@@ -253,22 +227,22 @@ class ImportFeed extends Base
                 if (!empty($this->getMetadata()->get(['scopes', 'Attribute']))) {
                     $this->getRepository()->removeInvalidConfiguratorItems($feed);
                 }
-                $allColumns = empty($feed->getFeedField('allColumns')) ? [] : $feed->getFeedField('allColumns');
-                $this->removeItemsByAllColumns($feed, $allColumns);
+                $sourceFields = empty($feed->get('sourceFields')) ? [] : $feed->get('sourceFields');
+                $this->removeItemsBySourceFields($feed, $sourceFields);
             }
         }
 
         return parent::findLinkedEntities($id, $link, $params);
     }
 
-    public function removeItemsByAllColumns(Entity $importFeed, array $allColumns): void
+    public function removeItemsBySourceFields(Entity $importFeed, array $sourceFields): void
     {
         $items = $importFeed->get('configuratorItems');
         if (!empty($items) && count($items) > 0) {
             foreach ($items as $item) {
                 if (!empty($columns = $item->get('column'))) {
                     foreach ($columns as $column) {
-                        if (!in_array($column, $allColumns)) {
+                        if (!in_array($column, $sourceFields)) {
                             $this->getEntityManager()->removeEntity($item);
                             continue 2;
                         }

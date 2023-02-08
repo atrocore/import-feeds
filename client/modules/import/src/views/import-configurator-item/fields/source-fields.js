@@ -17,10 +17,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-configurator-item/fields/unused-columns', 'views/fields/array', function (Dep) {
+Espo.define('import:views/import-configurator-item/fields/source-fields', 'views/fields/array', function (Dep) {
     return Dep.extend({
 
-        detailTemplate: 'import:import-configurator-item/fields/unused-columns/detail',
+        detailTemplate: 'import:import-configurator-item/fields/source-fields/detail',
 
         getValueForDisplay() {
             return this.selected.sort((a, b) => a.localeCompare(b));
@@ -34,7 +34,11 @@ Espo.define('import:views/import-configurator-item/fields/unused-columns', 'view
                 (this.model.get(this.name) || []).forEach(column => {
                     let parts = column.split('.');
                     let last = parts.pop();
-                    html += '<span style="width:100%;float:left"><span style="color: #bbb">' + parts.join('.') + '</span>.' + last + '</span>';
+                    if (parts.length === 0) {
+                        html += '<span style="width:100%;float:left">' + last + '</span>';
+                    } else {
+                        html += '<span style="width:100%;float:left"><span style="color: #bbb">' + parts.join('.') + '</span>.' + last + '</span>';
+                    }
                 });
 
                 this.$el.html(html);

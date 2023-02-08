@@ -103,7 +103,7 @@
     "rows": [
       [
         {
-          "name": "unusedColumns",
+          "name": "sourceFields",
           "fullWidth": true
         }
       ]

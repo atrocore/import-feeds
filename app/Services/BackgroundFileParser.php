@@ -33,9 +33,9 @@ class BackgroundFileParser extends QueueManagerBase
             return false;
         }
 
-        $columns = $this->getContainer()->get('serviceFactory')->create('ImportFeed')->getFileColumns(json_decode(json_encode($data['payload'])));
+        $sourceFields = $this->getContainer()->get('serviceFactory')->create('ImportFeed')->getFileColumns(json_decode(json_encode($data['payload'])));
 
-        $this->qmItem->get('data')->allColumns = $columns;
+        $this->qmItem->get('data')->sourceFields = $sourceFields;
         $this->getEntityManager()->saveEntity($this->qmItem, ['skipAll' => true]);
 
         return true;

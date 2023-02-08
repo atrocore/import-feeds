@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/multi-enum',
+Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi-enum',
     Dep => Dep.extend({
 
         jobId: null,
@@ -32,15 +32,6 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
                         this.loadFileColumns();
                     }
                 });
-            });
-
-            this.loadUnusedColumns();
-            this.listenTo(this.model, 'change:allColumns after:relate after:save', () => {
-                this.loadUnusedColumns();
-            });
-
-            this.listenTo(this.model, 'updateUnusedColumns', () => {
-                setTimeout(() => this.loadUnusedColumns(), 1000);
             });
         },
 
@@ -60,42 +51,39 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
                 (this.model.get(this.name) || []).forEach(column => {
                     let parts = column.split('.');
                     let last = parts.pop();
-                    items.push('<span style="color: #bbb">' + parts.join('.') + '</span>.' + last);
+                    if (parts.length === 0) {
+                        items.push(last);
+                    } else {
+                        items.push('<span style="color: #bbb">' + parts.join('.') + '</span>.' + last);
+                    }
                 });
 
                 this.$el.html(items.join(', '));
             }
         },
 
-        loadUnusedColumns() {
-            this.ajaxGetRequest(`ImportFeed/action/unusedColumns`, {importFeedId: this.model.get('id')}).success(unusedColumns => {
-                this.model.set('unusedColumns', unusedColumns);
-                this.reRender();
-            });
-        },
-
-        readAllColumnsFromJob() {
+        readSourceFieldsFromJob() {
             this.ajaxGetRequest(`QueueItem/${this.jobId}`).success(queueItem => {
                 if (queueItem.status === 'Canceled') {
                     $('.attachment-upload .remove-attachment').click();
-                    this.model.set('allColumns', []);
+                    this.model.set('sourceFields', []);
                     this.$el.html('');
                 } else if (queueItem.status === 'Success') {
-                    this.model.set('allColumns', queueItem.data.allColumns);
+                    this.model.set('sourceFields', queueItem.data.sourceFields);
                 } else {
                     setTimeout(() => {
-                        this.readAllColumnsFromJob();
+                        this.readSourceFieldsFromJob();
                     }, 4000);
                 }
             }).error(response => {
                 $('.attachment-upload .remove-attachment').click();
-                this.model.set('allColumns', []);
+                this.model.set('sourceFields', []);
                 this.$el.html('');
             });
         },
 
         loadFileColumns() {
-            this.model.set('allColumns', []);
+            this.model.set('sourceFields', []);
 
             let fileId = this.model.get('fileId');
             if (!fileId) {
@@ -119,9 +107,9 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
                     this.jobId = response.jobId;
                     Backbone.trigger('showQueuePanel');
                     this.$el.html('<img alt="preloader" class="preloader" style="height:19px;margin-top:6px;margin-left:-8px" src="client/img/atro-loader.svg" />');
-                    this.readAllColumnsFromJob();
+                    this.readSourceFieldsFromJob();
                 } else {
-                    this.model.set('allColumns', response);
+                    this.model.set('sourceFields', response);
                 }
             });
         },

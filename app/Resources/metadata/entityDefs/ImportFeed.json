@@ -170,12 +170,6 @@
       "required": true,
       "default": ","
     },
-    "allColumns": {
-      "type": "array",
-      "notStorable": true,
-      "dataField": true,
-      "filterDisabled": true
-    },
     "thousandSeparator": {
       "type": "varchar",
       "notStorable": true,
@@ -284,12 +278,9 @@
       "required": false,
       "default": "--"
     },
-    "unusedColumns": {
-      "type": "multi-enum",
-      "notStorable": true,
-      "filterDisabled": true,
-      "view": "import:views/import-feed/fields/unused-columns",
-      "readOnly": true
+    "sourceFields": {
+      "type": "array",
+      "view": "import:views/import-feed/fields/source-fields"
     },
     "connection": {
       "type": "link",

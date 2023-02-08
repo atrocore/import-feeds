@@ -22,7 +22,6 @@
         "maxSize": 20,
         "sortField": "sortOrder"
       },
-      "view": "import:views/import-feed/record/panels/configurator-items",
       "rowActionsView": "views/record/row-actions/edit-and-remove"
     },
     "importJobs": {
