@@ -12,7 +12,7 @@
     "attribute": "Attribute",
     "channel": "Channel",
     "scope": "Scope",
-    "unusedColumns": "Unused Source Fields",
+    "sourceFields": "Source Fields",
     "type": "Type",
     "foreignColumn": "Source Field(s)",
     "foreignImportBy": "Related entity field(s)",

@@ -148,7 +148,7 @@
       "type": "array",
       "notStorable": true
     },
-    "unusedColumns": {
+    "sourceFields": {
       "type": "array",
       "notStorable": true,
       "readOnly": true,

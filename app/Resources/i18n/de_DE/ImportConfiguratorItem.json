@@ -12,7 +12,7 @@
     "attribute": "Attribut",
     "channel": "Kanal",
     "scope": "Scope",
-    "unusedColumns": "Unbenutzte Quellfelder",
+    "sourceFields": "Quellfelder",
     "type": "Typ",
     "foreignColumn": "Quellfeld(er)",
     "foreignImportBy": "Feld(er) der verknüpften Entität",

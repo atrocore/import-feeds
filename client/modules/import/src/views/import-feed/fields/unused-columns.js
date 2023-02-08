@@ -33,15 +33,6 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
                     }
                 });
             });
-
-            this.loadUnusedColumns();
-            this.listenTo(this.model, 'change:allColumns after:relate after:save', () => {
-                this.loadUnusedColumns();
-            });
-
-            this.listenTo(this.model, 'updateUnusedColumns', () => {
-                setTimeout(() => this.loadUnusedColumns(), 1000);
-            });
         },
 
         afterRender() {
@@ -65,13 +56,6 @@ Espo.define('import:views/import-feed/fields/unused-columns', 'views/fields/mult
 
                 this.$el.html(items.join(', '));
             }
-        },
-
-        loadUnusedColumns() {
-            this.ajaxGetRequest(`ImportFeed/action/unusedColumns`, {importFeedId: this.model.get('id')}).success(unusedColumns => {
-                this.model.set('unusedColumns', unusedColumns);
-                this.reRender();
-            });
         },
 
         readAllColumnsFromJob() {
