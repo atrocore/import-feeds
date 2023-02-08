@@ -30,7 +30,6 @@ use Espo\Core\FilePathBuilder;
 use Espo\Core\Services\Base;
 use Espo\Core\Utils\Metadata;
 use Espo\Core\Utils\Util;
-use Espo\Entities\Attachment;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
 use Import\Entities\ImportFeed;
@@ -81,6 +80,8 @@ class ImportTypeSimple extends QueueManagerBase
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
 
+        $attachmentRepository = $this->getEntityManager()->getRepository('Attachment');
+
         $ids = [];
 
         $updatedRowsHashes = [];
@@ -88,30 +89,38 @@ class ImportTypeSimple extends QueueManagerBase
         // prepare file row
         $fileRow = empty($data['offset']) ? 0 : (int)$data['offset'];
 
-        $hasAttachment = !empty($data['attachmentId']);
+        // prepare converted file attachment
+        $convertedFileAttachment = $attachmentRepository->get();
+        $convertedFileAttachment->set([
+            'name'            => str_replace(' ', '_', $importJob->get('name')) . '.csv',
+            'role'            => 'Attachment',
+            'field'           => 'convertedFile',
+            'relatedType'     => 'ImportJob',
+            'relatedId'       => $importJob->get('id'),
+            'storage'         => 'UploadDir',
+            'type'            => 'text/csv',
+            'storageFilePath' => $this->getContainer()->get('filePathBuilder')->createPath(FilePathBuilder::UPLOAD),
+        ]);
 
-        // create imported file
-        if (!$hasAttachment) {
-            $importedFileName = str_replace(' ', '_', strtolower($data['name'])) . '_' . time() . '.csv';
-            $importedFilePath = $this->getContainer()->get('filePathBuilder')->createPath(FilePathBuilder::UPLOAD);
-            $importedFileFullPath = $this->getConfig()->get('filesPath', 'upload/files/') . $importedFilePath;
-            Util::createDir($importedFileFullPath);
-            $importedFile = fopen($importedFileFullPath . '/' . $importedFileName, 'w');
-        }
+        // create dir for converted file
+        $convertedFileDirPath = trim($this->getConfig()->get('filesPath', 'upload/files'), '/') . '/' . $convertedFileAttachment->get('storageFilePath');
+        Util::createDir($convertedFileDirPath);
+
+        // create converted file
+        $convertedFile = fopen($convertedFileDirPath . '/' . $convertedFileAttachment->get('name'), 'w');
 
         while (!empty($inputData = $this->getInputData($data))) {
             while (!empty($inputData)) {
                 $row = array_shift($inputData);
 
-                // push to imported file
-                if (!$hasAttachment) {
-                    if (empty($firstRow)) {
-                        $firstRow = true;
-                        fputcsv($importedFile, array_keys($row), ';');
-                        $fileRow++;
-                    }
-                    fputcsv($importedFile, array_values($row), ';');
+                // push header to converted file
+                if (empty($convertedFileHeaderPushed)) {
+                    fputcsv($convertedFile, array_keys($row));
+                    $convertedFileHeaderPushed = true;
                 }
+
+                // push row to converted file
+                fputcsv($convertedFile, array_values($row));
 
                 // increment file row number
                 $fileRow++;
@@ -163,13 +172,6 @@ class ImportTypeSimple extends QueueManagerBase
                 if ($data['action'] == 'delete') {
                     continue 1;
                 }
-
-                $event = $this->getEventManager()->dispatch(new Event(['row' => $row, 'jobData' => $data, 'skip' => false]), 'prepareImportRow');
-                if (!empty($event->getArgument('skip'))) {
-                    continue 1;
-                }
-
-                $row = $event->getArgument('row');
 
                 if (!$this->getEntityManager()->getPDO()->inTransaction()) {
                     $this->getEntityManager()->getPDO()->beginTransaction();
@@ -280,24 +282,14 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        // save imported file
-        if (!$hasAttachment) {
-            fclose($importedFile);
-            $attachmentRepository = $this->getEntityManager()->getRepository('Attachment');
-            $attachment = $attachmentRepository->get();
-            $attachment->set('name', $importedFileName);
-            $attachment->set('role', 'Import');
-            $attachment->set('relatedType', 'ImportJob');
-            $attachment->set('relatedId', $importJob->get('id'));
-            $attachment->set('storage', 'UploadDir');
-            $attachment->set('storageFilePath', $importedFilePath);
-            $attachment->set('type', 'text/csv');
-            $attachment->set('size', \filesize($attachmentRepository->getFilePath($attachment)));
-            $this->getEntityManager()->saveEntity($attachment);
+        // save converted file attachment
+        fclose($convertedFile);
+        $convertedFileAttachment->set('size', \filesize($attachmentRepository->getFilePath($convertedFileAttachment)));
+        $this->getEntityManager()->saveEntity($convertedFileAttachment);
 
-            $importJob->set('attachmentId', $attachment->get('id'));
-            $this->getEntityManager()->saveEntity($importJob);
-        }
+        // set converted file attachment to import job
+        $importJob->set('convertedFileId', $convertedFileAttachment->get('id'));
+        $this->getEntityManager()->saveEntity($importJob);
 
         return true;
     }
@@ -373,12 +365,11 @@ class ImportTypeSimple extends QueueManagerBase
         $result = [];
 
         if (in_array($data['fileFormat'], ['JSON', 'XML'])) {
-            $this->createConvertedFile($data, $fileData);
             $result = $fileData;
         } else {
             $sourceFields = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
             if ($includedHeaderRow) {
-                $first = array_shift($fileData);
+                array_shift($fileData);
             }
 
             foreach ($fileData as $line => $fileLine) {
@@ -388,14 +379,20 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
+        $prepared = [];
+        while (count($result) > 0) {
+            $row = array_shift($result);
+            $event = $this->getEventManager()->dispatch(new Event(['row' => $row, 'jobData' => $data, 'skip' => false]), 'prepareImportRow');
+            if (!empty($event->getArgument('skip'))) {
+                continue 1;
+            }
+            $prepared[] = $event->getArgument('row');
+        }
+
         /**
          * Validation.
          */
-        if (!empty($result)) {
-            $row = $this
-                ->getEventManager()
-                ->dispatch(new Event(['row' => $result[0], 'jobData' => $data, 'skip' => false]), 'prepareImportRow')
-                ->getArgument('row');
+        if (!empty($prepared)) {
             foreach ($data['data']['configuration'] as $item) {
                 if (!in_array($item['name'], $data['data']['idField'])) {
                     continue;
@@ -405,7 +402,7 @@ class ImportTypeSimple extends QueueManagerBase
                     continue 1;
                 }
                 foreach ($columns as $column) {
-                    if (!in_array($column, array_keys($row))) {
+                    if (!in_array($column, array_keys($prepared[0]))) {
                         throw new BadRequest(sprintf($this->translate('missingSourceFieldAsIdentifiers', 'exceptions', 'ImportFeed'), $column));
                     }
                 }
@@ -414,7 +411,7 @@ class ImportTypeSimple extends QueueManagerBase
 
         $this->iterations++;
 
-        return $result;
+        return $prepared;
     }
 
     protected function prepareWhere(string $entityType, array $configuration, array $row): array
@@ -610,41 +607,6 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return true;
-    }
-
-    protected function createConvertedFile(array $data, array $rows): void
-    {
-        if (empty($rows[0]) || empty($data['data']['importJobId'])) {
-            return;
-        }
-
-        $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($data['data']['importJobId']);
-        if (empty($importJob)) {
-            return;
-        }
-
-        $csvData = [array_keys($rows[0])];
-        foreach ($rows as $row) {
-            $csvData[] = array_values($row);
-        }
-
-        $nameParts = explode('.', (string)$importJob->get('attachmentName'));
-        $ext = array_pop($nameParts);
-
-        $attachmentService = $this->getService('Attachment');
-
-        $inputData = new \stdClass();
-        $inputData->name = implode('.', $nameParts) . '.csv';
-        $inputData->contents = \Import\Core\Utils\Util::generateCsvContents($csvData);
-        $inputData->type = 'text/csv';
-        $inputData->relatedType = 'ImportJob';
-        $inputData->field = 'convertedFile';
-        $inputData->role = 'Attachment';
-
-        $attachment = $attachmentService->createEntity($inputData);
-
-        $importJob->set('convertedFileId', $attachment->get('id'));
-        $this->getEntityManager()->saveEntity($importJob, ['skipAll' => true]);
     }
 
     protected function getService(string $name): Base
