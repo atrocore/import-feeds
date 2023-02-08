@@ -170,12 +170,6 @@
       "required": true,
       "default": ","
     },
-    "allColumns": {
-      "type": "array",
-      "notStorable": true,
-      "dataField": true,
-      "filterDisabled": true
-    },
     "thousandSeparator": {
       "type": "varchar",
       "notStorable": true,
@@ -285,11 +279,8 @@
       "default": "--"
     },
     "sourceFields": {
-      "type": "multi-enum",
-      "notStorable": true,
-      "filterDisabled": true,
-      "view": "import:views/import-feed/fields/source-fields",
-      "readOnly": true
+      "type": "array",
+      "view": "import:views/import-feed/fields/source-fields"
     },
     "connection": {
       "type": "link",
