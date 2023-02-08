@@ -81,8 +81,8 @@ class ImportFeed extends Base
             throw new BadRequest($this->getLanguage()->translate("nullNoneSame", "exceptions", "ImportFeed"));
         }
 
-        if (empty($entity->getFeedField('allColumns'))) {
-            throw new BadRequest($this->getLanguage()->translate("allColumnsEmpty", "exceptions", "ImportFeed"));
+        if (empty($entity->get('sourceFields'))) {
+            throw new BadRequest($this->getLanguage()->translate("sourceFieldsEmpty", "exceptions", "ImportFeed"));
         }
     }
 

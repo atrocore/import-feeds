@@ -82,7 +82,7 @@ class ImportConfiguratorItem extends Base
             foreach ($importFeeds as $importFeed) {
                 if ($importFeed->get('id') === $entity->get('importFeedId')) {
                     $entity->set('entity', $importFeed->getFeedField('entity'));
-                    $entity->set('allColumns', $importFeed->getFeedField('allColumns'));
+                    $entity->set('sourceFields', $importFeed->get('sourceFields'));
                     break 1;
                 }
             }
@@ -119,7 +119,7 @@ class ImportConfiguratorItem extends Base
         }
 
         $entity->set('entity', $importFeed->getFeedField('entity'));
-        $entity->set('allColumns', $importFeed->getFeedField('allColumns'));
+        $entity->set('sourceFields', $importFeed->get('sourceFields'));
 
         if ($entity->get('type') === 'Attribute') {
             if (empty($attribute = $this->getEntityManager()->getEntity('Attribute', $entity->get('attributeId')))) {

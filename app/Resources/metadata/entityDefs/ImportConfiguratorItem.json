@@ -144,10 +144,6 @@
       "type": "varchar",
       "notStorable": true
     },
-    "allColumns": {
-      "type": "array",
-      "notStorable": true
-    },
     "sourceFields": {
       "type": "array",
       "notStorable": true,

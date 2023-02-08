@@ -58,28 +58,28 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
             }
         },
 
-        readAllColumnsFromJob() {
+        readSourceFieldsFromJob() {
             this.ajaxGetRequest(`QueueItem/${this.jobId}`).success(queueItem => {
                 if (queueItem.status === 'Canceled') {
                     $('.attachment-upload .remove-attachment').click();
-                    this.model.set('allColumns', []);
+                    this.model.set('sourceFields', []);
                     this.$el.html('');
                 } else if (queueItem.status === 'Success') {
-                    this.model.set('allColumns', queueItem.data.allColumns);
+                    this.model.set('sourceFields', queueItem.data.sourceFields);
                 } else {
                     setTimeout(() => {
-                        this.readAllColumnsFromJob();
+                        this.readSourceFieldsFromJob();
                     }, 4000);
                 }
             }).error(response => {
                 $('.attachment-upload .remove-attachment').click();
-                this.model.set('allColumns', []);
+                this.model.set('sourceFields', []);
                 this.$el.html('');
             });
         },
 
         loadFileColumns() {
-            this.model.set('allColumns', []);
+            this.model.set('sourceFields', []);
 
             let fileId = this.model.get('fileId');
             if (!fileId) {
@@ -103,9 +103,9 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
                     this.jobId = response.jobId;
                     Backbone.trigger('showQueuePanel');
                     this.$el.html('<img alt="preloader" class="preloader" style="height:19px;margin-top:6px;margin-left:-8px" src="client/img/atro-loader.svg" />');
-                    this.readAllColumnsFromJob();
+                    this.readSourceFieldsFromJob();
                 } else {
-                    this.model.set('allColumns', response);
+                    this.model.set('sourceFields', response);
                 }
             });
         },

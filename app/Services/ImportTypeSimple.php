@@ -376,14 +376,14 @@ class ImportTypeSimple extends QueueManagerBase
             $this->createConvertedFile($data, $fileData);
             $result = $fileData;
         } else {
-            $allColumns = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
+            $sourceFields = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
             if ($includedHeaderRow) {
                 $first = array_shift($fileData);
             }
 
             foreach ($fileData as $line => $fileLine) {
                 foreach ($fileLine as $k => $v) {
-                    $result[$line][$allColumns[$k]] = $v;
+                    $result[$line][$sourceFields[$k]] = $v;
                 }
             }
         }

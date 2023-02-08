@@ -68,7 +68,7 @@
   },
   "exceptions": {
     "convertValidationPrefix": "Error for value '{{value}}' from column '{{column}}': ",
-    "allColumnsEmpty": "Source Fields should be recognized.",
+    "sourceFieldsEmpty": "Source Fields should be recognized.",
     "noFeedFileFound": "Feed file is missing.",
     "measureIsNotSet": "Measure for the attribute \"%s\" is not set.",
     "noSpecifiedField": "No '{{key}}' specified for the field '{{name}}'.",

@@ -33,7 +33,7 @@ use Import\Entities\ImportJob;
 
 class ImportFeed extends Base
 {
-    protected $mandatorySelectAttributeList = ['allColumns'];
+    protected $mandatorySelectAttributeList = ['sourceFields'];
 
     public function prepareEntityForOutput(Entity $entity)
     {
@@ -227,22 +227,22 @@ class ImportFeed extends Base
                 if (!empty($this->getMetadata()->get(['scopes', 'Attribute']))) {
                     $this->getRepository()->removeInvalidConfiguratorItems($feed);
                 }
-                $allColumns = empty($feed->getFeedField('allColumns')) ? [] : $feed->getFeedField('allColumns');
-                $this->removeItemsByAllColumns($feed, $allColumns);
+                $sourceFields = empty($feed->get('sourceFields')) ? [] : $feed->get('sourceFields');
+                $this->removeItemsBySourceFields($feed, $sourceFields);
             }
         }
 
         return parent::findLinkedEntities($id, $link, $params);
     }
 
-    public function removeItemsByAllColumns(Entity $importFeed, array $allColumns): void
+    public function removeItemsBySourceFields(Entity $importFeed, array $sourceFields): void
     {
         $items = $importFeed->get('configuratorItems');
         if (!empty($items) && count($items) > 0) {
             foreach ($items as $item) {
                 if (!empty($columns = $item->get('column'))) {
                     foreach ($columns as $column) {
-                        if (!in_array($column, $allColumns)) {
+                        if (!in_array($column, $sourceFields)) {
                             $this->getEntityManager()->removeEntity($item);
                             continue 2;
                         }

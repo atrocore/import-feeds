@@ -68,7 +68,7 @@
   },
   "exceptions": {
     "convertValidationPrefix": "Ошибка значения '{{value}}' для колонки '{{column}}': ",
-    "allColumnsEmpty": "Исходные поля должны быть распознаны.",
+    "sourceFieldsEmpty": "Исходные поля должны быть распознаны.",
     "noFeedFileFound": "Файл фида отсутствует.",
     "measureIsNotSet": "Мера для атрибута \"%s\" не задана.",
     "noSpecifiedField": "'{{key}}' не указан для поля '{{name}}'.",

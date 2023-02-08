@@ -65,7 +65,7 @@
   },
   "exceptions": {
     "convertValidationPrefix": "Fehler für den Wert '{{value}}' aus der Spalte '{{column}}': ",
-    "allColumnsEmpty": "Quellfelder sollten erkannt werden.",
+    "sourceFieldsEmpty": "Quellfelder sollten erkannt werden.",
     "noFeedFileFound": "Feeddatei fehlt.",
     "measureIsNotSet": "Maß für das Attribut \"%s\" ist nicht gesetzt.",
     "noSpecifiedField": "Für das Feld '{{name}}' ist keine '{{key}}' angegeben.",
