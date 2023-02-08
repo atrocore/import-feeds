@@ -392,6 +392,10 @@ class ImportTypeSimple extends QueueManagerBase
          * Validation.
          */
         if (!empty($result)) {
+            $row = $this
+                ->getEventManager()
+                ->dispatch(new Event(['row' => $result[0], 'jobData' => $data, 'skip' => false]), 'prepareImportRow')
+                ->getArgument('row');
             foreach ($data['data']['configuration'] as $item) {
                 if (!in_array($item['name'], $data['data']['idField'])) {
                     continue;
@@ -401,7 +405,7 @@ class ImportTypeSimple extends QueueManagerBase
                     continue 1;
                 }
                 foreach ($columns as $column) {
-                    if (!in_array($column, array_keys($result[0]))) {
+                    if (!in_array($column, array_keys($row))) {
                         throw new BadRequest(sprintf($this->translate('missingSourceFieldAsIdentifiers', 'exceptions', 'ImportFeed'), $column));
                     }
                 }
