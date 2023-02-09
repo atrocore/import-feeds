@@ -29,7 +29,7 @@ class V1Dot4Dot27 extends Base
 {
     public function up(): void
     {
-        $this->getPDO()->exec("ALTER TABLE import_configurator_item RENAME COLUMN replace_relation TO replace_array");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item CHANGE replace_relation replace_array tinyint(1) default 0 not null");
     }
 
     public function down(): void
