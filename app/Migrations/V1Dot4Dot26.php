@@ -38,7 +38,7 @@ class V1Dot4Dot26 extends Base
             $this->getPDO()->exec("UPDATE import_feed SET proceed_already_proceeded='repeat' WHERE id='$id'");
         }
 
-        $this->getPDO()->exec("ALTER TABLE import_feed RENAME COLUMN proceed_already_proceeded TO repeat_processing");
+        $this->getPDO()->exec("ALTER TABLE import_feed CHANGE proceed_already_proceeded repeat_processing varchar(255) default 'mistake' null");
 
         $this->getPDO()->exec("DELETE FROM import_job_log WHERE 1");
 
