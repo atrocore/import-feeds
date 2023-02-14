@@ -77,6 +77,8 @@ class ImportTypeSimple extends QueueManagerBase
             throw new BadRequest('No such ImportJob.');
         }
 
+        $GLOBALS['importJobId'] = $importJob->get('id');
+
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
 
