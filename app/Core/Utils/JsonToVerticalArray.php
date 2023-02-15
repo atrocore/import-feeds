@@ -101,7 +101,19 @@ class JsonToVerticalArray
         }
 
         foreach ($value as $k => $v) {
+            $checkName = self::createCheckName(self::concatKeys($key, $k));
+            if (!empty($importPayload['data']['excludedNodes']) && is_array($importPayload['data']['excludedNodes'])) {
+                if (in_array($checkName, $importPayload['data']['excludedNodes'])) {
+                    continue;
+                }
+            }
             if (is_array($v)) {
+                if (!empty($importPayload['data']['keptStringNodes']) && is_array($importPayload['data']['keptStringNodes'])) {
+                    if (in_array($checkName, $importPayload['data']['keptStringNodes'])) {
+                        $result[self::concatKeys($key, $k)] = json_encode($v);
+                        continue;
+                    }
+                }
                 self::toHorizontalArray($v, self::concatKeys($key, $k), $result);
             } else {
                 $value = $v;
@@ -149,5 +161,19 @@ class JsonToVerticalArray
             $data[] = $row;
             $i++;
         }
+    }
+
+    protected static function createCheckName(string $name): string
+    {
+        $parts = explode('.', $name);
+
+        $arr = [];
+        foreach ($parts as $part) {
+            if (strpos($part, 'collection{') === false) {
+                $arr[] = $part;
+            }
+        }
+
+        return implode('.', $arr);
     }
 }
