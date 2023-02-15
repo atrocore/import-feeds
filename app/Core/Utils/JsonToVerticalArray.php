@@ -39,17 +39,14 @@ class JsonToVerticalArray
         self::toHorizontalArray($array, '', $horizontalArray);
 
         $data = [];
-        $again = false;
-        self::toVerticalArray($horizontalArray, $data, $again);
-        if ($again) {
-            while ($again) {
-                $again = false;
-                $newData = [];
-                foreach ($data as $row) {
-                    self::toVerticalArray($row, $newData, $again);
-                }
-                $data = $newData;
+        self::toVerticalArray($horizontalArray, $data);
+
+        while (strpos(json_encode($data), 'collection{') !== false) {
+            $newData = [];
+            foreach ($data as $row) {
+                self::toVerticalArray($row, $newData);
             }
+            $data = $newData;
         }
 
         $keys = [];
@@ -119,7 +116,7 @@ class JsonToVerticalArray
         }
     }
 
-    protected static function toVerticalArray(array $array, &$data, &$again): void
+    protected static function toVerticalArray(array $array, &$data): void
     {
         $run = true;
         $i = 0;
@@ -139,9 +136,6 @@ class JsonToVerticalArray
                             array_pop($nameParts);
                         } elseif ($num > $i) {
                             $run = true;
-                            continue 2;
-                        } else {
-                            $again = true;
                             continue 2;
                         }
                     }
