@@ -1,5 +1,7 @@
 {
   "fields": {
+    "excludedNodes": "Excluded Nodes",
+    "keptStringNodes": "Array Nodes",
     "adapter": "Adapter",
     "repeatProcessing": "Repeated data record processing",
     "connection": "Connection",

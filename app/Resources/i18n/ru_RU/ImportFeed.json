@@ -1,5 +1,7 @@
 {
   "fields": {
+    "excludedNodes": "Исключаемые узлы",
+    "keptStringNodes": "Узлы-массивы",
     "adapter": "Адаптер",
     "repeatProcessing": "Повторная обработка записи данных",
     "connection": "Соединение",

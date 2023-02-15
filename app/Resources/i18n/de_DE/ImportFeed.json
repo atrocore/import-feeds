@@ -1,5 +1,7 @@
 {
   "fields": {
+    "excludedNodes": "Ausgeschlossene Knoten",
+    "keptStringNodes": "Array-Knoten",
     "adapter": "Adapter",
     "repeatProcessing": "Wiederholte Datensatzbearbeitung",
     "connection": "Verbindung",
