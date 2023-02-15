@@ -238,6 +238,20 @@
       "options": [],
       "default": "Product"
     },
+    "excludedNodes": {
+      "type": "array",
+      "required": false,
+      "notStorable": true,
+      "dataField": true,
+      "filterDisabled": true
+    },
+    "keptStringNodes": {
+      "type": "array",
+      "required": false,
+      "notStorable": true,
+      "dataField": true,
+      "filterDisabled": true
+    },
     "delimiter": {
       "type": "varchar",
       "notStorable": true,

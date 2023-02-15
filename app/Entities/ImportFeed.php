@@ -99,6 +99,8 @@ class ImportFeed extends Base
 
         $result['entity'] = $this->getFeedField('entity');
         $result['idField'] = [];
+        $result['excludedNodes'] = $this->getFeedField('excludedNodes');
+        $result['keptStringNodes'] = $this->getFeedField('keptStringNodes');
         $result['delimiter'] = $this->getFeedField('delimiter');
         $result['configuration'] = [];
 

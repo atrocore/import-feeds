@@ -26,8 +26,14 @@ use Espo\Entities\Attachment;
 
 class JsonFileParser extends AbstractFileParser
 {
-    public function getFileColumns(Attachment $attachment): array
+    protected array $excludedNodes = [];
+    protected array $keptStringNodes = [];
+
+    public function getFileColumns(Attachment $attachment, array $excludedNodes, array $keptStringNodes): array
     {
+        $this->excludedNodes = $excludedNodes;
+        $this->keptStringNodes = $keptStringNodes;
+
         $data = $this->getFileData($attachment);
         if (empty($data[0])) {
             return [];
@@ -44,6 +50,17 @@ class JsonFileParser extends AbstractFileParser
             return [];
         }
 
-        return \Import\Core\Utils\JsonToVerticalArray::mutate($contents, $this->getImportPayload());
+        $payload = [
+            'data' => [
+                'excludedNodes'   => $this->excludedNodes,
+                'keptStringNodes' => $this->keptStringNodes,
+            ]
+        ];
+
+        if (!empty($importPayload = $this->getImportPayload())) {
+            $payload = array_merge($payload, $importPayload);
+        }
+
+        return \Import\Core\Utils\JsonToVerticalArray::mutate($contents, $payload);
     }
 }
