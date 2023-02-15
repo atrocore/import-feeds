@@ -250,7 +250,8 @@
       "required": false,
       "notStorable": true,
       "dataField": true,
-      "filterDisabled": true
+      "filterDisabled": true,
+      "tooltip": true
     },
     "delimiter": {
       "type": "varchar",
