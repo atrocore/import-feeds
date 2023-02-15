@@ -137,6 +137,8 @@ class JsonToVerticalArray
                         } elseif ($num > $i) {
                             $run = true;
                             continue 2;
+                        } else {
+                            continue 2;
                         }
                     }
                 }
