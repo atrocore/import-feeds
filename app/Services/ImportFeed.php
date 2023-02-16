@@ -97,13 +97,24 @@ class ImportFeed extends Base
             $this->$method($attachment->get('id'));
         }
 
-        $delimiter = (property_exists($payload, 'delimiter') && !empty($payload->delimiter)) ? $payload->delimiter : ';';
-        $enclosure = (property_exists($payload, 'enclosure') && $payload->enclosure == 'singleQuote') ? "'" : '"';
-        $isFileHeaderRow = (property_exists($payload, 'isHeaderRow') && is_null($payload->isHeaderRow)) ? true : !empty($payload->isHeaderRow);
+        $parser = $this->getFileParser($payload->format);
 
-        return $this
-            ->getFileParser($payload->format)
-            ->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
+        if ($parser instanceof CsvFileParser) {
+            $delimiter = (property_exists($payload, 'delimiter') && !empty($payload->delimiter)) ? $payload->delimiter : ';';
+            $enclosure = (property_exists($payload, 'enclosure') && $payload->enclosure == 'singleQuote') ? "'" : '"';
+            $isFileHeaderRow = (property_exists($payload, 'isHeaderRow') && is_null($payload->isHeaderRow)) ? true : !empty($payload->isHeaderRow);
+
+            return $parser->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
+        }
+
+        if ($parser instanceof JsonFileParser) {
+            $excludedNodes = (property_exists($payload, 'excludedNodes') && !empty($payload->excludedNodes)) ? $payload->excludedNodes : [];
+            $keptStringNodes = (property_exists($payload, 'keptStringNodes') && !empty($payload->keptStringNodes)) ? $payload->keptStringNodes : [];
+
+            return $parser->getFileColumns($attachment, $excludedNodes, $keptStringNodes);
+        }
+
+        return [];
     }
 
     public function validateXMLFile(string $attachmentId): void

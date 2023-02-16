@@ -1,5 +1,7 @@
 {
   "fields": {
+    "excludedNodes": "Ausgeschlossene Knoten",
+    "keptStringNodes": "Array-Knoten",
     "adapter": "Adapter",
     "repeatProcessing": "Wiederholte Datensatzbearbeitung",
     "connection": "Verbindung",
@@ -107,6 +109,7 @@
     }
   },
   "tooltips": {
+    "keptStringNodes": "Fügen Sie hier Knoten hinzu, die als Blattknoten betrachtet werden sollen, sodass alle Daten dahinter als ein einziges Array betrachtet werden.",
     "file": "Diese Datei wird für die Konfiguration verwendet. Es kann eine Beispieldatei oder die zu importierende Datei sein.",
     "repeatProcessing": "Die Datensatzwiederholung wird durch Kennungen im Konfigurator bestimmt."
   }
