@@ -33,7 +33,11 @@ class CsvFileParser extends AbstractFileParser
 
         // get data
         if ($data === null) {
-            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2, $sheet);
+            if ($this instanceof ExcelFileParser) {
+                $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2, $sheet);
+            } else {
+                $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
+            }
         }
 
         if (isset($data[0])) {

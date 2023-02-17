@@ -78,6 +78,8 @@ class ImportTypeSimple extends QueueManagerBase
             throw new BadRequest('No such ImportJob.');
         }
 
+        $GLOBALS['importJobId'] = $importJob->get('id');
+
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
 
@@ -358,7 +360,7 @@ class ImportTypeSimple extends QueueManagerBase
             $data['offset'] = 0;
         }
 
-        if ($data['fileFormat'] === 'Excel') {
+        if ($fileParser instanceof ExcelFileParser) {
             $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $data['sheet']);
         } else {
             $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);

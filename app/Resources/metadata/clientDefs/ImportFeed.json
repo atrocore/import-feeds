@@ -68,6 +68,34 @@
           ]
         }
       },
+      "excludedNodes": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "in",
+              "attribute": "format",
+              "value": [
+                "JSON",
+                "XML"
+              ]
+            }
+          ]
+        }
+      },
+      "keptStringNodes": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "in",
+              "attribute": "format",
+              "value": [
+                "JSON",
+                "XML"
+              ]
+            }
+          ]
+        }
+      },
       "fileFieldDelimiter": {
         "visible": {
           "conditionGroup": [

@@ -39,17 +39,14 @@ class JsonToVerticalArray
         self::toHorizontalArray($array, '', $horizontalArray);
 
         $data = [];
-        $again = false;
-        self::toVerticalArray($horizontalArray, $data, $again);
-        if ($again) {
-            while ($again) {
-                $again = false;
-                $newData = [];
-                foreach ($data as $row) {
-                    self::toVerticalArray($row, $newData, $again);
-                }
-                $data = $newData;
+        self::toVerticalArray($horizontalArray, $data);
+
+        while (strpos(json_encode($data), 'collection{') !== false) {
+            $newData = [];
+            foreach ($data as $row) {
+                self::toVerticalArray($row, $newData);
             }
+            $data = $newData;
         }
 
         $keys = [];
@@ -104,7 +101,19 @@ class JsonToVerticalArray
         }
 
         foreach ($value as $k => $v) {
+            $checkName = self::createCheckName(self::concatKeys($key, $k));
+            if (!empty($importPayload['data']['excludedNodes']) && is_array($importPayload['data']['excludedNodes'])) {
+                if (in_array($checkName, $importPayload['data']['excludedNodes'])) {
+                    continue;
+                }
+            }
             if (is_array($v)) {
+                if (!empty($importPayload['data']['keptStringNodes']) && is_array($importPayload['data']['keptStringNodes'])) {
+                    if (in_array($checkName, $importPayload['data']['keptStringNodes'])) {
+                        $result[self::concatKeys($key, $k)] = json_encode($v);
+                        continue;
+                    }
+                }
                 self::toHorizontalArray($v, self::concatKeys($key, $k), $result);
             } else {
                 $value = $v;
@@ -119,7 +128,7 @@ class JsonToVerticalArray
         }
     }
 
-    protected static function toVerticalArray(array $array, &$data, &$again): void
+    protected static function toVerticalArray(array $array, &$data): void
     {
         $run = true;
         $i = 0;
@@ -141,7 +150,6 @@ class JsonToVerticalArray
                             $run = true;
                             continue 2;
                         } else {
-                            $again = true;
                             continue 2;
                         }
                     }
@@ -153,5 +161,19 @@ class JsonToVerticalArray
             $data[] = $row;
             $i++;
         }
+    }
+
+    protected static function createCheckName(string $name): string
+    {
+        $parts = explode('.', $name);
+
+        $arr = [];
+        foreach ($parts as $part) {
+            if (strpos($part, 'collection{') === false) {
+                $arr[] = $part;
+            }
+        }
+
+        return implode('.', $arr);
     }
 }

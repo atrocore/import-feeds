@@ -1,5 +1,7 @@
 {
   "fields": {
+    "excludedNodes": "Excluded Nodes",
+    "keptStringNodes": "Array Nodes",
     "adapter": "Adapter",
     "repeatProcessing": "Repeated data record processing",
     "connection": "Connection",
@@ -111,6 +113,7 @@
     }
   },
   "tooltips": {
+    "keptStringNodes": "Add here nodes which should be considered as leaf nodes, so that all data behind it is considered to be a single array.",
     "file": "This file will be used to create the configuration. It could be an example file or file to be imported.",
     "repeatProcessing": "Data record repeating is determined by identifiers in the configurator."
   }
