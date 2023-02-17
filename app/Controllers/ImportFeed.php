@@ -29,6 +29,7 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 {
     public function actionParseFileColumns($params, $data, $request): array
     {
+
         if (!$request->isPost()) {
             throw new BadRequest();
         }
@@ -38,6 +39,18 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
         }
 
         return $this->getRecordService()->parseFileColumns($data);
+    }
+
+    public function actionGetFileSheets($params, $data, $request): array
+    {
+        if (!$request->isPost()) {
+            throw new BadRequest();
+        }
+
+        if (!$this->getAcl()->check($this->name, 'read')) {
+            throw new Forbidden();
+        }
+        return $this->getRecordService()->getFileSheets($data);
     }
 
     public function actionRunImport($params, $data, $request): bool

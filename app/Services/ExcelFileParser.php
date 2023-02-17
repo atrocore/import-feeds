@@ -23,10 +23,35 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Espo\Entities\Attachment;
+use Monolog\Logger;
+
+class MyWriter
+{
+    public function write( $object, $level )
+    {
+        echo (string) $object;
+
+        return true;
+    }
+}
 
 class ExcelFileParser extends CsvFileParser
 {
-    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', int $offset = 0, int $limit = null): array
+    public function getFileSheetsNames(Attachment $attachment)
+    {
+        $path = $this->getLocalFilePath($attachment);
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($path);
+        $reader->setReadDataOnly(true);
+
+        try {
+            $data = $reader->load($path)->getSheetNames();
+        } catch (\Throwable $e) {
+            $data = [];
+        }
+
+        return $data;
+    }
+    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', int $offset = 0, int $limit = null, int $sheet = 0): array
     {
         $path = $this->getLocalFilePath($attachment);
 
@@ -34,7 +59,7 @@ class ExcelFileParser extends CsvFileParser
         $reader->setReadDataOnly(true);
 
         try {
-            $data = $reader->load($path)->getSheet(0)->toArray();
+            $data = $reader->load($path)->getSheet($sheet)->toArray();
         } catch (\Throwable $e) {
             $data = [];
         }

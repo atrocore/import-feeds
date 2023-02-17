@@ -74,6 +74,26 @@
       "sourceList": [],
       "view": "import:views/import-feed/fields/file"
     },
+    "sheet": {
+      "type": "int",
+      "view": "import:views/import-feed/fields/sheet",
+      "required": false,
+      "prohibitedEmptyValue": true
+    },
+    "sheetOptions": {
+      "type": "array",
+      "notStorable": true,
+      "dataField": true,
+      "required": false,
+      "layoutDetailDisabled": true,
+      "layoutListDisabled": true,
+      "layoutMassUpdateDisabled": true,
+      "filterDisabled": true,
+      "exportDisabled": true,
+      "importDisabled": true,
+      "textFilterDisabled": true,
+      "emHidden": true
+    },
     "fileFieldDelimiter": {
       "type": "enum",
       "notStorable": true,
