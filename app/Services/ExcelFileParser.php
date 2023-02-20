@@ -23,17 +23,6 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Espo\Entities\Attachment;
-use Monolog\Logger;
-
-class MyWriter
-{
-    public function write( $object, $level )
-    {
-        echo (string) $object;
-
-        return true;
-    }
-}
 
 class ExcelFileParser extends CsvFileParser
 {
