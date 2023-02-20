@@ -25,7 +25,7 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
         setup() {
             Dep.prototype.setup.call(this);
 
-            ['file', 'format', 'fileFieldDelimiter', 'fileTextQualifier', 'isFileHeaderRow', 'excludedNodes', 'keptStringNodes'].forEach(fieldName => {
+            ['file', 'sheet', 'format', 'fileFieldDelimiter', 'fileTextQualifier', 'isFileHeaderRow', 'excludedNodes', 'keptStringNodes'].forEach(fieldName => {
                 let action = fieldName === 'file' ? 'fileUpdate' : 'change:' + fieldName;
                 this.listenTo(this.model, action, () => {
                     if (this.getParentView().getView(fieldName).mode === 'edit') {
@@ -83,7 +83,7 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
         },
 
         loadFileColumns() {
-            this.model.set('sourceFields', []);
+            this.model.set('sourceFields', [], {silent: true});
 
             let fileId = this.model.get('fileId');
             if (!fileId) {
@@ -98,7 +98,8 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
                 enclosure: this.model.get('fileTextQualifier'),
                 excludedNodes: this.model.get('excludedNodes'),
                 keptStringNodes: this.model.get('keptStringNodes'),
-                isHeaderRow: this.model.get('isFileHeaderRow') ? 1 : 0
+                isHeaderRow: this.model.get('isFileHeaderRow') ? 1 : 0,
+                sheet: this.model.get('sheet')
             };
 
             this.ajaxPostRequest(`ImportFeed/action/ParseFileColumns`, data).success(response => {

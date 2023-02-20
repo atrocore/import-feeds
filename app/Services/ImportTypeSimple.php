@@ -61,7 +61,8 @@ class ImportTypeSimple extends QueueManagerBase
             "action"           => $feed->get('fileDataAction'),
             "attachmentId"     => $attachmentId,
             "data"             => $feed->getConfiguratorData(),
-            "repeatProcessing" => $feed->get("repeatProcessing")
+            "repeatProcessing" => $feed->get("repeatProcessing"),
+            "sheet"            => $feed->get("sheet"),
         ];
 
         return $this
@@ -359,7 +360,12 @@ class ImportTypeSimple extends QueueManagerBase
             $data['offset'] = 0;
         }
 
-        $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
+        if ($fileParser instanceof ExcelFileParser) {
+            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $data['sheet']);
+        } else {
+            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
+        }
+
         if (empty($fileData)) {
             throw new BadRequest('File is empty.');
         }

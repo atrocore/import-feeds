@@ -76,6 +76,17 @@ class ImportFeed extends Base
 
         return $this->getFileColumns($payload);
     }
+    public function getFileSheets(\stdClass $payload): array
+    {
+        if (!property_exists($payload, 'attachmentId')) {
+            throw new BadRequest($this->exception("noSuchFile"));
+        }
+        $attachment = $this->getEntityManager()->getEntity('Attachment', $payload->attachmentId);
+        if (empty($attachment)) {
+            throw new BadRequest($this->exception("noSuchFile"));
+        }
+        return $this->getFileParser($payload->format)->getFileSheetsNames($attachment);
+    }
 
     public function getFileColumns(\stdClass $payload): array
     {
@@ -103,8 +114,9 @@ class ImportFeed extends Base
             $delimiter = (property_exists($payload, 'delimiter') && !empty($payload->delimiter)) ? $payload->delimiter : ';';
             $enclosure = (property_exists($payload, 'enclosure') && $payload->enclosure == 'singleQuote') ? "'" : '"';
             $isFileHeaderRow = (property_exists($payload, 'isHeaderRow') && is_null($payload->isHeaderRow)) ? true : !empty($payload->isHeaderRow);
+            $sheet = intval($payload->sheet);
 
-            return $parser->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow);
+            return $parser->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow, null, $sheet);
         }
 
         if ($parser instanceof JsonFileParser) {

@@ -6,6 +6,7 @@
     "repeatProcessing": "Wiederholte Datensatzbearbeitung",
     "connection": "Verbindung",
     "format": "Format",
+    "sheet": "Sheet",
     "entity": "Entität",
     "delimiter": "Listenwerttrennzeichen",
     "file": "Datei",

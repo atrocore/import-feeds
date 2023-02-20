@@ -6,6 +6,7 @@
     "repeatProcessing": "Repeated data record processing",
     "connection": "Connection",
     "format": "Format",
+    "sheet": "Sheet",
     "entity": "Entity",
     "delimiter": "List Value Separator",
     "sourceFields": "Source Fields",
