@@ -33,7 +33,7 @@ use Import\Entities\ImportJob;
 
 class ImportFeed extends Base
 {
-    protected $mandatorySelectAttributeList = ['sourceFields'];
+    protected $mandatorySelectAttributeList = ['sourceFields', 'sheet', 'data'];
 
     public function prepareEntityForOutput(Entity $entity)
     {
