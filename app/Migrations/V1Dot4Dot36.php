@@ -28,7 +28,7 @@ class V1Dot4Dot36 extends Base
 {
     public function up(): void
     {
-        $this->execute("ALTER TABLE `import_feed` ADD sheet INT DEFAULT NULL COLLATE utf8mb4_unicode_ci");
+        $this->execute("ALTER TABLE `import_feed` ADD sheet INT DEFAULT 0 COLLATE utf8mb4_unicode_ci");
 
     }
 
