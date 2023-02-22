@@ -78,7 +78,8 @@
       "type": "int",
       "view": "import:views/import-feed/fields/sheet",
       "required": false,
-      "prohibitedEmptyValue": true
+      "prohibitedEmptyValue": true,
+      "default": 0
     },
     "sheetOptions": {
       "type": "array",
