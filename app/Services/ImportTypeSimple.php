@@ -79,6 +79,8 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         $GLOBALS['importJobId'] = $importJob->get('id');
+        $GLOBALS['skipAssignmentNotifications'] = true;
+        $GLOBALS['skipHooks'] = true;
 
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
