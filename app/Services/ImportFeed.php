@@ -76,15 +76,22 @@ class ImportFeed extends Base
 
         return $this->getFileColumns($payload);
     }
+
     public function getFileSheets(\stdClass $payload): array
     {
+        if (!property_exists($payload, 'format') || $payload->format !== 'Excel') {
+            return [];
+        }
+
         if (!property_exists($payload, 'attachmentId')) {
             throw new BadRequest($this->exception("noSuchFile"));
         }
+
         $attachment = $this->getEntityManager()->getEntity('Attachment', $payload->attachmentId);
         if (empty($attachment)) {
             throw new BadRequest($this->exception("noSuchFile"));
         }
+
         return $this->getFileParser($payload->format)->getFileSheetsNames($attachment);
     }
 
