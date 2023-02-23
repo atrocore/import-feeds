@@ -51,7 +51,8 @@ Espo.define('import:views/import-feed/fields/sheet', 'views/fields/enum',
 
             this.ajaxPostRequest(`ImportFeed/action/GetFileSheets`, data).success(response => {
                 this.model.set('sheetOptions', response);
-
+                this.params.options = [];
+                this.translatedOptions = {};
                 (response || []).forEach((value, key)=> {
                     this.translatedOptions[key] = value;
                     this.params.options.push(key);
