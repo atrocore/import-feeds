@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Espo\Core\EventManager\Event;
 use Espo\Entities\Attachment;
 
 class XmlFileParser extends JsonFileParser
@@ -36,6 +37,10 @@ class XmlFileParser extends JsonFileParser
 
         $json = json_encode(simplexml_load_string($contents));
 
-        return \Import\Core\Utils\JsonToVerticalArray::mutate($json, $this->getImportPayload());
+        $data = \Import\Core\Utils\JsonToVerticalArray::mutate($json, $this->getImportPayload());
+
+        return $this
+            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'xml']))
+            ->getArgument('data');
     }
 }

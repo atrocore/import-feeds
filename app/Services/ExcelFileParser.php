@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Espo\Core\EventManager\Event;
 use Espo\Entities\Attachment;
 
 class ExcelFileParser extends CsvFileParser
@@ -77,6 +78,8 @@ class ExcelFileParser extends CsvFileParser
             unset($limited);
         }
 
-        return $result;
+        return $this
+            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $result, 'attachment' => $attachment, 'type' => 'excel']))
+            ->getArgument('data');
     }
 }

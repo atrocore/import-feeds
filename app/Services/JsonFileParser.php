@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Espo\Core\EventManager\Event;
 use Espo\Entities\Attachment;
 
 class JsonFileParser extends AbstractFileParser
@@ -61,6 +62,10 @@ class JsonFileParser extends AbstractFileParser
             $payload = array_merge($payload, $importPayload);
         }
 
-        return \Import\Core\Utils\JsonToVerticalArray::mutate($contents, $payload);
+        $data = \Import\Core\Utils\JsonToVerticalArray::mutate($contents, $payload);
+
+        return $this
+            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'json']))
+            ->getArgument('data');
     }
 }

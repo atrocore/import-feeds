@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Espo\Core\EventManager\Event;
 use Espo\Entities\Attachment;
 
 class CsvFileParser extends AbstractFileParser
@@ -64,7 +65,11 @@ class CsvFileParser extends AbstractFileParser
         // prepare path
         $path = $this->getLocalFilePath($attachment);
 
-        return $this->getParsedFileData($path, $delimiter, $enclosure, $offset, $limit);
+        $data = $this->getParsedFileData($path, $delimiter, $enclosure, $offset, $limit);
+
+        return $this
+            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'csv']))
+            ->getArgument('data');
     }
 
     /**
