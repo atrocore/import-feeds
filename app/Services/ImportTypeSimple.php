@@ -163,6 +163,10 @@ class ImportTypeSimple extends QueueManagerBase
                     }
                 } catch (\Throwable $e) {
                     $this->log($scope, $importJob->get('id'), 'error', (string)$fileRow, $e->getMessage());
+                    if ($this->getConfig()->get('tracingImportErrors')) {
+                        $GLOBALS['log']->error("Import Job '{$importJob->get('id')}' Failed. Message: '{$e->getMessage()}'. Trace: '{$e->getTraceAsString()}'.");
+                    }
+
                     continue 1;
                 }
 
