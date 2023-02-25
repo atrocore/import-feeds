@@ -201,6 +201,17 @@ class ImportTypeSimple extends QueueManagerBase
                         }
 
                         $type = $this->getMetadata()->get(['entityDefs', $item['entity'], 'fields', $item['name'], 'type'], 'varchar');
+                        if ($item['entity'] === 'ProductAttributeValue' && $item['name'] === 'value') {
+                            if (!empty($row['attributeId'])) {
+                                $attribute = $this->getEntityManager()->getRepository('Attribute')->get($row['attributeId']);
+                            } elseif (!empty($entity)) {
+                                $attribute = $this->getEntityManager()->getRepository('Attribute')->get($entity->get('attributeId'));
+                            }
+                            if (!empty($attribute)) {
+                                $type = $attribute->get('type');
+                            }
+                        }
+
                         try {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->convert($input, $item, $row);
                         } catch (BadRequest $e) {
