@@ -42,6 +42,7 @@ class ImportTypeSimple extends QueueManagerBase
     private array $updatedPav = [];
     private array $deletedPav = [];
     private int $iterations = 0;
+    protected array $attributes = [];
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
@@ -203,9 +204,9 @@ class ImportTypeSimple extends QueueManagerBase
                         $type = $this->getMetadata()->get(['entityDefs', $item['entity'], 'fields', $item['name'], 'type'], 'varchar');
                         if ($item['entity'] === 'ProductAttributeValue' && $item['name'] === 'value') {
                             if (!empty($row['attributeId'])) {
-                                $attribute = $this->getEntityManager()->getRepository('Attribute')->get($row['attributeId']);
+                                $attribute = $this->getAttributeById($row['attributeId']);
                             } elseif (!empty($entity)) {
-                                $attribute = $this->getEntityManager()->getRepository('Attribute')->get($entity->get('attributeId'));
+                                $attribute = $this->getAttributeById($entity->get('attributeId'));
                             }
                             if (!empty($attribute)) {
                                 $type = $attribute->get('type');
@@ -647,5 +648,14 @@ class ImportTypeSimple extends QueueManagerBase
     protected function getEventManager(): Manager
     {
         return $this->getContainer()->get('eventManager');
+    }
+
+    protected function getAttributeById(string $attributeId): ?Entity
+    {
+        if (empty($this->attributes[$attributeId])) {
+            $this->attributes[$attributeId] = $this->getEntityManager()->getRepository('Attribute')->get($attributeId);
+        }
+
+        return $this->attributes[$attributeId];
     }
 }
