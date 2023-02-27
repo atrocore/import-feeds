@@ -20,7 +20,24 @@
 Espo.define('import:views/import-job/record/detail', 'views/record/detail',
     Dep => Dep.extend({
 
-        buttonsDisabled: true
+        buttonsDisabled: true,
+
+        events: _.extend({
+            'click [data-action="generateConvertedFile"]': function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.actionGenerateConvertedFile();
+            }
+        }, Dep.prototype.events),
+
+        actionGenerateConvertedFile() {
+            this.notify(this.translate('generating', 'labels', 'ImportJob'));
+            this.ajaxPostRequest('ImportJob/action/generateConvertedFile', {id: this.model.get('id')}).then(convertedFile => {
+                this.model.set('convertedFileId', convertedFile.id);
+                this.model.set('convertedFileName', convertedFile.name);
+                this.notify('Done', 'success');
+            });
+        },
 
     })
 );

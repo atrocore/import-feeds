@@ -24,7 +24,9 @@
     "Success": "Success",
     "Running": "Running",
     "Failed": "Failed",
-    "Canceled": "Canceled"
+    "Canceled": "Canceled",
+    "generate": "Generate",
+    "generating": "Generating"
   },
   "tooltips": {
     "errorsAttachment": "Rows from 'Imported file' that have not been imported."

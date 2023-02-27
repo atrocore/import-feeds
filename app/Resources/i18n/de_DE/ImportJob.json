@@ -24,7 +24,9 @@
     "Success": "Erfolg",
     "Running": "In Arbeit",
     "Failed": "Fehlgeschlagen",
-    "Canceled": "Abgebrochen"
+    "Canceled": "Abgebrochen",
+    "generate": "Generieren",
+    "generating": "Erstellen"
   },
   "tooltips": {
     "errorsAttachment": "Zeilen aus 'Importierter Datei', die nicht importiert wurden."

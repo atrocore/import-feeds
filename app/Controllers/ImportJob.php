@@ -24,10 +24,24 @@ namespace Import\Controllers;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Templates\Controllers\Base;
 
 class ImportJob extends Base
 {
+    public function actionGenerateConvertedFile($params, \stdClass $data, $request): array
+    {
+        if (!$request->isPost() || !property_exists($data, 'id')) {
+            throw new BadRequest();
+        }
+
+        if (!$this->getAcl()->check($this->name, 'read')) {
+            throw new Forbidden();
+        }
+
+        return $this->getRecordService()->generateConvertedFile((string)$data->id);
+    }
+
     public function actionGetImportJobsViaScope($params, $data, $request): array
     {
         if (!$request->isGet() || empty($request->get('scope'))) {

@@ -98,6 +98,7 @@
     "convertedFile": {
       "type": "file",
       "noAsset": true,
+      "view": "import:views/import-job/fields/converted-file",
       "readOnly": true
     },
     "errorsAttachment": {

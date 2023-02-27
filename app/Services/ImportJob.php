@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\FilePathBuilder;
 use Espo\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
@@ -29,7 +31,79 @@ use Espo\ORM\EntityCollection;
 class ImportJob extends Base
 {
     protected $mandatorySelectAttributeList = ['message'];
-    
+
+    public function generateConvertedFile(string $jobId): array
+    {
+        $importJob = $this->getEntityManager()->getEntity('ImportJob', $jobId);
+        if (empty($importJob)) {
+            throw new BadRequest('No such ImportJob.');
+        }
+
+        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
+        if (empty($qmJob)) {
+            throw new BadRequest('No such QueueItem.');
+        }
+
+        // prepare job data
+        $jobData = json_decode(json_encode($qmJob->get('data')), true);
+
+        /** @var \Import\Services\ImportTypeSimple $importService */
+        $importService = $this->getServiceFactory()->create('ImportTypeSimple');
+
+        /** @var \Espo\Repositories\Attachment $attachmentRepository */
+        $attachmentRepository = $this->getEntityManager()->getRepository('Attachment');
+
+        // prepare converted file attachment
+        $convertedFileAttachment = $attachmentRepository->get();
+        $convertedFileAttachment->set([
+            'name'            => str_replace(' ', '_', $importJob->get('name')) . '.csv',
+            'role'            => 'Attachment',
+            'field'           => 'convertedFile',
+            'relatedType'     => 'ImportJob',
+            'relatedId'       => $importJob->get('id'),
+            'storage'         => 'UploadDir',
+            'type'            => 'text/csv',
+            'storageFilePath' => $this->getInjection('container')->get('filePathBuilder')->createPath(FilePathBuilder::UPLOAD),
+        ]);
+
+        // create dir for converted file
+        $convertedFileDirPath = trim($this->getConfig()->get('filesPath', 'upload/files'), '/') . '/' . $convertedFileAttachment->get('storageFilePath');
+
+        while (!file_exists($convertedFileDirPath)) {
+            mkdir($convertedFileDirPath, 0777, true);
+            usleep(100);
+        }
+
+        // create converted file
+        $convertedFile = fopen($convertedFileDirPath . '/' . $convertedFileAttachment->get('name'), 'w');
+
+        while (!empty($inputData = $importService->getInputData($jobData))) {
+            while (!empty($inputData)) {
+                $row = array_shift($inputData);
+
+                // push header to converted file
+                if (empty($convertedFileHeaderPushed)) {
+                    fputcsv($convertedFile, array_keys($row));
+                    $convertedFileHeaderPushed = true;
+                }
+
+                // push row to converted file
+                fputcsv($convertedFile, array_values($row));
+            }
+        }
+
+        // save converted file attachment
+        fclose($convertedFile);
+        $convertedFileAttachment->set('size', \filesize($attachmentRepository->getFilePath($convertedFileAttachment)));
+        $this->getEntityManager()->saveEntity($convertedFileAttachment);
+
+        // set converted file attachment to import job
+        $importJob->set('convertedFileId', $convertedFileAttachment->get('id'));
+        $this->getEntityManager()->saveEntity($importJob);
+
+        return $convertedFileAttachment->toArray();
+    }
+
     public function getImportJobsViaScope(string $scope): array
     {
         return $this
@@ -77,5 +151,12 @@ class ImportJob extends Base
             ->getRepository('ImportJobLog')
             ->where(['importJobId' => $importJobId, 'type' => $type])
             ->count();
+    }
+
+    protected function init()
+    {
+        parent::init();
+
+        $this->addDependency('container');
     }
 }
