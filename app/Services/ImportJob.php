@@ -41,7 +41,7 @@ class ImportJob extends Base
 
         $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
         if (empty($qmJob)) {
-            throw new BadRequest('No such QueueItem.');
+            throw new BadRequest("QueueItem for ImportJob '{$importJob->get('id')}' does not exist.");
         }
 
         // prepare job data
@@ -68,7 +68,6 @@ class ImportJob extends Base
 
         // create dir for converted file
         $convertedFileDirPath = trim($this->getConfig()->get('filesPath', 'upload/files'), '/') . '/' . $convertedFileAttachment->get('storageFilePath');
-
         while (!file_exists($convertedFileDirPath)) {
             mkdir($convertedFileDirPath, 0777, true);
             usleep(100);
