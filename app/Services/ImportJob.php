@@ -38,7 +38,7 @@ class ImportJob extends Base
     {
         $importJob = $this->getEntityManager()->getEntity('ImportJob', $jobId);
         if (empty($importJob)) {
-            throw new BadRequest('No such ImportJob.');
+            throw new BadRequest("Import job '$jobId' does not exist.");
         }
 
         $errorLogs = $this
@@ -57,7 +57,7 @@ class ImportJob extends Base
         }
 
         if (empty($feed = $importJob->get('importFeed'))) {
-            throw new BadRequest('No such ImportFeed.');
+            throw new BadRequest("ImportFeed for import job '{$importJob->get('id')}' does not exist.");
         }
 
         $errorsRowsNumbers = [];
@@ -93,7 +93,7 @@ class ImportJob extends Base
         }
 
         if (empty($attachmentId) || empty($attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId))) {
-            throw new BadRequest("Attachment '$attachmentId' does not exists.");
+            throw new BadRequest("Attachment '$attachmentId' does not exist.");
         }
 
         $data = $this
@@ -168,7 +168,7 @@ class ImportJob extends Base
     {
         $importJob = $this->getEntityManager()->getEntity('ImportJob', $jobId);
         if (empty($importJob)) {
-            throw new BadRequest('No such ImportJob.');
+            throw new BadRequest("ImportJob '$jobId' does not exist.");
         }
 
         $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
