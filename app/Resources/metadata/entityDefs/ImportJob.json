@@ -98,12 +98,13 @@
     "convertedFile": {
       "type": "file",
       "noAsset": true,
-      "view": "import:views/import-job/fields/converted-file",
+      "view": "import:views/import-job/fields/generated-file",
       "readOnly": true
     },
     "errorsAttachment": {
       "type": "file",
       "noAsset": true,
+      "view": "import:views/import-job/fields/generated-file",
       "readOnly": true,
       "tooltip": true
     },

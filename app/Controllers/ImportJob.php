@@ -29,9 +29,9 @@ use Espo\Core\Templates\Controllers\Base;
 
 class ImportJob extends Base
 {
-    public function actionGenerateConvertedFile($params, \stdClass $data, $request): array
+    public function actionGenerateFile($params, \stdClass $data, $request)
     {
-        if (!$request->isPost() || !property_exists($data, 'id')) {
+        if (!$request->isPost() || !property_exists($data, 'id') || !property_exists($data, 'field')) {
             throw new BadRequest();
         }
 
@@ -39,7 +39,15 @@ class ImportJob extends Base
             throw new Forbidden();
         }
 
-        return $this->getRecordService()->generateConvertedFile((string)$data->id);
+        if ($data->field === 'convertedFile') {
+            return $this->getRecordService()->generateConvertedFile((string)$data->id);
+        }
+
+        if ($data->field === 'errorsAttachment') {
+            return $this->getRecordService()->generateErrorsAttachment((string)$data->id);
+        }
+
+        return null;
     }
 
     public function actionGetImportJobsViaScope($params, $data, $request): array

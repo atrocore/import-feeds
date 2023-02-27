@@ -23,18 +23,21 @@ Espo.define('import:views/import-job/record/detail', 'views/record/detail',
         buttonsDisabled: true,
 
         events: _.extend({
-            'click [data-action="generateConvertedFile"]': function (e) {
+            'click [data-action="generateFile"]': function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-                this.actionGenerateConvertedFile();
+
+                this.actionGenerateFile($(e.currentTarget).data('name'));
             }
         }, Dep.prototype.events),
 
-        actionGenerateConvertedFile() {
+        actionGenerateFile(field) {
             this.notify(this.translate('generating', 'labels', 'ImportJob'));
-            this.ajaxPostRequest('ImportJob/action/generateConvertedFile', {id: this.model.get('id')}).then(convertedFile => {
-                this.model.set('convertedFileId', convertedFile.id);
-                this.model.set('convertedFileName', convertedFile.name);
+            this.ajaxPostRequest('ImportJob/action/generateFile', {id: this.model.get('id'), field: field}).then(entity => {
+                if (entity.id && entity.name){
+                    this.model.set(field + 'Id', entity.id);
+                    this.model.set(field + 'Name', entity.name);
+                }
                 this.notify('Done', 'success');
             });
         },

@@ -17,14 +17,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-job/fields/converted-file', 'views/fields/file',
+Espo.define('import:views/import-job/fields/generated-file', 'views/fields/file',
     Dep => Dep.extend({
 
         afterRender() {
             Dep.prototype.afterRender.call(this);
 
             if (this.mode === 'detail' && this.model.get(this.idName) === null) {
-                this.$el.html(`<a href="javascript:" data-action="generateConvertedFile">${this.translate('generate', 'labels', 'ImportJob')}</a>`);
+                this.$el.html(`<a href="javascript:" data-action="generateFile" data-name="${this.name}">${this.translate('generate', 'labels', 'ImportJob')}</a>`);
             }
         },
 

@@ -25,12 +25,144 @@ namespace Import\Services;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\FilePathBuilder;
 use Espo\Core\Templates\Services\Base;
+use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
+use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
 
 class ImportJob extends Base
 {
     protected $mandatorySelectAttributeList = ['message'];
+
+    public function generateErrorsAttachment(string $jobId): array
+    {
+        $importJob = $this->getEntityManager()->getEntity('ImportJob', $jobId);
+        if (empty($importJob)) {
+            throw new BadRequest('No such ImportJob.');
+        }
+
+        $errorLogs = $this
+            ->getEntityManager()
+            ->getRepository('ImportJobLog')
+            ->select(['rowNumber', 'message'])
+            ->where([
+                'importJobId' => $importJob->get('id'),
+                'type'        => 'error'
+            ])
+            ->find()
+            ->toArray();
+
+        if (empty($errorLogs)) {
+            return [];
+        }
+
+        if (empty($feed = $importJob->get('importFeed'))) {
+            throw new BadRequest('No such ImportFeed.');
+        }
+
+        $errorsRowsNumbers = [];
+
+        switch ($feed->get('format')) {
+            case 'CSV':
+            case 'Excel':
+                $isFileHeaderRow = !empty($feed->getFeedField('isFileHeaderRow'));
+                $attachmentId = $importJob->get('attachmentId');
+                $delimiter = $feed->getDelimiter();
+                $enclosure = $feed->getEnclosure();
+                $format = $feed->get('format');
+                break;
+            default:
+                $isFileHeaderRow = true;
+                $attachmentId = $importJob->get('convertedFileId');
+                if (empty($attachmentId)) {
+                    throw new BadRequest('No such converted file found. Please, generate it first.');
+                }
+                $delimiter = ",";
+                $enclosure = '"';
+                $format = 'CSV';
+        }
+
+        // add header row if it needs
+        if ($isFileHeaderRow) {
+            $errorsRowsNumbers[1] = 'Import Errors';
+        }
+
+        foreach ($errorLogs as $log) {
+            $rowNumber = (int)$log['rowNumber'];
+            $errorsRowsNumbers[$rowNumber] = $log['message'];
+        }
+
+        if (empty($attachmentId) || empty($attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId))) {
+            throw new BadRequest("Attachment '$attachmentId' does not exists.");
+        }
+
+        $data = $this
+            ->getServiceFactory()
+            ->create('ImportFeed')
+            ->getFileParser($format)
+            ->getFileData($attachment, $delimiter, $enclosure);
+
+        // collect errors rows
+        $errorsRows = [];
+        foreach ($data as $k => $row) {
+            $key = $k + 1;
+            if (isset($errorsRowsNumbers[$key])) {
+                $row[] = $errorsRowsNumbers[$key];
+                $errorsRows[] = $row;
+            }
+        }
+
+        /** @var \Espo\Services\Attachment $attachmentService */
+        $attachmentService = $this->getInjection('serviceFactory')->create('Attachment');
+
+        // prepare attachment name
+        $nameParts = explode('.', $importJob->get('attachment')->get('name'));
+        array_pop($nameParts);
+        $name = 'errors-' . implode('.', $nameParts);
+
+        $inputData = new \stdClass();
+        $inputData->name = "{$name}.csv";
+        $inputData->contents = \Import\Core\Utils\Util::generateCsvContents($errorsRows, $feed->getDelimiter(), $feed->getEnclosure());
+        $inputData->type = 'text/csv';
+        $inputData->relatedType = 'ImportJob';
+        $inputData->field = 'errorsAttachment';
+        $inputData->role = 'Attachment';
+
+        $attachment = $attachmentService->createEntity($inputData);
+
+        // create xlsx
+        if ($format === 'Excel') {
+            $filePath = $this->getEntityManager()->getRepository('Attachment')->getFilePath($attachment);
+            $cacheDir = 'data/cache';
+
+            Util::createDir($cacheDir);
+            $cacheFile = "{$cacheDir}/{$name}.xlsx";
+
+            $reader = PhpSpreadsheet::createReaderForFile($filePath);
+            $reader->setReadDataOnly(true);
+            $reader->setDelimiter($feed->getDelimiter());
+            $reader->setEnclosure($feed->getEnclosure());
+            $writer = PhpSpreadsheet::createWriter($reader->load($filePath), "Xlsx");
+            $writer->save($cacheFile);
+
+            $inputData->name = "{$name}.xlsx";
+            $inputData->type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+            $inputData->contents = file_get_contents($cacheFile);
+
+            // remove csv
+            $this->getEntityManager()->removeEntity($attachment);
+
+            // remove cache file
+            unlink($cacheFile);
+
+            $attachment = $attachmentService->createEntity($inputData);
+        }
+
+        $importJob->set('errorsAttachmentId', $attachment->get('id'));
+        $this->getEntityManager()->saveEntity($importJob);
+
+        return $attachment->toArray();
+    }
 
     public function generateConvertedFile(string $jobId): array
     {
