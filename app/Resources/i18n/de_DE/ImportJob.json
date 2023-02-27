@@ -24,9 +24,15 @@
     "Success": "Erfolg",
     "Running": "In Arbeit",
     "Failed": "Fehlgeschlagen",
-    "Canceled": "Abgebrochen"
+    "Canceled": "Abgebrochen",
+    "generate": "Generieren",
+    "generating": "Erstellen"
   },
   "tooltips": {
     "errorsAttachment": "Zeilen aus 'Importierter Datei', die nicht importiert wurden."
+  },
+  "exceptions": {
+    "errorFileCreatingFailed": "Konvertierte Datei existiert nicht. Bitte generieren Sie es zuerst.",
+    "convertedFileNotExist": "No such converted file found. Please, generate it first."
   }
 }

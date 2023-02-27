@@ -1,0 +1,16 @@
+{
+  "fields": {
+    "rowNumber": "Рядок",
+    "importJob": "Завдання імпорту",
+    "type": "Тип",
+    "entityName": "Сутність",
+    "entityId": "Id сутності",
+    "message": "Повідомлення про помилку"
+  },
+  "links": {
+    "importJob": "Завдання імпорту"
+  },
+  "labels": {
+    "Create ImportJobLog": "Створити лог завдання імпорту"
+  }
+}

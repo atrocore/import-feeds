@@ -31,8 +31,6 @@ use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
 
 class ImportJob extends Base
 {
-    public const IMPORT_ERRORS_COLUMN = 'Import Errors';
-
     public function getImportJobsViaScope(string $scope): array
     {
         return $this->getConnection()->createQueryBuilder()
@@ -70,10 +68,6 @@ class ImportJob extends Base
 
     protected function afterSave(Entity $entity, array $options = [])
     {
-        if ($entity->isAttributeChanged('state') && $entity->get('state') == 'Success') {
-            $this->generateErrorsAttachment($entity);
-        }
-
         if ($entity->isAttributeChanged('state') && $entity->get('state') === 'Canceled') {
             $qmJob = $this->getQmJob($entity->get('id'));
             if (!empty($qmJob)) {
@@ -152,108 +146,6 @@ class ImportJob extends Base
         }
 
         return $res;
-    }
-
-    public function generateErrorsAttachment(Entity $importJob): bool
-    {
-        $errorLogs = $this
-            ->getEntityManager()
-            ->getRepository('ImportJobLog')
-            ->select(['rowNumber', 'message'])
-            ->where([
-                'importJobId' => $importJob->get('id'),
-                'type'        => 'error'
-            ])
-            ->find()
-            ->toArray();
-
-        if (empty($errorLogs)) {
-            return false;
-        }
-
-        // get importFeed
-        $feed = $importJob->get('importFeed');
-
-        $errorsRowsNumbers = [];
-
-        // add header row if it needs
-        if (!empty($feed->getFeedField('isFileHeaderRow')) || $feed->get('type') !== 'simple') {
-            $errorsRowsNumbers[1] = self::IMPORT_ERRORS_COLUMN;
-        }
-
-        foreach ($errorLogs as $log) {
-            $rowNumber = (int)$log['rowNumber'];
-            $errorsRowsNumbers[$rowNumber] = $log['message'];
-        }
-
-        $attachment = $this->getEntityManager()->getEntity('Attachment', $importJob->get('attachmentId'));
-
-        $fileParser = $this->getInjection('serviceFactory')->create('ImportFeed')->getFileParser($feed->getFeedField('format'));
-
-        // get file data
-        $data = $fileParser->getFileData($attachment, $feed->getDelimiter(), $feed->getEnclosure());
-
-        // collect errors rows
-        $errorsRows = [];
-        foreach ($data as $k => $row) {
-            $key = $k + 1;
-            if (isset($errorsRowsNumbers[$key])) {
-                $row[] = $errorsRowsNumbers[$key];
-                $errorsRows[] = $row;
-            }
-        }
-
-        /** @var Attachment $attachmentService */
-        $attachmentService = $this->getInjection('serviceFactory')->create('Attachment');
-
-        // prepare attachment name
-        $nameParts = explode('.', $importJob->get('attachment')->get('name'));
-        array_pop($nameParts);
-        $name = 'errors-' . implode('.', $nameParts);
-
-        $inputData = new \stdClass();
-        $inputData->name = "{$name}.csv";
-        $inputData->contents = \Import\Core\Utils\Util::generateCsvContents($errorsRows, $feed->getDelimiter(), $feed->getEnclosure());
-        $inputData->type = 'text/csv';
-        $inputData->relatedType = 'ImportJob';
-        $inputData->field = 'errorsAttachment';
-        $inputData->role = 'Attachment';
-
-        $attachment = $attachmentService->createEntity($inputData);
-
-        // create xlsx
-        if ($feed->getFeedField('format') === 'Excel') {
-            $filePath = $this->getEntityManager()->getRepository('Attachment')->getFilePath($attachment);
-            $cacheDir = 'data/cache';
-
-            Util::createDir($cacheDir);
-            $cacheFile = "{$cacheDir}/{$name}.xlsx";
-
-            $reader = PhpSpreadsheet::createReaderForFile($filePath);
-            $reader->setReadDataOnly(true);
-            $reader->setDelimiter($feed->getDelimiter());
-            $reader->setEnclosure($feed->getEnclosure());
-            $writer = PhpSpreadsheet::createWriter($reader->load($filePath), "Xlsx");
-            $writer->save($cacheFile);
-
-            $inputData->name = "{$name}.xlsx";
-            $inputData->type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-            $inputData->contents = file_get_contents($cacheFile);
-
-            // remove csv
-            $this->getEntityManager()->removeEntity($attachment);
-
-            // remove cache file
-            unlink($cacheFile);
-
-            // create xlsx
-            $attachment = $attachmentService->createEntity($inputData);
-        }
-
-        $importJob->set('errorsAttachmentId', $attachment->get('id'));
-        $this->getEntityManager()->saveEntity($importJob, ['skipAll' => true]);
-
-        return true;
     }
 
     public function getQmJob(string $id): ?Entity

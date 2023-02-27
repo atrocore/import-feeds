@@ -29,7 +29,6 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 {
     public function actionParseFileColumns($params, $data, $request): array
     {
-
         if (!$request->isPost()) {
             throw new BadRequest();
         }

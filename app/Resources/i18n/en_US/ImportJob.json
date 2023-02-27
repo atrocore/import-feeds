@@ -24,9 +24,15 @@
     "Success": "Success",
     "Running": "Running",
     "Failed": "Failed",
-    "Canceled": "Canceled"
+    "Canceled": "Canceled",
+    "generate": "Generate",
+    "generating": "Generating"
   },
   "tooltips": {
     "errorsAttachment": "Rows from 'Imported file' that have not been imported."
+  },
+  "exceptions": {
+    "errorFileCreatingFailed": "Error file can not be created.",
+    "convertedFileNotExist": "Converted file does not exist. Please, generate it first."
   }
 }

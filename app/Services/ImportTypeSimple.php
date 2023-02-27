@@ -26,10 +26,8 @@ use Espo\Core\EventManager\Event;
 use Espo\Core\EventManager\Manager;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\NotFound;
-use Espo\Core\FilePathBuilder;
 use Espo\Core\Services\Base;
 use Espo\Core\Utils\Metadata;
-use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
 use Import\Entities\ImportFeed;
@@ -86,8 +84,6 @@ class ImportTypeSimple extends QueueManagerBase
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
 
-        $attachmentRepository = $this->getEntityManager()->getRepository('Attachment');
-
         $ids = [];
 
         $updatedRowsHashes = [];
@@ -95,38 +91,9 @@ class ImportTypeSimple extends QueueManagerBase
         // prepare file row
         $fileRow = empty($data['offset']) ? 0 : (int)$data['offset'];
 
-        // prepare converted file attachment
-        $convertedFileAttachment = $attachmentRepository->get();
-        $convertedFileAttachment->set([
-            'name'            => str_replace(' ', '_', $importJob->get('name')) . '.csv',
-            'role'            => 'Attachment',
-            'field'           => 'convertedFile',
-            'relatedType'     => 'ImportJob',
-            'relatedId'       => $importJob->get('id'),
-            'storage'         => 'UploadDir',
-            'type'            => 'text/csv',
-            'storageFilePath' => $this->getContainer()->get('filePathBuilder')->createPath(FilePathBuilder::UPLOAD),
-        ]);
-
-        // create dir for converted file
-        $convertedFileDirPath = trim($this->getConfig()->get('filesPath', 'upload/files'), '/') . '/' . $convertedFileAttachment->get('storageFilePath');
-        Util::createDir($convertedFileDirPath);
-
-        // create converted file
-        $convertedFile = fopen($convertedFileDirPath . '/' . $convertedFileAttachment->get('name'), 'w');
-
         while (!empty($inputData = $this->getInputData($data))) {
             while (!empty($inputData)) {
                 $row = array_shift($inputData);
-
-                // push header to converted file
-                if (empty($convertedFileHeaderPushed)) {
-                    fputcsv($convertedFile, array_keys($row));
-                    $convertedFileHeaderPushed = true;
-                }
-
-                // push row to converted file
-                fputcsv($convertedFile, array_values($row));
 
                 // increment file row number
                 $fileRow++;
@@ -303,15 +270,6 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        // save converted file attachment
-        fclose($convertedFile);
-        $convertedFileAttachment->set('size', \filesize($attachmentRepository->getFilePath($convertedFileAttachment)));
-        $this->getEntityManager()->saveEntity($convertedFileAttachment);
-
-        // set converted file attachment to import job
-        $importJob->set('convertedFileId', $convertedFileAttachment->get('id'));
-        $this->getEntityManager()->saveEntity($importJob);
-
         return true;
     }
 
@@ -357,7 +315,7 @@ class ImportTypeSimple extends QueueManagerBase
         return in_array($action, ['delete', 'create_delete', 'update_delete', 'create_update_delete']);
     }
 
-    protected function getInputData(array $data): array
+    public function getInputData(array $data): array
     {
         if ($this->iterations > 0) {
             return [];
@@ -379,7 +337,8 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         if ($fileParser instanceof ExcelFileParser) {
-            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $data['sheet']);
+            $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
+            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $sheet);
         } else {
             $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
         }
