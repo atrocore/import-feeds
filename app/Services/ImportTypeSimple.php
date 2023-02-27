@@ -337,7 +337,8 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         if ($fileParser instanceof ExcelFileParser) {
-            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $data['sheet']);
+            $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
+            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $sheet);
         } else {
             $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
         }
