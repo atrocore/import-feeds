@@ -53,7 +53,7 @@ class ImportJob extends Base
             ->toArray();
 
         if (empty($errorLogs)) {
-            return [];
+            throw new BadRequest($this->translate('errorFileCreatingFailed', 'exceptions', 'ImportJob'));
         }
 
         if (empty($feed = $importJob->get('importFeed'))) {
@@ -75,7 +75,7 @@ class ImportJob extends Base
                 $isFileHeaderRow = true;
                 $attachmentId = $importJob->get('convertedFileId');
                 if (empty($attachmentId)) {
-                    throw new BadRequest('No such converted file found. Please, generate it first.');
+                    throw new BadRequest($this->translate('convertedFileNotExist', 'exceptions', 'ImportJob'));
                 }
                 $delimiter = ",";
                 $enclosure = '"';
@@ -289,5 +289,10 @@ class ImportJob extends Base
         parent::init();
 
         $this->addDependency('container');
+    }
+
+    protected function translate(string $key, string $label, string $scope): string
+    {
+        return $this->getInjection('container')->get('language')->translate($key, $label, $scope);
     }
 }
