@@ -1,0 +1,20 @@
+{
+  "fields": {
+    "filterCreateImportJob": "Створено під час імпорту",
+    "filterUpdateImportJob": "Оновлено під час імпорту",
+    "createdByImport": "Створено під час імпорту",
+    "updatedByImport": "Оновлено під час імпорту"
+  },
+  "scopeNames": {
+    "ImportFeed": "Імпортний фід",
+    "ImportConfiguratorItem": "Конфігуратор",
+    "ImportJob": "Завдання імпорту",
+    "ImportJobLog": "Лог завдання імпорту"
+  },
+  "scopeNamesPlural": {
+    "ImportFeed": "Імпортні фіди",
+    "ImportConfiguratorItem": "Конфігуратор",
+    "ImportJob": "Завдання імпорту",
+    "ImportJobLog": "Логи завдань імпорту"
+  }
+}
