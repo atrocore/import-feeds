@@ -161,6 +161,8 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $restore = new \stdClass();
 
+                    $this->sortConfigurator($data);
+
                     $attributes = [];
                     foreach ($data['data']['configuration'] as $item) {
                         if ($item['type'] == 'Attribute') {
@@ -170,12 +172,9 @@ class ImportTypeSimple extends QueueManagerBase
 
                         $type = $this->getMetadata()->get(['entityDefs', $item['entity'], 'fields', $item['name'], 'type'], 'varchar');
                         if ($item['entity'] === 'ProductAttributeValue' && $item['name'] === 'value') {
-                            if (!empty($row['attributeId'])) {
-                                $attribute = $this->getAttributeById($row['attributeId']);
-                            } elseif (!empty($entity)) {
-                                $attribute = $this->getAttributeById($entity->get('attributeId'));
-                            }
-                            if (!empty($attribute)) {
+                            if (property_exists($input, 'attributeType')) {
+                                $type = $input->attributeType;
+                            } elseif (!empty($entity) && !empty($attribute = $this->getAttributeById($entity->get('attributeId')))) {
                                 $type = $attribute->get('type');
                             }
                         }
@@ -592,6 +591,25 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return true;
+    }
+
+    protected function sortConfigurator(array &$data): void
+    {
+        if (empty($data['data']['entity']) || empty($data['data']['configuration'])) {
+            return;
+        }
+
+        if ($data['data']['entity'] === 'ProductAttributeValue') {
+            foreach ($data['data']['configuration'] as $k => $item) {
+                if (!empty($item['name']) && $item['name'] === 'value') {
+                    $valueItem = $item;
+                    unset($data['data']['configuration'][$k]);
+                }
+            }
+            if (isset($valueItem)) {
+                $data['data']['configuration'] = array_merge(array_values($data['data']['configuration']), [$valueItem]);
+            }
+        }
     }
 
     protected function getService(string $name): Base

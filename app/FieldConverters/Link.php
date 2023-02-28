@@ -85,7 +85,7 @@ class Link extends Varchar
                 }
 
                 if (!empty($where)) {
-                    $entity = $this->getEntityManager()->getRepository($entityName)->select(['id'])->where($where)->findOne();
+                    $entity = $this->getEntityManager()->getRepository($entityName)->where($where)->findOne();
                 }
 
                 if (empty($entity) && !empty($input) && !empty($config['createIfNotExist'])) {
@@ -145,6 +145,10 @@ class Link extends Varchar
         }
 
         $inputRow->{$config['name'] . 'Id'} = $value;
+
+        if ($config['entity'] === 'ProductAttributeValue' && !empty($entity) && $entity->getEntityType() === 'Attribute') {
+            $inputRow->attributeType = $entity->get('type');
+        }
 
         if ($config['type'] === 'Attribute') {
             $inputRow->{$config['name']} = $inputRow->{$config['name'] . 'Id'};
