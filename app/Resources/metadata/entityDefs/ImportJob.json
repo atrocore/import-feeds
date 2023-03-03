@@ -193,6 +193,42 @@
         "name",
         "deleted"
       ]
+    },
+    "entityName": {
+      "columns": [
+        "entityName",
+        "deleted"
+      ]
+    },
+    "state": {
+      "columns": [
+        "state",
+        "deleted"
+      ]
+    },
+    "start": {
+      "columns": [
+        "start",
+        "deleted"
+      ]
+    },
+    "end": {
+      "columns": [
+        "end",
+        "deleted"
+      ]
+    },
+    "createdAt": {
+      "columns": [
+        "createdAt",
+        "deleted"
+      ]
+    },
+    "modifiedAt": {
+      "columns": [
+        "modifiedAt",
+        "deleted"
+      ]
     }
   }
 }

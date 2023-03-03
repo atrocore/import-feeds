@@ -109,6 +109,42 @@
         "name",
         "deleted"
       ]
+    },
+    "type": {
+      "columns": [
+        "type",
+        "deleted"
+      ]
+    },
+    "entityName": {
+      "columns": [
+        "entityName",
+        "deleted"
+      ]
+    },
+    "entityId": {
+      "columns": [
+        "entityId",
+        "deleted"
+      ]
+    },
+    "rowNumber": {
+      "columns": [
+        "rowNumber",
+        "deleted"
+      ]
+    },
+    "createdAt": {
+      "columns": [
+        "createdAt",
+        "deleted"
+      ]
+    },
+    "modifiedAt": {
+      "columns": [
+        "modifiedAt",
+        "deleted"
+      ]
     }
   }
 }
