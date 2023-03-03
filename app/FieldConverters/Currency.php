@@ -74,7 +74,10 @@ class Currency extends FloatValue
                 $cellValue = trim($row[$config['column'][0]]);
                 $this->ignoreAttribute($cellValue, $config);
 
-                if (strtolower((string)$cellValue) === strtolower((string)$config['emptyValue']) || $cellValue === '' || strtolower((string)$cellValue) === strtolower((string)$config['nullValue'])) {
+                if (strtolower((string)$cellValue) === strtolower((string)$config['emptyValue']) || $cellValue === ''
+                    || strtolower((string)$cellValue) === strtolower(
+                        (string)$config['nullValue']
+                    )) {
                     $value = null;
                     $currency = null;
                 } else {
@@ -90,7 +93,10 @@ class Currency extends FloatValue
             if (!empty($config['column'][1]) && isset($row[$config['column'][1]])) {
                 $cellCurrency = trim($row[$config['column'][1]]);
                 $this->ignoreAttribute($cellCurrency, $config);
-                if (strtolower((string)$cellCurrency) === strtolower((string)$config['emptyValue']) || $cellCurrency === '' || strtolower((string)$cellCurrency) === strtolower((string)$config['nullValue'])) {
+                if (strtolower((string)$cellCurrency) === strtolower((string)$config['emptyValue']) || $cellCurrency === ''
+                    || strtolower((string)$cellCurrency) === strtolower(
+                        (string)$config['nullValue']
+                    )) {
                     $value = null;
                     $currency = null;
                 } else {
@@ -108,6 +114,10 @@ class Currency extends FloatValue
                 $message = sprintf($this->translate('incorrectCurrency', 'exceptions', 'ImportFeed'), $currency, $config['name']);
             }
             throw new BadRequest($message);
+        }
+
+        if ($value === null) {
+            return;
         }
 
         $inputRow->{$config['name']} = $value;

@@ -60,11 +60,11 @@ class Wysiwyg
             $value = $default;
         }
 
-        if ($value !== null) {
-            $value = (string)$value;
+        if ($value === null) {
+            return;
         }
 
-        $inputRow->{$config['name']} = $value;
+        $inputRow->{$config['name']} = (string)$value;
     }
 
     public function prepareValue(\stdClass $restore, Entity $entity, array $item): void

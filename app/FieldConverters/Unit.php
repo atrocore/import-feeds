@@ -113,6 +113,10 @@ class Unit extends FloatValue
             throw new BadRequest($message);
         }
 
+        if ($value === null) {
+            return;
+        }
+
         $inputRow->{$config['name']} = $value;
         $inputRow->{$config['name'] . 'Unit'} = $unit;
 

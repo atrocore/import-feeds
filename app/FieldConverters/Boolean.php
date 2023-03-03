@@ -57,6 +57,10 @@ class Boolean extends Varchar
             $value = true;
         }
 
+        if ($value === null) {
+            return;
+        }
+
         if ($value !== null && !is_bool($value)) {
             $value = (bool)$value;
         }

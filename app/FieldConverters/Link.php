@@ -144,6 +144,14 @@ class Link extends Varchar
             $value = $default;
         }
 
+        if ($value === null) {
+            return;
+        }
+
+        if ($value === '') {
+            $value = null;
+        }
+
         $inputRow->{$config['name'] . 'Id'} = $value;
 
         if ($config['entity'] === 'ProductAttributeValue' && !empty($entity) && $entity->getEntityType() === 'Attribute') {

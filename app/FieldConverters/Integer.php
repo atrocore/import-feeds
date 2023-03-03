@@ -52,10 +52,8 @@ class Integer extends Varchar
         }
 
         if ($value !== null) {
-            $value = $this->prepareIntValue((string)$value, $config);
+            $inputRow->{$config['name']} = $this->prepareIntValue((string)$value, $config);
         }
-
-        $inputRow->{$config['name']} = $value;
     }
 
     public function prepareIntValue(string $value, array $config): int

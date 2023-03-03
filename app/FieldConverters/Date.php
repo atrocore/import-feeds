@@ -53,8 +53,8 @@ class Date extends Varchar
                 $type = $this->translate($this->name, 'fieldTypes', 'Admin');
                 throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
             }
-        }
 
-        $inputRow->{$config['name']} = $value;
+            $inputRow->{$config['name']} = $value;
+        }
     }
 }

@@ -59,6 +59,10 @@ class JsonArray extends Varchar
             $value = array_merge($inputRow->{$config['name']}, $value);
         }
 
+        if ($value === null) {
+            return;
+        }
+
         $inputRow->{$config['name']} = $value;
         if (empty($config['replaceArray'])) {
             $inputRow->{$config['name'] . 'AddOnlyMode'} = 1;

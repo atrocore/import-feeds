@@ -28,6 +28,10 @@ class Text extends Wysiwyg
     {
         parent::convert($inputRow, $config, $row);
 
+        if (!property_exists($inputRow, $config['name']) || $inputRow->{$config['name']} === null) {
+            return;
+        }
+
         $value = (string)$inputRow->{$config['name']};
 
         $this->ignoreAttribute($value, $config);

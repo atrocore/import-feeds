@@ -45,7 +45,7 @@ class Asset extends Link
         if (property_exists($inputRow, $key)) {
             $asset = $this->getEntityManager()->getEntity('Asset', $inputRow->$key);
             unset($inputRow->$key);
-            if (!empty($asset)) {
+            if (!empty($asset) && !empty($asset->get('fileId'))) {
                 $inputRow->$key = $asset->get('fileId');
             }
         }
