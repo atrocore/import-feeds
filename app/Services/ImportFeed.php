@@ -349,16 +349,11 @@ class ImportFeed extends Base
         return $this->getInjection('language')->translate($key, 'labels', 'ImportFeed');
     }
 
-    /**
-     * @param string $name
-     * @param string $serviceName
-     * @param array  $data
-     *
-     * @return bool
-     */
     public function push(string $name, string $serviceName, array $data = []): bool
     {
-        return $this->getInjection('queueManager')->push($name, $serviceName, $data);
+        $priority = empty($data['data']['priority']) ? 'Normal' : (string)$data['data']['priority'];
+
+        return $this->getInjection('queueManager')->push($name, $serviceName, $data, $priority);
     }
 
     /**
