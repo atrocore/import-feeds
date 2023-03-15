@@ -36,10 +36,12 @@ use Treo\Core\Exceptions\NotModified;
 
 class ImportTypeSimple extends QueueManagerBase
 {
+    public const CSV_LIMIT = 500;
+
     private array $restore = [];
     private array $updatedPav = [];
     private array $deletedPav = [];
-    private int $iterations = 0;
+    private bool $lastIteration = false;
     protected array $attributes = [];
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
@@ -314,9 +316,9 @@ class ImportTypeSimple extends QueueManagerBase
         return in_array($action, ['delete', 'create_delete', 'update_delete', 'create_update_delete']);
     }
 
-    public function getInputData(array $data): array
+    public function getInputData(array &$data): array
     {
-        if ($this->iterations > 0) {
+        if ($this->lastIteration) {
             return [];
         }
 
@@ -335,15 +337,25 @@ class ImportTypeSimple extends QueueManagerBase
             $data['offset'] = 0;
         }
 
-        if ($fileParser instanceof ExcelFileParser) {
-            $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
-            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $sheet);
-        } else {
-            $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
+        switch ($data['fileFormat']) {
+            case 'CSV':
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], self::CSV_LIMIT);
+                $data['offset'] = $data['offset'] + self::CSV_LIMIT;
+                break;
+            case 'Excel':
+                $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], PHP_INT_MAX, $sheet);
+                $this->lastIteration = true;
+                break;
+            case 'JSON':
+            case 'XML':
+                $fileData = $fileParser->getFileData($attachment);
+                $this->lastIteration = true;
+                break;
         }
 
         if (empty($fileData)) {
-            throw new BadRequest('File is empty.');
+            return [];
         }
 
         $result = [];
@@ -351,14 +363,16 @@ class ImportTypeSimple extends QueueManagerBase
         if (in_array($data['fileFormat'], ['JSON', 'XML'])) {
             $result = $fileData;
         } else {
-            $sourceFields = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
-            if ($includedHeaderRow) {
-                array_shift($fileData);
+            if (empty($data['sourceFields'])) {
+                $data['sourceFields'] = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
+                if ($includedHeaderRow) {
+                    array_shift($fileData);
+                }
             }
 
             foreach ($fileData as $line => $fileLine) {
                 foreach ($fileLine as $k => $v) {
-                    $result[$line][$sourceFields[$k]] = $v;
+                    $result[$line][$data['sourceFields'][$k]] = $v;
                 }
             }
         }
@@ -392,8 +406,6 @@ class ImportTypeSimple extends QueueManagerBase
                 }
             }
         }
-
-        $this->iterations++;
 
         return $prepared;
     }
