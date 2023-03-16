@@ -339,7 +339,7 @@ class ImportTypeSimple extends QueueManagerBase
 
         switch ($data['fileFormat']) {
             case 'CSV':
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], null, 200);
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], null, self::CSV_LIMIT);
                 break;
             case 'Excel':
                 $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
