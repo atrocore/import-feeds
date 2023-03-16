@@ -43,6 +43,7 @@ class ImportTypeSimple extends QueueManagerBase
     private array $deletedPav = [];
     private bool $lastIteration = false;
     protected array $attributes = [];
+    protected array $fileParsers = [];
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
@@ -327,8 +328,7 @@ class ImportTypeSimple extends QueueManagerBase
             throw new BadRequest('No such Attachment.');
         }
 
-        /** @var AbstractFileParser $fileParser */
-        $fileParser = $this->getService('ImportFeed')->getFileParser($data['fileFormat']);
+        $fileParser = $this->getFileParser($data['fileFormat']);
         $fileParser->setImportPayload($data);
 
         // for getting header row
@@ -339,8 +339,7 @@ class ImportTypeSimple extends QueueManagerBase
 
         switch ($data['fileFormat']) {
             case 'CSV':
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], self::CSV_LIMIT);
-                $data['offset'] = $data['offset'] + self::CSV_LIMIT;
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], null, 200);
                 break;
             case 'Excel':
                 $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
@@ -358,11 +357,10 @@ class ImportTypeSimple extends QueueManagerBase
             return [];
         }
 
-        $result = [];
-
-        if (in_array($data['fileFormat'], ['JSON', 'XML'])) {
-            $result = $fileData;
-        } else {
+        /**
+         * Prepare table data
+         */
+        if (in_array($data['fileFormat'], ['CSV', 'Excel'])) {
             if (empty($data['sourceFields'])) {
                 $data['sourceFields'] = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
                 if ($includedHeaderRow) {
@@ -370,16 +368,22 @@ class ImportTypeSimple extends QueueManagerBase
                 }
             }
 
+            $newFileData = [];
             foreach ($fileData as $line => $fileLine) {
                 foreach ($fileLine as $k => $v) {
-                    $result[$line][$data['sourceFields'][$k]] = $v;
+                    $newFileData[$line][$data['sourceFields'][$k]] = $v;
                 }
             }
+            $fileData = $newFileData;
+            unset($newFileData);
         }
 
+        /**
+         * Prepare import rows
+         */
         $prepared = [];
-        while (count($result) > 0) {
-            $row = array_shift($result);
+        while (count($fileData) > 0) {
+            $row = array_shift($fileData);
             $event = $this->getEventManager()->dispatch(new Event(['row' => $row, 'jobData' => $data, 'skip' => false]), 'prepareImportRow');
             if (!empty($event->getArgument('skip'))) {
                 continue 1;
@@ -388,7 +392,7 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         /**
-         * Validation.
+         * Validation
          */
         if (!empty($prepared)) {
             foreach ($data['data']['configuration'] as $item) {
@@ -646,5 +650,14 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return $this->attributes[$attributeId];
+    }
+
+    protected function getFileParser(string $format): AbstractFileParser
+    {
+        if (!isset($this->fileParsers[$format])) {
+            $this->fileParsers[$format] = $this->getService('ImportFeed')->getFileParser($format);
+        }
+
+        return $this->fileParsers[$format];
     }
 }

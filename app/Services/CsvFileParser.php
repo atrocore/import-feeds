@@ -27,18 +27,16 @@ use Espo\Entities\Attachment;
 
 class CsvFileParser extends AbstractFileParser
 {
-    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null, int $sheet = 0): array
+    protected array $fileHandles = [];
+
+    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null): array
     {
         // prepare result
         $result = [];
 
         // get data
         if ($data === null) {
-            if ($this instanceof ExcelFileParser) {
-                $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2, $sheet);
-            } else {
-                $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
-            }
+            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
         }
 
         if (isset($data[0])) {
@@ -60,12 +58,20 @@ class CsvFileParser extends AbstractFileParser
         return $result;
     }
 
-    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', int $offset = 0, int $limit = null): array
+    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', ?int $offset = 0, ?int $limit = null): array
     {
         // prepare path
         $path = $this->getLocalFilePath($attachment);
 
-        $data = $this->getParsedFileData($path, $delimiter, $enclosure, $offset, $limit);
+        if ($delimiter === '\t') {
+            $delimiter = "\t";
+        }
+
+        if ($offset === null) {
+            $data = $this->readLineByLine($path, $delimiter, $enclosure, $limit);
+        } else {
+            $data = $this->getParsedFileData($path, $delimiter, $enclosure, $offset, $limit);
+        }
 
         return $this
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'csv']))
@@ -101,7 +107,7 @@ class CsvFileParser extends AbstractFileParser
         return $value;
     }
 
-    protected function getLocalFilePath(Attachment $attachment): string
+    public function getLocalFilePath(Attachment $attachment): string
     {
         $path = $this
             ->getContainer()
@@ -116,26 +122,40 @@ class CsvFileParser extends AbstractFileParser
         // prepare result
         $result = [];
 
-        if ($delimiter === '\t') {
-            $delimiter = "\t";
-        }
-
         if (file_exists($path) && ($handle = fopen($path, "r")) !== false) {
             $row = 0;
-            $count = 0;
-            while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== false && (is_null($limit) || $count < $limit)) {
+            while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== false && (is_null($limit) || count($result) < $limit)) {
                 if ($row >= $offset) {
-                    // push
                     $result[] = $data;
-
-                    // increase
-                    $count++;
                 }
 
                 // increase
                 $row++;
             }
             fclose($handle);
+        }
+
+        return $result;
+    }
+
+    protected function readLineByLine(string $path, string $delimiter = ";", string $enclosure = '"', int $limit = 200): array
+    {
+        if (!isset($this->fileHandles[$path])) {
+            $this->fileHandles[$path] = fopen($path, "r");
+        }
+
+        $handle = $this->fileHandles[$path];
+
+        $result = [];
+        if ($handle !== false) {
+            while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== false && count($result) < $limit) {
+                $result[] = $data;
+            }
+        }
+
+        if (empty($result) || count($result) < $limit) {
+            fclose($this->fileHandles[$path]);
+            unset($this->fileHandles[$path]);
         }
 
         return $result;

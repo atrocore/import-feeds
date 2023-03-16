@@ -27,6 +27,15 @@ use Espo\Entities\Attachment;
 
 class ExcelFileParser extends CsvFileParser
 {
+    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null, int $sheet = 0): array
+    {
+        if ($data === null) {
+            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2, $sheet);
+        }
+
+        return parent::getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow, $data);
+    }
+
     public function getFileSheetsNames(Attachment $attachment)
     {
         $path = $this->getLocalFilePath($attachment);
@@ -41,6 +50,7 @@ class ExcelFileParser extends CsvFileParser
 
         return $data;
     }
+
     public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', int $offset = 0, int $limit = null, int $sheet = 0): array
     {
         $path = $this->getLocalFilePath($attachment);
