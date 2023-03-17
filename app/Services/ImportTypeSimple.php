@@ -49,7 +49,7 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
-        if (empty($attachmentId) || empty($file = $this->getEntityById('Entities', $attachmentId))) {
+        if (empty($attachmentId) || empty($file = $this->getEntityById('Attachment', $attachmentId))) {
             throw new NotFound($this->translate('noSuchFile', 'exceptions', 'ImportFeed'));
         }
 
