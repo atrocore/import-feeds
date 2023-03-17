@@ -113,7 +113,11 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 this.params.options = options;
                 this.params.translatedOptions = {};
                 options.forEach(option => {
-                    this.params.translatedOptions[option.toString()] = this.translate(option, 'labels', this.model.get('entity')) || option;
+                    let label = this.getLanguage().translateOption(option, this.model.get('name'), this.model.get('entity'));
+                    if (option === label) {
+                        label = this.translate(option, 'labels', this.model.get('entity'));
+                    }
+                    this.params.translatedOptions[option.toString()] = label;
                 });
             }
 
