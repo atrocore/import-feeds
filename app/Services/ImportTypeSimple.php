@@ -42,12 +42,14 @@ class ImportTypeSimple extends QueueManagerBase
     private array $updatedPav = [];
     private array $deletedPav = [];
     private bool $lastIteration = false;
-    protected array $attributes = [];
+
     protected array $fileParsers = [];
+    protected array $entities = [];
+    protected array $services = [];
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
-        if (empty($attachmentId) || empty($file = $this->getEntityManager()->getEntity('Attachment', $attachmentId))) {
+        if (empty($attachmentId) || empty($file = $this->getEntityById('Entities', $attachmentId))) {
             throw new NotFound($this->translate('noSuchFile', 'exceptions', 'ImportFeed'));
         }
 
@@ -75,10 +77,7 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function run(array $data = []): bool
     {
-        $importJob = $this->getEntityManager()->getEntity('ImportJob', $data['data']['importJobId']);
-        if (empty($importJob)) {
-            throw new BadRequest('No such ImportJob.');
-        }
+        $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
 
         $GLOBALS['importJobId'] = $importJob->get('id');
         $GLOBALS['skipAssignmentNotifications'] = true;
@@ -177,7 +176,7 @@ class ImportTypeSimple extends QueueManagerBase
                         if ($item['entity'] === 'ProductAttributeValue' && $item['name'] === 'value') {
                             if (property_exists($input, 'attributeType')) {
                                 $type = $input->attributeType;
-                            } elseif (!empty($entity) && !empty($attribute = $this->getAttributeById($entity->get('attributeId')))) {
+                            } elseif (!empty($entity) && !empty($attribute = $this->getEntityById('Attribute', $entity->get('attributeId')))) {
                                 $type = $attribute->get('type');
                             }
                         }
@@ -323,10 +322,8 @@ class ImportTypeSimple extends QueueManagerBase
             return [];
         }
 
-        $attachment = $this->getEntityManager()->getEntity('Attachment', $data['attachmentId']);
-        if (empty($attachment)) {
-            throw new BadRequest('No such Attachment.');
-        }
+        /** @var \Espo\Entities\Attachment $attachment */
+        $attachment = $this->getEntityById('Attachment', $data['attachmentId']);
 
         $fileParser = $this->getFileParser($data['fileFormat']);
         $fileParser->setImportPayload($data);
@@ -518,10 +515,8 @@ class ImportTypeSimple extends QueueManagerBase
         $conf = $data['item'];
         $row = $data['row'];
 
-        $attribute = $this->getEntityManager()->getEntity('Attribute', $conf['attributeId']);
-        if (empty($attribute)) {
-            throw new BadRequest("No such Attribute '{$conf['attributeId']}'.");
-        }
+        $attribute = $this->getEntityById('Attribute', $conf['attributeId']);
+
         $conf['attribute'] = $attribute;
         $conf['name'] = 'value';
 
@@ -630,7 +625,11 @@ class ImportTypeSimple extends QueueManagerBase
 
     protected function getService(string $name): Base
     {
-        return $this->getContainer()->get('serviceFactory')->create($name);
+        if (!isset($this->services[$name])) {
+            $this->services[$name] = $this->getContainer()->get('serviceFactory')->create($name);
+        }
+
+        return $this->services[$name];
     }
 
     protected function getMetadata(): Metadata
@@ -643,15 +642,6 @@ class ImportTypeSimple extends QueueManagerBase
         return $this->getContainer()->get('eventManager');
     }
 
-    protected function getAttributeById(string $attributeId): ?Entity
-    {
-        if (empty($this->attributes[$attributeId])) {
-            $this->attributes[$attributeId] = $this->getEntityManager()->getRepository('Attribute')->get($attributeId);
-        }
-
-        return $this->attributes[$attributeId];
-    }
-
     protected function getFileParser(string $format): AbstractFileParser
     {
         if (!isset($this->fileParsers[$format])) {
@@ -659,5 +649,18 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return $this->fileParsers[$format];
+    }
+
+    public function getEntityById(string $scope, string $id): Entity
+    {
+        if (!isset($this->entities[$scope][$id])) {
+            $entity = $this->getEntityManager()->getEntity($scope, $id);
+            if (empty($entity)) {
+                throw new BadRequest("No such $scope '$id'.");
+            }
+            $this->entities[$scope][$id] = $entity;
+        }
+
+        return $this->entities[$scope][$id];
     }
 }
