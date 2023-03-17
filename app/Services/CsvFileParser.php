@@ -140,11 +140,15 @@ class CsvFileParser extends AbstractFileParser
 
     protected function readLineByLine(string $path, string $delimiter = ";", string $enclosure = '"', int $limit = 200): array
     {
-        if (!isset($this->fileHandles[$path])) {
+        if (!array_key_exists($path, $this->fileHandles)) {
             $this->fileHandles[$path] = fopen($path, "r");
         }
 
         $handle = $this->fileHandles[$path];
+
+        if ($handle === null) {
+            return [];
+        }
 
         $result = [];
         if ($handle !== false) {
@@ -155,7 +159,7 @@ class CsvFileParser extends AbstractFileParser
 
         if (empty($result) || count($result) < $limit) {
             fclose($this->fileHandles[$path]);
-            unset($this->fileHandles[$path]);
+            $this->fileHandles[$path] = null;
         }
 
         return $result;
