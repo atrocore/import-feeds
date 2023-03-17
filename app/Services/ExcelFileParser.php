@@ -51,7 +51,7 @@ class ExcelFileParser extends CsvFileParser
         return $data;
     }
 
-    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', int $offset = 0, int $limit = null, int $sheet = 0): array
+    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', ?int $offset = 0, int $limit = null, int $sheet = 0): array
     {
         $path = $this->getLocalFilePath($attachment);
 
