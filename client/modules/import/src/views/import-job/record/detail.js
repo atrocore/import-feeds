@@ -32,8 +32,6 @@ Espo.define('import:views/import-job/record/detail', 'views/record/detail',
         }, Dep.prototype.events),
 
         setupActionItems: function () {
-            console.log("just to test import");
-            console.log(this.model);
             if (['Failed', 'Canceled'].includes(this.model.get('state'))) {
                 this.dropdownItemList.push({
                     'name': 'tryAgainImportJob',
@@ -54,5 +52,6 @@ Espo.define('import:views/import-job/record/detail', 'views/record/detail',
                 this.notify('Done', 'success');
             });
         },
+
     })
 );

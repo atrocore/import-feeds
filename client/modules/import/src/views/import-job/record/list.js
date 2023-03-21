@@ -20,7 +20,7 @@
 Espo.define('import:views/import-job/record/list', 'views/record/list',
     Dep => Dep.extend({
 
-        rowActionsView: 'views/record/row-actions/view-and-remove',
+        rowActionsView: 'import:views/import-job/record/row-actions/import-again-and-remove',
 
         getSelectAttributeList: function (callback) {
             Dep.prototype.getSelectAttributeList.call(this, attributeList => {
@@ -30,6 +30,16 @@ Espo.define('import:views/import-job/record/list', 'views/record/list',
                 callback(attributeList);
             });
         },
+
+        actionTryAgainImportJob(data) {
+            let model = this.collection.get(data.id);
+
+            this.notify('Saving...');
+            model.set('state', 'Pending');
+            model.save().then(() => {
+                this.notify('Saved', 'success');
+            });
+        }
 
     })
 );
