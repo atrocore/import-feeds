@@ -62,5 +62,15 @@ Espo.define('import:views/import-feed/record/panels/import-jobs', 'views/record/
             }
         },
 
+        actionTryAgainImportJob(data) {
+            let model = this.collection.get(data.id);
+
+            this.notify('Saving...');
+            model.set('state', 'Pending');
+            model.save().then(() => {
+                this.notify('Saved', 'success');
+            });
+        },
+
     })
 );

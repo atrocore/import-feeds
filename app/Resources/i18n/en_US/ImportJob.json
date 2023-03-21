@@ -26,7 +26,8 @@
     "Failed": "Failed",
     "Canceled": "Canceled",
     "generate": "Generate",
-    "generating": "Generating"
+    "generating": "Generating",
+    "tryAgain": "Import again"
   },
   "tooltips": {
     "errorsAttachment": "Rows from 'Imported file' that have not been imported."

@@ -22,11 +22,20 @@ Espo.define('import:views/import-job/record/row-actions/relationship', 'views/re
 
         getActionList() {
             let list = [];
-
             if (['Pending', 'Running'].includes(this.model.get('state')) && this.options.acl.edit) {
                 list.push({
                     action: 'cancelImportJob',
                     label: 'Cancel',
+                    data: {
+                        id: this.model.id
+                    }
+                });
+            }
+
+            if (['Failed', 'Canceled'].includes(this.model.get('state')) && this.options.acl.edit) {
+                list.push({
+                    action: 'tryAgainImportJob',
+                    label: 'tryAgain',
                     data: {
                         id: this.model.id
                     }
