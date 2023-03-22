@@ -31,6 +31,17 @@ Espo.define('import:views/import-job/record/detail', 'views/record/detail',
             }
         }, Dep.prototype.events),
 
+        setupActionItems: function () {
+            if (['Failed', 'Canceled'].includes(this.model.get('state'))) {
+                this.dropdownItemList.push({
+                    'name': 'tryAgainImportJob',
+                    action: 'tryAgainImportJob',
+                    label: 'tryAgain',
+                });
+            }
+            Dep.prototype.setupActionItems.call(this);
+        },
+
         actionGenerateFile(field) {
             this.notify(this.translate('generating', 'labels', 'ImportJob'));
             this.ajaxPostRequest('ImportJob/action/generateFile', {id: this.model.get('id'), field: field}).then(entity => {

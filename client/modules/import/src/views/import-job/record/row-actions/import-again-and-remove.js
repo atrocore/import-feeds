@@ -16,24 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-Espo.define('import:views/import-job/record/row-actions/relationship', 'views/record/row-actions/relationship', Dep => {
+
+Espo.define('import:views/import-job/record/row-actions/import-again-and-remove', 'views/record/row-actions/remove-only', Dep => {
 
     return Dep.extend({
 
         getActionList() {
-            let list = [];
-            if (['Pending', 'Running'].includes(this.model.get('state')) && this.options.acl.edit) {
-                list.push({
-                    action: 'cancelImportJob',
-                    label: 'Cancel',
-                    data: {
-                        id: this.model.id
-                    }
-                });
-            }
+            let list = Dep.prototype.getActionList.call(this);
 
             if (['Failed', 'Canceled'].includes(this.model.get('state')) && this.options.acl.edit) {
-                list.push({
+                list.unshift({
                     action: 'tryAgainImportJob',
                     label: 'tryAgain',
                     data: {
@@ -42,19 +34,8 @@ Espo.define('import:views/import-job/record/row-actions/relationship', 'views/re
                 });
             }
 
-            if (this.options.acl.delete) {
-                list.push({
-                    action: 'removeRelated',
-                    label: 'Remove',
-                    data: {
-                        id: this.model.id
-                    }
-                });
-            }
-
             return list;
         }
-
     });
 
 });

@@ -68,10 +68,15 @@ class ImportJob extends Base
 
     protected function afterSave(Entity $entity, array $options = [])
     {
-        if ($entity->isAttributeChanged('state') && $entity->get('state') === 'Canceled') {
+        if ($entity->isAttributeChanged('state') &&  in_array($entity->get('state'),['Canceled','Pending'])) {
             $qmJob = $this->getQmJob($entity->get('id'));
             if (!empty($qmJob)) {
-                $this->cancelQmJob($qmJob);
+                if ($entity->get('state') === 'Pending' && in_array($qmJob->get('status'), ['Success', 'Failed', 'Canceled'])) {
+                    $this->toPendingQmJob($qmJob);
+                }
+                if ($entity->get('state') === 'Canceled') {
+                    $this->cancelQmJob($qmJob);
+                }
             }
         }
 
@@ -153,6 +158,11 @@ class ImportJob extends Base
         return $this->getEntityManager()->getRepository('QueueItem')->where(['data*' => '%"importJobId":"' . $id . '"%'])->findOne();
     }
 
+    protected function toPendingQmJob(Entity $qmJob): void
+    {
+        $this->getInjection('queueManager')->tryAgain($qmJob->get('id'));
+    }
+
     protected function cancelQmJob(Entity $qmJob): void
     {
         if (in_array($qmJob->get('status'), ['Pending', 'Running'])) {
@@ -167,5 +177,6 @@ class ImportJob extends Base
 
         $this->addDependency('serviceFactory');
         $this->addDependency('fileStorageManager');
+        $this->addDependency('queueManager');
     }
 }

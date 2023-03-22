@@ -26,7 +26,8 @@
     "Failed": "Fehlgeschlagen",
     "Canceled": "Abgebrochen",
     "generate": "Generieren",
-    "generating": "Erstellen"
+    "generating": "Erstellen",
+    "tryAgain": "Opnieuw importeren"
   },
   "tooltips": {
     "errorsAttachment": "Zeilen aus 'Importierter Datei', die nicht importiert wurden."
