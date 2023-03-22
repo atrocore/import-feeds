@@ -88,7 +88,7 @@ class ImportTypeSimple extends QueueManagerBase
 
         $ids = [];
 
-        $updatedRowsHashes = [];
+        $processedIds = [];
 
         // prepare file row
         $fileRow = empty($data['offset']) ? 0 : (int)$data['offset'];
@@ -104,31 +104,28 @@ class ImportTypeSimple extends QueueManagerBase
                     // prepare where for finding existed entity
                     $where = $this->prepareWhere($entityService->getEntityType(), $data['data'], $row);
 
-                    /**
-                     * Check if such row is already processed
-                     */
-                    if (!empty($where)) {
-                        $hash = md5(json_encode($where));
-                        if (in_array($hash, $updatedRowsHashes)) {
-                            switch ($data['repeatProcessing']) {
-                                case 'repeat':
-                                    break;
-                                case 'skip':
-                                    continue 2;
-                                    break;
-                                default:
-                                    throw new BadRequest($this->translate('alreadyProceeded', 'exceptions', 'ImportFeed'));
-                            }
-                        } else {
-                            $updatedRowsHashes[] = $hash;
-                        }
-                    }
-
                     $id = null;
                     if (!empty($entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $where))) {
                         $id = $entity->get('id');
                         if (self::isDeleteAction($data['action'])) {
                             $ids[] = $id;
+                        }
+                    }
+
+                    /**
+                     * Check if such row is already processed
+                     */
+                    if (!empty($id) && in_array($id, $processedIds)) {
+                        switch ($data['repeatProcessing']) {
+                            case 'repeat':
+                                // clear memory
+                                $processedIds = [];
+                                break;
+                            case 'skip':
+                                continue 2;
+                                break;
+                            default:
+                                throw new BadRequest($this->translate('alreadyProceeded', 'exceptions', 'ImportFeed'));
                         }
                     }
                 } catch (\Throwable $e) {
@@ -202,6 +199,7 @@ class ImportTypeSimple extends QueueManagerBase
 
                     if (empty($id)) {
                         $updatedEntity = $entityService->createEntity($input);
+                        $processedIds[] = $updatedEntity->get('id');
 
                         if (self::isDeleteAction($data['action'])) {
                             $ids[] = $updatedEntity->get('id');
@@ -213,6 +211,7 @@ class ImportTypeSimple extends QueueManagerBase
                         $notModified = true;
                         try {
                             $updatedEntity = $entityService->updateEntity($id, $input);
+                            $processedIds[] = $updatedEntity->get('id');
                             $this->saveRestoreRow('updated', $scope, [$id => $restore]);
                             $notModified = false;
                         } catch (NotModified $e) {
