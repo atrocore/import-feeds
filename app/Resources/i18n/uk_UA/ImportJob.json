@@ -27,7 +27,7 @@
     "Canceled": "Скасовано",
     "generate": "Генерувати",
     "generating": "Генерація",
-    "tryAgain": "Знову імпорт"
+    "tryAgain": "Спробувати імпорт ще раз"
   },
   "tooltips": {
     "errorsAttachment": "Рядки з 'Imported file', які не були проімпортовані."
