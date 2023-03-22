@@ -20,14 +20,27 @@
 
 declare(strict_types=1);
 
-namespace Import\SelectManagers;
+namespace Import\Migrations;
 
-class ImportFeed extends \Treo\Core\SelectManagers\Base
+use Treo\Core\Migration\Base;
+
+class V1Dot4Dot48 extends Base
 {
-    protected function boolFilterOnlyExecutable(array &$result)
+    public function up(): void
     {
-        $result['whereClause'][] = [
-            'type!=' => 'simple'
-        ];
+        $this->execute("ALTER TABLE import_job ADD trial INT DEFAULT 0 COLLATE `utf8mb4_unicode_ci`");
+    }
+
+    public function down(): void
+    {
+        $this->execute("ALTER TABLE import_job DROP trial");
+    }
+
+    protected function execute(string $sql)
+    {
+        try {
+            $this->getPDO()->exec($sql);
+        } catch (\Throwable $e) {
+        }
     }
 }

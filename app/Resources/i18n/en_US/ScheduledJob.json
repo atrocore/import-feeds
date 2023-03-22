@@ -7,7 +7,8 @@
   },
   "options": {
     "job": {
-      "ImportFeed": "Import Feed"
+      "ImportFeed": "Import Feed",
+      "TrialImport": "Trial Import"
     }
   }
 }
