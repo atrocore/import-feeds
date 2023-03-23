@@ -29,22 +29,28 @@ class TrialImport extends Base
     public function run($data, $targetId, $targetType, $scheduledJobId): bool
     {
         $scheduledJob = $this->getEntityManager()->getEntity('ScheduledJob', $scheduledJobId);
-        
+
         if (empty($scheduledJob) || empty($importFeedId = $scheduledJob->get('importFeedId'))) {
             return true;
         }
 
-        $records = $this->getEntityManager()->getRepository('ImportJob')->where([
-            "importFeedId" => $importFeedId,
-            "state" => 'Failed',
-            "trial<" => 3
-        ])->order('createdAt','DESC')->limit(0,5)->find();
+        $records = $this
+            ->getEntityManager()
+            ->getRepository('ImportJob')
+            ->where([
+                "importFeedId" => $importFeedId,
+                "state"        => 'Failed',
+                "trial<"       => 3
+            ])
+            ->order('createdAt', 'DESC')
+            ->limit(0, 5)
+            ->find();
 
-        foreach($records as $record){
+        foreach ($records as $record) {
             $trial = intval($record->get('trial'));
             $record->set('state', 'Pending');
             $record->set('trial', ++$trial);
-            $this->getEntityManager()->getRepository('ImportJob')->save($record);
+            $this->getEntityManager()->saveEntity($record);
         }
 
         return true;
