@@ -42,8 +42,6 @@ class TrialImport extends Base
                 "state"        => 'Failed',
                 "trial<"       => 3
             ])
-            ->order('createdAt', 'DESC')
-            ->limit(0, 5)
             ->find();
 
         foreach ($records as $record) {
