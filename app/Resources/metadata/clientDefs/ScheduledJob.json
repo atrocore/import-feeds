@@ -5,18 +5,18 @@
         "visible": {
           "conditionGroup": [
             {
-              "type": "equals",
+              "type": "in",
               "attribute": "job",
-              "value": "ImportFeed"
+              "value": ["ImportFeed", "TrialImport"]
             }
           ]
         },
         "required": {
           "conditionGroup": [
             {
-              "type": "equals",
+              "type": "in",
               "attribute": "job",
-              "value": "ImportFeed"
+              "value": ["ImportFeed", "TrialImport"]
             }
           ]
         }

@@ -6,6 +6,10 @@
       "trim": true,
       "readOnly": true
     },
+    "trial": {
+      "type": "int",
+      "default": 0
+    },
     "importFeed": {
       "type": "link",
       "readOnly": true
