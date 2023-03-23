@@ -8,7 +8,7 @@
   "options": {
     "job": {
       "ImportFeed": "Import Feed",
-      "TrialImport": "Probeimport"
+      "TrialImport": "Wiederholung von fehlgeschlagenen Import Jobs"
     }
   }
 }
