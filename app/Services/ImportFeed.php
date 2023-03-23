@@ -234,9 +234,6 @@ class ImportFeed extends Base
         $serviceName = $this->getImportTypeService($feed);
 
         $service = $this->getServiceFactory()->create($serviceName);
-        if($attachmentId === '')
-            $attachmentId = $this->getEntityManager()->getEntity('ImportFeed', $importFeedId)
-            ->get('fileId');
         if (method_exists($service, 'runImport')) {
             return $service->runImport($feed, $attachmentId, $payload);
         }
