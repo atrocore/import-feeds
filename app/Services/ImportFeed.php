@@ -235,9 +235,12 @@ class ImportFeed extends Base
 
         $service = $this->getServiceFactory()->create($serviceName);
         if (method_exists($service, 'runImport')) {
-            return $service->runImport($feed, $attachmentId, $payload);
+            if(empty($attachmentId)){
+                return $service->runImport($feed, $attachmentId, $payload);
+            }
         }
 
+        $attachmentId = (!empty($attachmentId)) ? $attachmentId : $feed->get('fileId');
         $data = $service->prepareJobData($feed, $attachmentId);
         $data['data']['importJobId'] = $this->createImportJob($feed, $feed->getFeedField('entity'), $attachmentId, $payload)->get('id');
 

@@ -64,8 +64,6 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
             throw new Forbidden();
         }
 
-        $attachmentId = property_exists($data, 'attachmentId') ? (string)$data->attachmentId : '';
-
-        return $this->getRecordService()->runImport((string)$data->importFeedId, $attachmentId);
+        return $this->getRecordService()->runImport((string)$data->importFeedId, (string)$data->attachmentId);
     }
 }
