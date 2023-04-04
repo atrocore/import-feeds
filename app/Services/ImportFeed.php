@@ -233,6 +233,10 @@ class ImportFeed extends Base
 
         $serviceName = $this->getImportTypeService($feed);
 
+        if (in_array($serviceName, ['ImportTypePath', 'ImportTypeFtp'])) 
+        {
+            $serviceName = "ImportTypeSimple";
+        }
         $service = $this->getServiceFactory()->create($serviceName);
         if (method_exists($service, 'runImport')) {
             if(empty($attachmentId)){
