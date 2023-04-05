@@ -232,16 +232,10 @@ class ImportFeed extends Base
         $this->getRepository()->validateFeed($feed);
 
         $serviceName = $this->getImportTypeService($feed);
-
-        if (in_array($serviceName, ['ImportTypePath', 'ImportTypeFtp'])) 
-        {
-            $serviceName = "ImportTypeSimple";
-        }
         $service = $this->getServiceFactory()->create($serviceName);
+
         if (method_exists($service, 'runImport')) {
-            if(empty($attachmentId)){
-                return $service->runImport($feed, $attachmentId, $payload);
-            }
+            return $service->runImport($feed, $attachmentId, $payload);
         }
 
         $attachmentId = (!empty($attachmentId)) ? $attachmentId : $feed->get('fileId');
@@ -435,7 +429,7 @@ class ImportFeed extends Base
      */
     protected function getImportTypeService(ImportFeedEntity $feed): string
     {
-        return "ImportType" . ucfirst($feed->get('type'));
+        return 'ImportType' . ucfirst($feed->get('type'));
     }
 
     public function createImportJob(ImportFeedEntity $feed, string $entityType, string $attachmentId, \stdClass $payload = null): ImportJob
