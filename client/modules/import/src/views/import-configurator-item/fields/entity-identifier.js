@@ -26,6 +26,14 @@ Espo.define('import:views/import-configurator-item/fields/entity-identifier', 'v
             this.listenTo(this.model, 'change:type change:name', () => {
                 this.reRender();
             });
+            this.listenTo(this.model, 'change:name', (model, data, additional) => {
+                let isVirtualField = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.notStorable`);
+                if (isVirtualField === true) {
+                    this.hide();
+                } else {
+                    this.show();
+                }
+            });
         },
 
         afterRender() {
