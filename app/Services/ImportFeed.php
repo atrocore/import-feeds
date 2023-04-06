@@ -309,25 +309,16 @@ class ImportFeed extends Base
             return;
         }
 
+        $service = $this->getServiceFactory()->create('ImportConfiguratorItem');
+
         foreach ($items as $item) {
             $data = $item->toArray();
             unset($data['id']);
             $data['importFeedId'] = $entity->get('id');
-
             $newItem = $this->getEntityManager()->getEntity('ImportConfiguratorItem');
-            //We decode all array values that has been stringify
-            $this->decodeArrayValues($data);
             $newItem->set($data);
+            $service->prepareDuplicateEntityForSave($entity, $newItem);
             $this->getEntityManager()->saveEntity($newItem);
-        }
-    }
-
-    public function decodeArrayValues(array &$data): void
-    {
-        foreach ($data as $key => $value) {
-            if (gettype($value) === 'string' && !empty($decodedValue = json_decode((string)$value, true))) {
-                $data[$key] = $decodedValue;
-            }
         }
     }
 
