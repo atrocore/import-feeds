@@ -310,13 +310,15 @@ class ImportFeed extends Base
             return;
         }
 
+        $service = $this->getServiceFactory()->create('ImportConfiguratorItem');
+
         foreach ($items as $item) {
             $data = $item->toArray();
             unset($data['id']);
             $data['importFeedId'] = $entity->get('id');
-
             $newItem = $this->getEntityManager()->getEntity('ImportConfiguratorItem');
             $newItem->set($data);
+            $service->prepareDuplicateEntityForSave($entity, $newItem);
             $this->getEntityManager()->saveEntity($newItem);
         }
     }

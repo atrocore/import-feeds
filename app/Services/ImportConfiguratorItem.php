@@ -178,4 +178,24 @@ class ImportConfiguratorItem extends Base
     {
         return true;
     }
+
+    public function prepareDuplicateEntityForSave(Entity $entity, Entity $newImportConfiguratorEntity): void
+    {
+        $fieldType = $this->getFieldType($entity, $newImportConfiguratorEntity);
+        $this->prepareDefaultField($fieldType, $newImportConfiguratorEntity);
+    }
+
+    public function getFieldType(Entity $entity, Entity $importConfiguratorEntity): string
+    {
+        if ($importConfiguratorEntity->get('type') === 'Attribute') {
+            if (empty($attribute = $this->getEntityManager()->getEntity('Attribute', $importConfiguratorEntity->get('attributeId')))) {
+                throw new BadRequest('No such Attribute.');
+            }
+            $fieldType = $attribute->get('type');
+        } else {
+            $fieldType = $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'fields', $importConfiguratorEntity->get('name'), 'type'], 'varchar');
+        }
+
+        return $fieldType;
+    }
 }
