@@ -69,7 +69,7 @@ class ImportFeed extends Base
         $delimiters = [
             $entity->getFeedField('delimiter'),
             $entity->getFeedField('decimalMark'),
-//            $entity->getFeedField('thousandSeparator'),
+            //$entity->getFeedField('thousandSeparator'),
             $entity->getFeedField('fieldDelimiterForRelation')
         ];
 

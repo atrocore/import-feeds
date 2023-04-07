@@ -30,12 +30,10 @@ Espo.define('import:views/import-feed/record/detail', 'views/record/detail',
                 }
             ];
 
-            if (this.model.get('type') === 'simple') {
-                this.additionalButtons.push({
-                    "action": "uploadAndRunImport",
-                    "label": this.translate('uploadAndImport', 'labels', 'ImportFeed')
-                })
-            }
+            this.additionalButtons.push({
+                "action": "uploadAndRunImport",
+                "label": this.translate('uploadAndImport', 'labels', 'ImportFeed')
+            })
 
             this.listenTo(this.model, 'after:save', () => {
                 this.handleButtonsDisability();
@@ -69,9 +67,8 @@ Espo.define('import:views/import-feed/record/detail', 'views/record/detail',
             this.confirm(this.translate('importNow', 'messages', 'ImportFeed'), () => {
                 const data = {
                     importFeedId: this.model.get('id'),
-                    attachmentId: this.model.get('fileId')
+                    attachmentId: null,
                 };
-
                 this.notify(this.translate('creatingImportJobs', 'labels', 'ImportFeed'));
                 this.ajaxPostRequest('ImportFeed/action/runImport', data).then(response => {
                     if (response) {
