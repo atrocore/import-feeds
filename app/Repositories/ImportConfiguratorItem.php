@@ -68,9 +68,12 @@ class ImportConfiguratorItem extends Base
 
     protected function beforeSave(Entity $entity, array $options = [])
     {
+
         if (empty($importFeed = $entity->get('importFeed'))) {
             throw new BadRequest('ImportFeed is required for Configurator item.');
         }
+
+        $this->checkIfVirtualFieldIsIdentifier($entity, $importFeed);
 
         if ($entity->get('type') === 'Field') {
             $type = $this->getMetadata()->get(['entityDefs', $importFeed->getFeedField('entity'), 'fields', $entity->get('name'), 'type'], 'varchar');
@@ -122,6 +125,21 @@ class ImportConfiguratorItem extends Base
 
         $this->addDependency('language');
         $this->addDependency('container');
+    }
+
+    public function checkIfVirtualFieldIsIdentifier(Entity $entity, Entity $importFeedEntity):void
+    {
+        $configuratorFieldName = $entity->get('name');
+        $isIdentifier = $entity->get('entityIdentifier');
+        
+        if(!empty($configuratorFieldName)){
+            $isVirtualField = $this->getMetadata()
+                ->get(['entityDefs', $importFeedEntity->getFeedField('entity'), 'fields', $configuratorFieldName, 'notStorable']);
+
+            if($isIdentifier === true && $isVirtualField === true ){
+                throw new BadRequest('Virtual field should not be set as identifier');
+            }
+        }
     }
 
     protected function prepareDefaultField(string $type, Entity $entity): void
