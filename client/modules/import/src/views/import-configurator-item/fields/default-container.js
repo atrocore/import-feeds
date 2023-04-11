@@ -109,7 +109,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 };
             }
 
-            if (type === 'enum' || type === 'multiEnum') {
+            if (type === 'enum' || type === 'multiEnum' || type === 'array') {
                 this.params.options = options;
                 this.params.translatedOptions = {};
                 options.forEach(option => {
