@@ -434,7 +434,7 @@ class ImportFeed extends Base
         return 'ImportType' . ucfirst($feed->get('type'));
     }
 
-    public function createImportJob(ImportFeedEntity $feed, string $entityType, string $attachmentId, \stdClass $payload = null): ImportJob
+    public function createImportJob(ImportFeedEntity $feed, string $entityType, ?string $attachmentId, \stdClass $payload = null): ImportJob
     {
         $entity = $this->getEntityManager()->getEntity('ImportJob');
         $entity->set('name', date('Y-m-d H:i:s'));
