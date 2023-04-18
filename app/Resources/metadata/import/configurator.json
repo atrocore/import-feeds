@@ -9,6 +9,12 @@
     "wysiwyg": {
       "converter": "\\Import\\FieldConverters\\Wysiwyg"
     },
+    "extensibleEnum": {
+      "converter": "\\Import\\FieldConverters\\ExtensibleEnum"
+    },
+    "extensibleMultiEnum": {
+      "converter": "\\Import\\FieldConverters\\ExtensibleMultiEnum"
+    },
     "link": {
       "converter": "\\Import\\FieldConverters\\Link"
     },

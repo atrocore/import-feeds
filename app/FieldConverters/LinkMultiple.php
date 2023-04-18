@@ -120,7 +120,7 @@ class LinkMultiple extends Varchar
         $entity->set('defaultIds', null);
         $entity->set('defaultNames', null);
         if (!empty($entity->get('default'))) {
-            $relEntityName = $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'links', $entity->get('name'), 'entity']);
+            $relEntityName = $this->getForeignEntityName($entity);
             if (!empty($relEntityName)) {
                 $entity->set('defaultIds', Json::decode($entity->get('default'), true));
                 $names = [];
@@ -204,5 +204,10 @@ class LinkMultiple extends Varchar
         }
 
         return $result;
+    }
+
+    protected function getForeignEntityName(Entity $entity): string
+    {
+        return $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'links', $entity->get('name'), 'entity']);
     }
 }

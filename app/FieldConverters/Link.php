@@ -194,7 +194,7 @@ class Link extends Varchar
         $entity->set('defaultId', null);
         $entity->set('defaultName', null);
         if (!empty($entity->get('default'))) {
-            $relEntityName = $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'links', $entity->get('name'), 'entity']);
+            $relEntityName = $this->getForeignEntityName($entity);
             if (!empty($relEntityName)) {
                 $entity->set('defaultId', $entity->get('default'));
                 $relEntity = $this->getEntityManager()->getEntity($relEntityName, $entity->get('defaultId'));
@@ -224,5 +224,10 @@ class Link extends Varchar
         }
 
         return $value;
+    }
+
+    protected function getForeignEntityName(Entity $entity): string
+    {
+        return $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'links', $entity->get('name'), 'entity']);
     }
 }
