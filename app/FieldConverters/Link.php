@@ -48,7 +48,7 @@ class Link extends Varchar
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
-                    $entityName = $this->getMetadata()->get(['entityDefs', $config['entity'], 'links', $config['name'], 'entity']);
+                    $entityName = $this->getForeignEntityName($config['entity'], $config['name']);
                 }
 
                 $values = !is_array($value) ? explode((string)$config['fieldDelimiterForRelation'], (string)$value) : $value;
@@ -152,14 +152,16 @@ class Link extends Varchar
             $value = null;
         }
 
-        $inputRow->{$config['name'] . 'Id'} = $value;
+        $fieldName = $this->getFieldName($config);
+
+        $inputRow->$fieldName = $value;
 
         if ($config['entity'] === 'ProductAttributeValue' && !empty($entity) && $entity->getEntityType() === 'Attribute') {
             $inputRow->attributeType = $entity->get('type');
         }
 
         if ($config['type'] === 'Attribute') {
-            $inputRow->{$config['name']} = $inputRow->{$config['name'] . 'Id'};
+            $inputRow->{$config['name']} = $inputRow->$fieldName;
         }
     }
 
@@ -171,7 +173,9 @@ class Link extends Varchar
             $value = $foreign->get('id');
         }
 
-        $restore->{$item['name'] . 'Id'} = $value;
+        $fieldName = $this->getFieldName($item);
+
+        $restore->$fieldName = $value;
     }
 
     public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
@@ -179,7 +183,9 @@ class Link extends Varchar
         $inputRow = new \stdClass();
         $this->convert($inputRow, $configuration, $row);
 
-        $where["{$configuration['name']}Id"] = $inputRow->{"{$configuration['name']}Id"};
+        $fieldName = $this->getFieldName($configuration);
+
+        $where[$fieldName] = $inputRow->$fieldName;
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
@@ -194,7 +200,7 @@ class Link extends Varchar
         $entity->set('defaultId', null);
         $entity->set('defaultName', null);
         if (!empty($entity->get('default'))) {
-            $relEntityName = $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'links', $entity->get('name'), 'entity']);
+            $relEntityName = $this->getForeignEntityName($entity->get('entity'), $entity->get('name'));
             if (!empty($relEntityName)) {
                 $entity->set('defaultId', $entity->get('default'));
                 $relEntity = $this->getEntityManager()->getEntity($relEntityName, $entity->get('defaultId'));
@@ -224,5 +230,15 @@ class Link extends Varchar
         }
 
         return $value;
+    }
+
+    protected function getForeignEntityName(string $entity, string $field): string
+    {
+        return $this->getMetadata()->get(['entityDefs', $entity, 'links', $field, 'entity']);
+    }
+
+    protected function getFieldName(array $config): string
+    {
+        return $config['name'] . 'Id';
     }
 }

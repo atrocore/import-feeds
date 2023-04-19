@@ -75,7 +75,7 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
 
             if (this.model.get('type') === 'Field') {
                 let type = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'type']);
-                if (type === 'image' || type === 'asset' || type === 'link' || type === 'linkMultiple') {
+                if (type === 'image' || type === 'asset' || type === 'link' || type === 'linkMultiple' || type === 'extensibleEnum' || type === 'extensibleMultiEnum') {
                     const entityName = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'links', this.model.get('name'), 'entity']);
                     let translated = [];
                     this.model.get('importBy').forEach(field => {
@@ -85,7 +85,7 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                     if (this.model.get('createIfNotExist')) {
                         extraInfo += `<br><span class="text-muted small">${this.translate('createIfNotExist', 'fields', 'ImportConfiguratorItem')}</span>`;
                     }
-                    if ((type === 'linkMultiple' || type === 'array' || type === 'multiEnum') && this.model.get('replaceArray')) {
+                    if ((type === 'extensibleMultiEnum' || type === 'linkMultiple' || type === 'array' || type === 'multiEnum') && this.model.get('replaceArray')) {
                         extraInfo += `<br><span class="text-muted small">${this.translate('replaceArray', 'fields', 'ImportConfiguratorItem')}</span>`;
                     }
                 }

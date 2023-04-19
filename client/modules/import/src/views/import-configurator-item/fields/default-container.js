@@ -177,7 +177,17 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 };
             }
 
-            this.createView('default', this.getFieldManager().getViewName(type), {
+            let viewName = this.getFieldManager().getViewName(type);
+
+            if (type === 'extensibleEnum') {
+                viewName = 'views/admin/field-manager/fields/link/extensible-enum-default';
+                this.model.defs.fields["default"]['extensibleEnumId'] = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
+            } else if (type === 'extensibleMultiEnum') {
+                viewName = 'views/admin/field-manager/fields/linkMultiple/extensible-multi-enum-default';
+                this.model.defs.fields["default"]['extensibleEnumId'] = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
+            }
+
+            this.createView('default', viewName, {
                 el: `${this.options.el} > .field[data-name="default"]`,
                 model: this.model,
                 name: 'default',
