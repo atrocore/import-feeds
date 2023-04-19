@@ -26,7 +26,34 @@ use Espo\ORM\Entity;
 
 class ExtensibleMultiEnum extends LinkMultiple
 {
-    protected function getForeignEntityName(Entity $entity): string
+    public function prepareValue(\stdClass $restore, Entity $entity, array $item): void
+    {
+        $fieldName = $this->getFieldName($item);
+        $restore->$fieldName = $entity->get($fieldName);
+    }
+
+    protected function convertItem(array $config, array $column, array $row): ?string
+    {
+        $input = new \stdClass();
+        $this
+            ->getService('ImportConfiguratorItem')
+            ->getFieldConverter('extensibleEnum')
+            ->convert($input, array_merge($config, $column, ['default' => null]), $row);
+
+        $key = $config['name'];
+        if (property_exists($input, $key) && $input->$key !== null) {
+            return $input->$key;
+        }
+
+        return null;
+    }
+
+    protected function getFieldName(array $config): string
+    {
+        return $config['name'];
+    }
+
+    protected function getForeignEntityName(string $entity, string $field): string
     {
         return 'ExtensibleEnumOption';
     }

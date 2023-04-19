@@ -26,7 +26,19 @@ use Espo\ORM\Entity;
 
 class ExtensibleEnum extends Link
 {
-    protected function getForeignEntityName(Entity $entity): string
+    public function prepareValue(\stdClass $restore, Entity $entity, array $item): void
+    {
+        $fieldName = $this->getFieldName($item);
+
+        $restore->$fieldName = $entity->get($item['name']);
+    }
+
+    protected function getFieldName(array $config): string
+    {
+        return $config['name'];
+    }
+
+    protected function getForeignEntityName(string $entity, string $field): string
     {
         return 'ExtensibleEnumOption';
     }

@@ -37,7 +37,7 @@ class LinkMultiple extends Varchar
     {
         $ids = [];
 
-        $this->relationEntityName = $config['relEntityName'] ?? $this->getMetadata()->get(['entityDefs', $config['entity'], 'links', $config['name'], 'entity']);
+        $this->relationEntityName = $config['relEntityName'] ?? $this->getForeignEntityName($config['entity'], $config['name']);
 
         $searchData = $this->prepareItem($config, $config['column'], $row);
         $insertData = $this->prepareItem($config, empty($config['foreignColumn']) ? $config['column'] : $config['foreignColumn'], $row);
@@ -66,7 +66,7 @@ class LinkMultiple extends Varchar
 
         $ids = array_values($ids);
 
-        $fieldName = $config['name'] . 'Ids';
+        $fieldName = $this->getFieldName($config);
 
         if (!empty($inputRow->$fieldName)) {
             $inputRow->$fieldName = array_merge($inputRow->$fieldName, $ids);
@@ -120,7 +120,7 @@ class LinkMultiple extends Varchar
         $entity->set('defaultIds', null);
         $entity->set('defaultNames', null);
         if (!empty($entity->get('default'))) {
-            $relEntityName = $this->getForeignEntityName($entity);
+            $relEntityName = $this->getForeignEntityName($entity->get('entity'), $entity->get('name'));
             if (!empty($relEntityName)) {
                 $entity->set('defaultIds', Json::decode($entity->get('default'), true));
                 $names = [];
@@ -206,8 +206,13 @@ class LinkMultiple extends Varchar
         return $result;
     }
 
-    protected function getForeignEntityName(Entity $entity): string
+    protected function getFieldName(array $config): string
     {
-        return $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'links', $entity->get('name'), 'entity']);
+        return $config['name'] . 'Ids';
+    }
+
+    protected function getForeignEntityName(string $entity, string $field): string
+    {
+        return $this->getMetadata()->get(['entityDefs', $entity, 'links', $field, 'entity']);
     }
 }
