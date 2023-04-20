@@ -1,9 +1,12 @@
 {
   "fields": {
-    "importFeed": "Import Feed"
+    "importFeed": "Import Feed",
+    "importFeeds": "Import Feeds",
+    "maximumHoursToLookBack": "Maximale Stundenzahl für die Rückschau"
   },
   "links": {
-    "importFeed": "Import Feed"
+    "importFeed": "Import Feed",
+    "importFeeds": "Import Feeds"
   },
   "options": {
     "job": {

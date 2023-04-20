@@ -1,9 +1,12 @@
 {
   "fields": {
-    "importFeed": "Імпортний фід"
+    "importFeed": "Імпортний фід",
+    "importFeeds": "Імпортні канали",
+    "maximumHoursToLookBack": "Максимальна кількість годин для ретроспективи"
   },
   "links": {
-    "importFeed": "Імпортний фід"
+    "importFeed": "Імпортний фід",
+    "importFeeds": "Імпортні фіди"
   },
   "options": {
     "job": {

@@ -3,11 +3,26 @@
     "importFeed": {
       "type": "link",
       "view": "import:views/scheduled-job/fields/import-feed"
+    },
+    "importFeeds": {
+      "type": "linkMultiple",
+      "layoutDetailDisabled": true,
+      "layoutDetailSmallDisabled": true
+    },
+    "maximumHoursToLookBack": {
+      "type": "float",
+      "min": 0
     }
   },
   "links": {
     "importFeed": {
       "type": "belongsTo",
+      "entity": "ImportFeed"
+    },
+    "importFeeds": {
+      "type": "hasMany",
+      "relationName": "scheduledJobImportFeed",
+      "foreign": "scheduledJobs",
       "entity": "ImportFeed"
     }
   }

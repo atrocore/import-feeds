@@ -49,6 +49,7 @@ class LayoutController extends \Espo\Listeners\AbstractListener
             $newRows[] = $row;
             if ($row[0]['name'] === 'job') {
                 $newRows[] = [['name' => 'importFeed'], false];
+                $newRows[] = [['name' => 'importFeeds'], ['name' => 'maximumHoursToLookBack']];
             }
         }
 
