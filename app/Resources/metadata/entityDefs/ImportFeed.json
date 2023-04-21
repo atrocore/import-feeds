@@ -248,6 +248,12 @@
       "noLoad": true,
       "importDisabled": true
     },
+    "scheduledJobs": {
+      "type": "linkMultiple",
+      "layoutDetailDisabled": true,
+      "layoutDetailSmallDisabled": true,
+      "noLoad": true
+    },
     "entity": {
       "type": "enum",
       "notStorable": true,
@@ -360,6 +366,12 @@
       "type": "hasMany",
       "foreign": "importFeed",
       "entity": "ImportJob"
+    },
+    "scheduledJobs": {
+      "type": "hasMany",
+      "relationName": "scheduledJobImportFeed",
+      "foreign": "importFeeds",
+      "entity": "ScheduledJob"
     },
     "connection": {
       "type": "belongsTo",

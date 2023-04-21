@@ -7,7 +7,7 @@
             {
               "type": "in",
               "attribute": "job",
-              "value": ["ImportFeed", "TrialImport"]
+              "value": ["ImportFeed"]
             }
           ]
         },
@@ -16,7 +16,29 @@
             {
               "type": "in",
               "attribute": "job",
-              "value": ["ImportFeed", "TrialImport"]
+              "value": ["ImportFeed"]
+            }
+          ]
+        }
+      },
+      "importFeeds": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "equals",
+              "attribute": "job",
+              "value": "TrialImport"
+            }
+          ]
+        }
+      },
+      "maximumHoursToLookBack": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "in",
+              "attribute": "job",
+              "value": ["TrialImport","TrialExport"]
             }
           ]
         }
