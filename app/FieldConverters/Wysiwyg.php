@@ -23,22 +23,25 @@ declare(strict_types=1);
 namespace Import\FieldConverters;
 
 use Espo\Core\Services\Base;
-use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\Core\Container;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Metadata;
 use Espo\ORM\EntityManager;
 use Import\Exceptions\IgnoreAttribute;
+use Import\Services\ImportConfiguratorItem;
 
 class Wysiwyg
 {
     protected Container $container;
+    protected ImportConfiguratorItem $configuratorItem;
+
     protected array $services = [];
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, ImportConfiguratorItem $configuratorItem)
     {
         $this->container = $container;
+        $this->configuratorItem = $configuratorItem;
     }
 
     public function convert(\stdClass $inputRow, array $config, array $row): void

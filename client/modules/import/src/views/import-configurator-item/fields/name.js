@@ -92,7 +92,16 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
             }
 
             if (this.model.get('type') === 'Attribute') {
-                extraInfo = `<span class="text-muted small">${this.translate('code', 'fields', 'Attribute')}: ${this.model.get('attributeCode')}</span>`;
+                extraInfo = '';
+                if (['extensibleEnum', 'extensibleMultiEnum'].includes(this.model.get('attributeType'))) {
+                    let translated = [];
+                    this.model.get('importBy').forEach(field => {
+                        translated.push(this.translate(field, 'fields', 'ExtensibleEnumOption'));
+                    });
+                    extraInfo = `<span class="text-muted small">${this.translate('importBy', 'fields', 'ImportConfiguratorItem')}: ${translated.join(', ')}</span><br>`;
+                }
+
+                extraInfo += `<span class="text-muted small">${this.translate('code', 'fields', 'Attribute')}: ${this.model.get('attributeCode')}</span>`;
                 extraInfo += `<br><span class="text-muted small">${this.translate('scope', 'fields')}: ${this.model.get('scope')}</span>`;
             }
 

@@ -26,6 +26,12 @@ use Espo\ORM\Entity;
 
 class ExtensibleMultiEnum extends LinkMultiple
 {
+    public function convert(\stdClass $inputRow, array $config, array $row): void
+    {
+        $config['replaceArray'] = true;
+        parent::convert($inputRow, $config, $row);
+    }
+
     public function prepareValue(\stdClass $restore, Entity $entity, array $item): void
     {
         $fieldName = $this->getFieldName($item);

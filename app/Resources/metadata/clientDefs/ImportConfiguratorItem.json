@@ -25,6 +25,17 @@
           ]
         }
       },
+      "entityIdentifier": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "notEquals",
+              "attribute": "type",
+              "value": "Attribute"
+            }
+          ]
+        }
+      },
       "attribute": {
         "visible": {
           "conditionGroup": [

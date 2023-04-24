@@ -265,7 +265,7 @@ class Unit extends FloatValue
 
     protected function getAttribute(string $attributeId): Entity
     {
-        $attribute = $this->getEntityManager()->getEntity('Attribute', $attributeId);
+        $attribute = $this->configuratorItem->getAttributeById($attributeId);
         if (empty($attribute)) {
             throw new BadRequest("Attribute with ID '$attributeId' does not exist.");
         }

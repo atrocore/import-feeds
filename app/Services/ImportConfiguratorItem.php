@@ -46,6 +46,8 @@ class ImportConfiguratorItem extends Base
             'foreignImportBy'
         ];
 
+    protected array $attributes = [];
+
     public function prepareCollectionForOutput(EntityCollection $collection, array $selectParams = []): void
     {
         parent::prepareCollectionForOutput($collection, $selectParams);
@@ -142,7 +144,7 @@ class ImportConfiguratorItem extends Base
     {
         $class = $this->getMetadata()->get(['import', 'configurator', 'fields', $type, 'converter'], Varchar::class);
 
-        return new $class($this->getInjection('container'));
+        return new $class($this->getInjection('container'), $this);
     }
 
     public function updateEntity($id, $data)
@@ -197,5 +199,14 @@ class ImportConfiguratorItem extends Base
         }
 
         return $fieldType;
+    }
+
+    public function getAttributeById(string $id): ?Entity
+    {
+        if (!isset($this->attributes[$id])) {
+            $this->attributes[$id] = $this->getEntityManager()->getEntity('Attribute', $id);
+        }
+
+        return $this->attributes[$id];
     }
 }

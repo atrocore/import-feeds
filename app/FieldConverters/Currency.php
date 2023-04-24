@@ -107,7 +107,7 @@ class Currency extends FloatValue
 
         if ($value !== null && !in_array($currency, $this->getConfig()->get('currencyList', []))) {
             if (isset($config['attributeId'])) {
-                $attribute = $this->getEntityManager()->getEntity('Attribute', $config['attributeId']);
+                $attribute = $this->configuratorItem->getAttributeById($config['attributeId']);
                 $fieldValue = empty($attribute) ? '-' : $attribute->get('name');
                 $message = sprintf($this->translate('incorrectAttributeCurrency', 'exceptions', 'ImportFeed'), $currency, $fieldValue);
             } else {

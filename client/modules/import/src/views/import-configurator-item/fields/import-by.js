@@ -29,7 +29,7 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             }
 
             this.prepareImportByOptions();
-            this.listenTo(this.model, 'change:name', () => {
+            this.listenTo(this.model, 'change:name change:type change:attributeId', () => {
                 this.model.set('importBy', null);
                 this.prepareImportByOptions(() => {
                     this.reRender();
@@ -48,11 +48,21 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             this.params.options = [];
             this.translatedOptions = {};
 
-            let foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
-            if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`)) {
-                foreignEntity = 'ExtensibleEnumOption';
-            } else if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset') {
-                foreignEntity = 'Asset';
+            let foreignEntity;
+            if (this.model.get('type') === 'Field') {
+                foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
+                if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`)) {
+                    foreignEntity = 'ExtensibleEnumOption';
+                } else if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset') {
+                    foreignEntity = 'Asset';
+                }
+            } else {
+                if (this.model.get('attributeId')) {
+                    let attribute = this.getAttribute(this.model.get('attributeId'));
+                    if (['extensibleEnum', 'extensibleMultiEnum'].includes(attribute.type)) {
+                        foreignEntity = 'ExtensibleEnumOption';
+                    }
+                }
             }
 
             /**
@@ -106,7 +116,19 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             }
 
             return validate;
-        }
+        },
+
+        getAttribute(attributeId) {
+            let key = `attribute_${attributeId}`;
+            if (!Espo[key]) {
+                Espo[key] = null;
+                this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).success(attr => {
+                    Espo[key] = attr;
+                });
+            }
+
+            return Espo[key];
+        },
 
     })
 );

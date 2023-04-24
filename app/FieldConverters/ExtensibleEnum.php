@@ -42,4 +42,20 @@ class ExtensibleEnum extends Link
     {
         return 'ExtensibleEnumOption';
     }
+
+    protected function prepareWhere(array $config, string $entityName, array &$where): void
+    {
+        parent::prepareWhere($config, $entityName, $where);
+
+        $where['extensibleEnumId'] = 'no-such-extensible-enum';
+
+        if (!empty($config['attributeId'])) {
+            $attribute = $this->configuratorItem->getAttributeById($config['attributeId']);
+            if (!empty($attribute) && !empty($attribute->get('extensibleEnumId'))) {
+                $where['extensibleEnumId'] = $attribute->get('extensibleEnumId');
+            }
+        } else {
+            $where['extensibleEnumId'] = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'extensibleEnumId']);
+        }
+    }
 }

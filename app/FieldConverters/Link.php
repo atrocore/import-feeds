@@ -51,12 +51,11 @@ class Link extends Varchar
                     $entityName = $this->getForeignEntityName($config['entity'], $config['name']);
                 }
 
-                $values = !is_array($value) ? explode((string)$config['fieldDelimiterForRelation'], (string)$value) : $value;
-
                 $input = new \stdClass();
 
                 $where = [];
 
+                $values = !is_array($value) ? explode((string)$config['fieldDelimiterForRelation'], (string)$value) : $value;
                 foreach ($config['importBy'] as $k => $field) {
                     $fieldData = $this->getMetadata()->get(['entityDefs', $entityName, 'fields', $field], ['type' => 'varchar']);
 
@@ -78,17 +77,18 @@ class Link extends Varchar
                     }
                 }
 
+                $this->prepareWhere($config, $entityName, $where);
+
                 $entity = null;
-
-                if ($entityName === 'Asset' && in_array('url', $config['importBy'])) {
-                    $where = [];
-                }
-
                 if (!empty($where)) {
-                    $entity = $this->getEntityManager()->getRepository($entityName)->where($where)->findOne();
+                    $entity = $this
+                        ->getEntityManager()
+                        ->getRepository($entityName)
+                        ->where($where)
+                        ->findOne();
                 }
 
-                if (empty($entity) && !empty($input) && !empty($config['createIfNotExist'])) {
+                if (empty($entity) && $input !== new \stdClass() && !empty($config['createIfNotExist'])) {
                     $user = $this->container->get('user');
                     $userId = empty($user) ? null : $user->get('id');
 
@@ -240,5 +240,12 @@ class Link extends Varchar
     protected function getFieldName(array $config): string
     {
         return $config['name'] . 'Id';
+    }
+
+    protected function prepareWhere(array $config, string $entityName, array &$where): void
+    {
+        if ($entityName === 'Asset' && in_array('url', $config['importBy'])) {
+            $where = [];
+        }
     }
 }
