@@ -42,6 +42,19 @@ class ImportFeed extends Base
         foreach ($entity->getFeedFields() as $name => $value) {
             $entity->set($name, $value);
         }
+
+        $latestJob = $this->getEntityManager()
+            ->getRepository('ImportJob')
+            ->where([
+                'importFeedId' => $entity->id
+            ])
+            ->order('start', 'DESC')
+            ->limit(1, 0)
+            ->findOne();
+        if(!empty($latestJob)){
+            $entity->set('lastStatus', $latestJob->get('state'));
+            $entity->set('lastTime', $latestJob->get('start'));
+        }
     }
 
     public function parseFileColumns(\stdClass $payload): array

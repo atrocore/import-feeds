@@ -10,6 +10,14 @@
         {
           "name": "type"
         }
+      ],
+      [
+        {
+          "name": "lastStatus"
+        },
+        {
+          "name": "lastTime"
+        }
       ]
     ]
   }
