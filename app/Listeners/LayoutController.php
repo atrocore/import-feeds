@@ -49,12 +49,29 @@ class LayoutController extends \Espo\Listeners\AbstractListener
             $newRows[] = $row;
             if ($row[0]['name'] === 'job') {
                 $newRows[] = [['name' => 'importFeed'], false];
-                $newRows[] = [['name' => 'importFeeds'], ['name' => 'maximumHoursToLookBack']];
+                $newRows[] = [['name' => 'importFeeds'], false];
+                if(!$this->checkIfFieldExists('maximumHoursToLookBack', $result[0]['rows'])){
+                    $newRows[] = [['name' => 'maximumHoursToLookBack'], false];
+                }
             }
         }
 
         $result[0]['rows'] = $newRows;
 
         $event->setArgument('result', Json::encode($result));
+    }
+
+    public function checkIfFieldExists(string $fieldName, array $array): bool
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                if ($this->checkIfFieldExists($fieldName, $value)) {
+                    return true;
+                }
+            } else if ($key === 'name' && $value === $fieldName) {
+                return true;
+            }
+        }
+        return false;
     }
 }

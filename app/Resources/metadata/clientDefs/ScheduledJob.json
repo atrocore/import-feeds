@@ -38,7 +38,7 @@
             {
               "type": "in",
               "attribute": "job",
-              "value": ["TrialImport","TrialExport"]
+              "value": ["TrialImport", "TrialExport"]
             }
           ]
         }
