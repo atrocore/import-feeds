@@ -8,5 +8,11 @@
   },
   {
     "name": "isActive"
+  },
+  {
+    "name": "lastStatus"
+  },
+  {
+    "name": "lastTime"
   }
 ]

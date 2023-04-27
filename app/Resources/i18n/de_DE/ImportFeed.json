@@ -11,6 +11,8 @@
     "delimiter": "Listenwerttrennzeichen",
     "file": "Datei",
     "isActive": "Aktiv",
+    "lastStatus": "Letzter Status",
+    "lastTime": "Letzte Ausführung",
     "type": "Typ",
     "fileFieldDelimiter": "Feld-Trennzeichen",
     "fileTextQualifier": "Textqualifier",

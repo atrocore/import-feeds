@@ -24,6 +24,14 @@
           "name": "description"
         },
         false
+      ],
+      [
+        {
+          "name": "lastStatus"
+        },
+        {
+          "name": "lastTime"
+        }
       ]
     ]
   },

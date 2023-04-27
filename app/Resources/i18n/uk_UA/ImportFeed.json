@@ -11,6 +11,8 @@
     "sourceFields": "Вихідні поля",
     "file": "Файл",
     "isActive": "Активний",
+    "lastStatus": "Останній статус",
+    "lastTime": "Останнє виконання",
     "type": "Тип",
     "fileFieldDelimiter": "Роздільник полів",
     "fileTextQualifier": "Класифікатор тексту",

@@ -327,6 +327,11 @@
     "connection": {
       "type": "link",
       "view": "import:views/import-feed/fields/connection"
+    },
+    "lastTime": {
+      "type": "datetime",
+      "readOnly": true,
+      "notStorable": true
     }
   },
   "links": {

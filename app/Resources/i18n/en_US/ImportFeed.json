@@ -12,6 +12,8 @@
     "sourceFields": "Source Fields",
     "file": "File",
     "isActive": "Active",
+    "lastStatus": "Last status",
+    "lastTime": "Last Run",
     "type": "Type",
     "fileFieldDelimiter": "Field Delimiter",
     "fileTextQualifier": "Text Qualifier",
