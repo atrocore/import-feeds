@@ -83,6 +83,15 @@ class Metadata extends AbstractListener
             $data['clientDefs']['ImportFeed']['relationshipPanels']['configuratorItems']['dragDrop']['maxSize'] = $this->getConfig()->get('recordsPerPageSmall', 20);
         }
 
+        $data['entityDefs']['ImportFeed']['fields']['lastStatus'] = [
+            'type' => 'enum',
+            'notStorable' => true,
+            'readOnly' => true,
+            'optionsIds' => $data['entityDefs']['ImportJob']['fields']['state']['optionsIds'],
+            'options' => $data['entityDefs']['ImportJob']['fields']['state']['options'],
+            'optionColors' => $data['entityDefs']['ImportJob']['fields']['state']['optionColors']
+        ];
+
         $event->setArgument('data', $data);
     }
 }
