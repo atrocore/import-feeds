@@ -35,5 +35,10 @@
   "exceptions": {
     "errorFileCreatingFailed": "Error file can not be created.",
     "convertedFileNotExist": "Converted file does not exist. Please, generate it first."
+  },
+  "boolFilters": {
+    "onlyImportFailed24Hours": "Only Import Jobs that failed during last 24 hours",
+    "onlyImportFailed7Days": "Only Import Jobs that failed during last 7 days",
+    "onlyImportFailed28Days": "Only Import Jobs that failed during last 28 days"
   }
 }

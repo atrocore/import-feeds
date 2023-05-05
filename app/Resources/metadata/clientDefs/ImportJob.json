@@ -2,7 +2,10 @@
   "createDisabled": true,
   "controller": "controllers/record",
   "boolFilterList": [
-    "onlyMy"
+    "onlyMy",
+    "onlyImportFailed24Hours",
+    "onlyImportFailed7Days",
+    "onlyImportFailed28Days"
   ],
   "recordViews": {
     "detail": "import:views/import-job/record/detail",

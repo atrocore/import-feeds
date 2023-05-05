@@ -35,5 +35,10 @@
   "exceptions": {
     "errorFileCreatingFailed": "Konvertierte Datei existiert nicht. Bitte generieren Sie es zuerst.",
     "convertedFileNotExist": "No such converted file found. Please, generate it first."
+  },
+  "boolFilters": {
+    "onlyImportFailed24Hours": "Nur Importaufträge, die in den letzten 24 Stunden fehlgeschlagen sind",
+    "onlyImportFailed7Days": "Nur Importaufträge, die in den letzten 7 Tagen fehlgeschlagen sind",
+    "onlyImportFailed28Days": "Nur Importaufträge, die in den letzten 28 Tagen fehlgeschlagen sind"
   }
 }

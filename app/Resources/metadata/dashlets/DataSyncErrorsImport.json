@@ -1,0 +1,31 @@
+{
+    "view": "import:views/dashlets/data-sync-errors-import",
+    "options": {
+        "fields": {
+            "title": {
+                "type": "varchar",
+                "required": true
+            },
+            "autorefreshInterval": {
+                "type": "enumFloat",
+                "options": [10, 30, 60, 300, 3600]
+            }
+        },
+        "defaults": {
+            "displayRecords": 200,
+            "autorefreshInterval": 10
+        },
+        "layout": [
+            {
+                "rows": [
+                    [
+                        {"name": "title"}
+                    ],
+                    [
+                        {"name": "autorefreshInterval"}
+                    ]
+                ]
+            }
+        ]
+    }
+}

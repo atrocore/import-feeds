@@ -16,5 +16,13 @@
     "ImportFeed": "Import Feeds",
     "ImportJob": "Import Jobs",
     "ImportJobLog": "Import Job Logs"
+  },
+  "labels": {
+    "importErrorDuring24Hours": "Import Feeds/Jobs Error during 24 Hours",
+    "importErrorDuring7Days": "Import Feeds/Jobs Error during 7 days",
+    "importErrorDuring28Days": "Import Feeds/Jobs Error during 28 days"
+  },
+  "dashlets": {
+    "DataSyncErrorsImport": "Data sync errors for Import"
   }
 }
