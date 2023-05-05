@@ -156,7 +156,11 @@ class Unit extends FloatValue
         if (!$entity->isNew()) {
             $default = @json_decode($entity->getFetched('default'), true);
         } elseif (!empty($entity->get('default'))) {
-            $default = @json_decode($entity->get('default'), true);
+            if (!empty($entity->get('defaultUnit'))) {
+                $default = ['value' => $entity->get('default'), 'unit' => $entity->get('defaultUnit')];
+            } else {
+                $default = @json_decode($entity->get('default'), true);
+            }
         }
 
         if (is_array($default)) {
@@ -222,11 +226,11 @@ class Unit extends FloatValue
     {
         if (isset($config['attributeId'])) {
             $attribute = $this->getAttribute((string)$config['attributeId']);
-            if (empty($attribute->get('typeValue')) || empty($attribute->get('typeValue')[0])) {
+            if (empty($measure = $attribute->_getMeasure())) {
                 throw new BadRequest(sprintf($this->translate('measureIsNotSet', 'exceptions', 'ImportFeed'), $this->getAttributeName($attribute)));
             }
 
-            return (string)$attribute->get('typeValue')[0];
+            return (string)$measure;
         }
 
         return (string)$this->getMetadata()->get(['entityDefs', $entityType, 'fields', $config['name'], 'measure']);
