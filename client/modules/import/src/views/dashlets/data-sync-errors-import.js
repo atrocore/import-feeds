@@ -68,8 +68,8 @@ Espo.define('import:views/dashlets/data-sync-errors-import', 'views/dashlets/abs
                             view.$el.find('table.table tbody').append(
                                 `<tr data-id="total" class="list-row">
                                     <td class="cell" data-name="name" width="60%"><b>${this.translate('Total', 'labels', 'Global')}</b></td>
-                                    <td class="cell" data-name="feeds" width="20%"><b>${totalFeeds}</b></td>
-                                    <td class="cell" data-name="jobs" width="20%"><b>${totalJobs}</b></td>
+                                    <td class="cell" data-name="feeds" width="20%"><b>${parseInt(totalFeeds)}</b></td>
+                                    <td class="cell" data-name="jobs" width="20%"><b>${parseInt(totalJobs)}</b></td>
                                 </tr>'`
                             );
                             $('div[data-name="DataSyncErrorsImport"] .table.full-table thead th:first-child div').css('display', 'none');
