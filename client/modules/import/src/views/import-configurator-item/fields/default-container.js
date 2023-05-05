@@ -125,10 +125,12 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 let unitsOfMeasure = this.getConfig().get('unitsOfMeasure') || {};
                 if (this.model.get('type') === 'Attribute') {
                     this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).then(attribute => {
-                        let measure = attribute.typeValue[0];
-                        this.model.defs.fields["default"] = {measure: measure};
-                        if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
-                            this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
+                        if ('field' in attribute.data && 'measure' in attribute.data.field) {
+                            let measure = attribute.data.field.measure;
+                            this.model.defs.fields["default"] = {measure: measure};
+                            if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
+                                this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
+                            }
                         }
                     });
                 } else {
