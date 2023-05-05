@@ -16,5 +16,13 @@
     "ImportConfiguratorItem": "Конфігуратор",
     "ImportJob": "Завдання імпорту",
     "ImportJobLog": "Логи завдань імпорту"
+  },
+  "labels": {
+    "importErrorDuring24Hours": "Помилки імпортних фідів/завдань протягом 24 годин",
+    "importErrorDuring7Days": "Помилки імпортних фідів/завдань протягом 7 днів",
+    "importErrorDuring28Days": "Помилка імпортих фідів/завдань протягом 28 днів"
+  },
+  "dashlets": {
+    "DataSyncErrorsImport": "Помилки синхронізації імпорту даних"
   }
 }

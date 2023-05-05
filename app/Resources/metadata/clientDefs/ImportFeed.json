@@ -1,7 +1,10 @@
 {
   "controller": "controllers/record",
   "boolFilterList": [
-    "onlyMy"
+    "onlyMy",
+    "onlyImportFailed24Hours",
+    "onlyImportFailed7Days",
+    "onlyImportFailed28Days"
   ],
   "iconClass": "fas fa-cloud-download-alt",
   "views": {

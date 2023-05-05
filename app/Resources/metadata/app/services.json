@@ -4,5 +4,6 @@
   "JsonFileParser": "\\Import\\Services\\JsonFileParser",
   "XmlFileParser": "\\Import\\Services\\XmlFileParser",
   "BackgroundFileParser": "\\Import\\Services\\BackgroundFileParser",
-  "ImportTypeSimple": "\\Import\\Services\\ImportTypeSimple"
+  "ImportTypeSimple": "\\Import\\Services\\ImportTypeSimple",
+  "DataSyncErrorsImportDashlet": "\\Import\\Services\\DataSyncErrorsImportDashlet"
 }

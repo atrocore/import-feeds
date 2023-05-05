@@ -118,5 +118,10 @@
     "keptStringNodes": "Add here nodes which should be considered as leaf nodes, so that all data behind it is considered to be a single array.",
     "file": "This file will be used to create the configuration. It could be an example file or file to be imported.",
     "repeatProcessing": "Data record repeating is determined by identifiers in the configurator."
+  },
+  "boolFilters": {
+    "onlyImportFailed24Hours": "Only Import Feeds that failed during last 24 hours",
+    "onlyImportFailed7Days": "Only Import Feeds that failed during last 7 days",
+    "onlyImportFailed28Days": "Only Import Feeds that failed during last 28 days"
   }
 }
