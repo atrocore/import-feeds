@@ -112,6 +112,14 @@
     "default": {
       "type": "text"
     },
+    "defaultFrom": {
+      "type": "float",
+      "notStorable": true
+    },
+    "defaultTo": {
+      "type": "float",
+      "notStorable": true
+    },
     "defaultCurrency": {
       "type": "varchar",
       "notStorable": true
