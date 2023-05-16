@@ -27,7 +27,7 @@ use Espo\ORM\Entity;
 
 class RangeInteger extends Integer
 {
-    public const SEPARATORS = ['-', '::', ':', '..'];
+    public const SEPARATORS = ['-', '::', ':', '..', '–', '—', '‒', '―'];
 
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
