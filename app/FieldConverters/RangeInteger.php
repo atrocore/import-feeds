@@ -108,7 +108,7 @@ class RangeInteger extends Integer
     public function prepareRangeValue(string $value, array $config): ?float
     {
         if (
-            strtolower($value) === strtolower((string)$config['emptyValue'])
+            strtolower($value) !== strtolower((string)$config['emptyValue'])
             && $value !== ''
             && strtolower($value) !== strtolower((string)$config['nullValue'])
         ) {
