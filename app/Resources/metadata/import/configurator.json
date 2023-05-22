@@ -42,20 +42,11 @@
     "int": {
       "converter": "\\Import\\FieldConverters\\Integer"
     },
-    "rangeInt": {
-      "converter": "\\Import\\FieldConverters\\RangeInteger"
-    },
     "float": {
       "converter": "\\Import\\FieldConverters\\FloatValue"
     },
-    "rangeFloat": {
-      "converter": "\\Import\\FieldConverters\\RangeFloatValue"
-    },
     "currency": {
       "converter": "\\Import\\FieldConverters\\Currency"
-    },
-    "unit": {
-      "converter": "\\Import\\FieldConverters\\Unit"
     },
     "date": {
       "converter": "\\Import\\FieldConverters\\Date"

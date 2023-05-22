@@ -82,6 +82,9 @@ class ImportConfiguratorItem extends Base
                 throw new BadRequest('No such Attribute.');
             }
             $type = $attribute->get('type');
+            if (in_array($attribute->get('type'), ['rangeFloat', 'rangeInt'])) {
+                throw new BadRequest('This attribute type can not be chosen for import for now. It will be possible in future version.');
+            }
         }
 
         $this->prepareDefaultField($type, $entity);
@@ -127,16 +130,16 @@ class ImportConfiguratorItem extends Base
         $this->addDependency('container');
     }
 
-    public function checkIfVirtualFieldIsIdentifier(Entity $entity, Entity $importFeedEntity):void
+    public function checkIfVirtualFieldIsIdentifier(Entity $entity, Entity $importFeedEntity): void
     {
         $configuratorFieldName = $entity->get('name');
         $isIdentifier = $entity->get('entityIdentifier');
-        
-        if(!empty($configuratorFieldName)){
+
+        if (!empty($configuratorFieldName)) {
             $isVirtualField = $this->getMetadata()
                 ->get(['entityDefs', $importFeedEntity->getFeedField('entity'), 'fields', $configuratorFieldName, 'notStorable']);
 
-            if($isIdentifier === true && $isVirtualField === true ){
+            if ($isIdentifier === true && $isVirtualField === true) {
                 throw new BadRequest('Virtual field should not be set as identifier');
             }
         }

@@ -41,7 +41,7 @@ Espo.define('import:views/import-configurator-item/fields/column', 'views/fields
                     type = this.model.get('attributeType');
                 }
 
-                const types = {linkMultiple: 999, link: 999, currency: 2, unit: 2};
+                const types = {linkMultiple: 999, link: 999, currency: 2, int: 2, float: 2};
                 const maxLength = types[type] ? types[type] : 1;
 
                 if (this.model.get('column') && this.model.get('column').length > maxLength) {
