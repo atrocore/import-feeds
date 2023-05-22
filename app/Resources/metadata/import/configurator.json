@@ -43,7 +43,7 @@
       "converter": "\\Import\\FieldConverters\\Integer"
     },
     "float": {
-      "converter": "\\Import\\FieldConverters\\FloatValue"
+      "converter": "\\Import\\FieldConverters\\Unit"
     },
     "currency": {
       "converter": "\\Import\\FieldConverters\\Currency"
