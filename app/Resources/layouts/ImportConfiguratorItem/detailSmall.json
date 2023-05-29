@@ -25,6 +25,15 @@
       ],
       [
         {
+          "name": "customField"
+        },
+        {
+          "name": "regex"
+        },
+        {"name": "measure"}
+      ],
+      [
+        {
           "name": "createIfNotExist"
         },
         {

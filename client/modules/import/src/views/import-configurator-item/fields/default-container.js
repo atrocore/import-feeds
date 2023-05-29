@@ -120,6 +120,27 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     this.params.translatedOptions[option.toString()] = label;
                 });
             }
+
+            if (type === 'unit') {
+                let unitsOfMeasure = this.getConfig().get('unitsOfMeasure') || {};
+                if (this.model.get('type') === 'Attribute') {
+                    this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).then(attribute => {
+                        if ('field' in attribute.data && 'measure' in attribute.data.field) {
+                            let measure = attribute.data.field.measure;
+                            this.model.defs.fields["default"] = {measure: measure};
+                            if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
+                                this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
+                            }
+                        }
+                    });
+                } else {
+                    let measure = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measure`);
+                    this.model.defs.fields["default"] = {measure: measure};
+                    if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
+                        this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
+                    }
+                }
+            }
         },
 
         createDefaultField() {
