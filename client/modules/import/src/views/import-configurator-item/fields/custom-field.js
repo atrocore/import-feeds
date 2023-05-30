@@ -47,8 +47,6 @@ Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/
 
     setupOptions() {
         const type = this.getType()
-        console.log('visibility', this.getType(), this.model.get('customField'))
-
         if (['rangeFloat', 'rangeInt'].includes(type)) {
             this.params.options = ['valueFrom', 'valueTo', 'unit']
         } else if (type === 'currency') {
@@ -78,7 +76,7 @@ Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/
         return type
     },
     isRequired() {
-        return ['rangeFloat', 'rangeInt', 'int', 'float', 'currency'].includes(this.getType()) && (this.params.options || []).length;
+        return ['rangeFloat', 'rangeInt', 'int', 'float'].includes(this.getType()) && (this.params.options || []).length;
     },
 
     getAttribute(attributeId) {
