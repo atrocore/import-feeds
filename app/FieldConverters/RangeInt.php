@@ -24,7 +24,7 @@ namespace Import\FieldConverters;
 
 use Espo\Core\Exceptions\BadRequest;
 
-class Integer extends Varchar
+class RangeInt extends Integer
 {
     /**
      * @inheritDoc
@@ -60,25 +60,9 @@ class Integer extends Varchar
                         $value = $matches[0];
                     }
                 }
-                $inputRow->{$config['name']} = $this->prepareIntValue((string)$value, $config);
+                $final = $this->prepareIntValue((string)$value, $config);
+                $inputRow->{$config['name'] . ($config['customField'] == 'valueFrom' ? 'From' : 'To')} = $final;
             }
         }
-    }
-
-    public function prepareIntValue(string $value, array $config): int
-    {
-        $thousandSeparator = $config['thousandSeparator'];
-        $decimalMark = $config['decimalMark'];
-
-        $intValue = (int)str_replace($thousandSeparator, '', $value);
-        $checkValueStrict = number_format((float)$intValue, 0, $decimalMark, $thousandSeparator);
-        $checkValueUnStrict = number_format((float)$intValue, 0, $decimalMark, '');
-
-        if (!in_array($value, [$checkValueStrict, $checkValueUnStrict])) {
-            $type = $this->translate('int', 'fieldTypes', 'Admin');
-            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
-        }
-
-        return (int)$intValue;
     }
 }

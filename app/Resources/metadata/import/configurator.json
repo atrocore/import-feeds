@@ -45,6 +45,12 @@
     "float": {
       "converter": "\\Import\\FieldConverters\\FloatValue"
     },
+    "rangeInt": {
+      "converter": "\\Import\\FieldConverters\\RangeInt"
+    },
+    "rangeFloat": {
+      "converter": "\\Import\\FieldConverters\\RangeFloat"
+    },
     "currency": {
       "converter": "\\Import\\FieldConverters\\Currency"
     },

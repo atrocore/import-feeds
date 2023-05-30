@@ -24,16 +24,12 @@ namespace Import\FieldConverters;
 
 use Espo\Core\Exceptions\BadRequest;
 
-class Integer extends Varchar
+class RangeFloat extends FloatValue
 {
-    /**
-     * @inheritDoc
-     *
-     * @throws \Exception
-     */
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
-        $default = empty($config['default']) ? null : $config['default'];
+        $isValid = false;
+        $default = empty($config['default']) ? null : (float)$config['default'];
         if ($config['default'] === '0' || $config['default'] === 0) {
             $default = 0;
         }
@@ -43,15 +39,17 @@ class Integer extends Varchar
             $this->ignoreAttribute($value, $config);
             if (strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
                 $value = $default;
+                $isValid = true;
             }
             if (strtolower((string)$value) === strtolower((string)$config['nullValue'])) {
                 $value = null;
             }
         } else {
             $value = $default;
+            $isValid = true;
         }
 
-        if ($value !== null) {
+        if ($value !== null && !$isValid) {
             if ($config['customField'] == 'unit') {
                 $inputRow->{$config['name'] . 'UnitId'} = (string)$value;
             } else {
@@ -60,25 +58,9 @@ class Integer extends Varchar
                         $value = $matches[0];
                     }
                 }
-                $inputRow->{$config['name']} = $this->prepareIntValue((string)$value, $config);
+                $final = $this->prepareFloatValue((string)$value, $config);
+                $inputRow->{$config['name'] . ($config['customField'] == 'valueFrom' ? 'From' : 'To')} = $final;
             }
         }
-    }
-
-    public function prepareIntValue(string $value, array $config): int
-    {
-        $thousandSeparator = $config['thousandSeparator'];
-        $decimalMark = $config['decimalMark'];
-
-        $intValue = (int)str_replace($thousandSeparator, '', $value);
-        $checkValueStrict = number_format((float)$intValue, 0, $decimalMark, $thousandSeparator);
-        $checkValueUnStrict = number_format((float)$intValue, 0, $decimalMark, '');
-
-        if (!in_array($value, [$checkValueStrict, $checkValueUnStrict])) {
-            $type = $this->translate('int', 'fieldTypes', 'Admin');
-            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
-        }
-
-        return (int)$intValue;
     }
 }

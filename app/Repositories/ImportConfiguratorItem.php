@@ -82,9 +82,6 @@ class ImportConfiguratorItem extends Base
                 throw new BadRequest('No such Attribute.');
             }
             $type = $attribute->get('type');
-            if (in_array($attribute->get('type'), ['rangeFloat', 'rangeInt'])) {
-                throw new BadRequest('This attribute type can not be chosen for import for now. It will be possible in future version.');
-            }
         }
 
         $this->prepareDefaultField($type, $entity);

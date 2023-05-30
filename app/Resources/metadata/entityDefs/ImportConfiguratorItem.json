@@ -185,10 +185,6 @@
     "regex": {
       "type": "varchar",
       "view": "import:views/import-configurator-item/fields/regex"
-    },
-    "measure": {
-      "type": "link",
-      "view": "import:views/import-configurator-item/fields/link"
     }
   },
   "links": {

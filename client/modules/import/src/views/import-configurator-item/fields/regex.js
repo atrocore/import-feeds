@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('export:views/export-configurator-item/fields/regex', 'views/fields/varchar',
+Espo.define('import:views/import-configurator-item/fields/regex', 'views/fields/varchar',
     Dep => Dep.extend({
 
         setup() {
@@ -37,8 +37,34 @@ Espo.define('export:views/export-configurator-item/fields/regex', 'views/fields/
         },
 
         checkFieldVisibility() {
-            return ['value', 'valueFrom', "valueTo"].includes(this.model.get('customField'))
+            if (['rangeFloat', 'rangeInt', 'int', 'float', 'currency'].includes(this.getType()) && ['value', 'valueFrom', "valueTo"].includes(this.model.get('customField'))) {
+                this.show();
+            } else {
+                this.hide();
+            }
+        },
+        getType() {
+            let type = 'varchar';
+            if (this.model.get('type') === 'Attribute') {
+                if (this.model.get('attributeId')) {
+                    type = this.getAttribute(this.model.get('attributeId')).type;
+                }
+            } else if (this.model.get('type') === 'Field') {
+                type = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'type']);
+            }
+            return type
         },
 
+        getAttribute(attributeId) {
+            let key = `attribute_${attributeId}`;
+            if (!Espo[key]) {
+                Espo[key] = null;
+                this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).success(attr => {
+                    Espo[key] = attr;
+                });
+            }
+
+            return Espo[key];
+        },
     })
 );

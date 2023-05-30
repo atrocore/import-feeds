@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('export:views/export-configurator-item/fields/custom-field', 'views/fields/enum', Dep => Dep.extend({
+Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/fields/enum', Dep => Dep.extend({
 
     setup() {
         Dep.prototype.setup.call(this);
@@ -25,7 +25,7 @@ Espo.define('export:views/export-configurator-item/fields/custom-field', 'views/
         this.listenTo(this.model, 'change:name change:type change:attributeId', () => {
             this.setupOptions();
             this.reRender();
-            this.model.set('customField', null);
+            // this.model.set('customField', null);
         });
     },
 
@@ -47,7 +47,8 @@ Espo.define('export:views/export-configurator-item/fields/custom-field', 'views/
 
     setupOptions() {
         const type = this.getType()
-        console.log('type', type)
+        console.log('visibility', this.getType(), this.model.get('customField'))
+
         if (['rangeFloat', 'rangeInt'].includes(type)) {
             this.params.options = ['valueFrom', 'valueTo', 'unit']
         } else if (type === 'currency') {
