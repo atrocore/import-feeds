@@ -13,5 +13,8 @@
       "ImportFeed": "Import Feed",
       "TrialImport": "Failed Import Job retrial"
     }
+  },
+  "tooltips": {
+    "importFeed": "If no Import Feed is selected, all failed Import Jobs will be retried."
   }
 }
