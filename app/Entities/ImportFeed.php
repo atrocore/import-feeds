@@ -132,7 +132,7 @@ class ImportFeed extends Base
                 'thousandSeparator'         => $this->getFeedField('thousandSeparator'),
                 'markForNotLinkedAttribute' => $this->getFeedField('markForNotLinkedAttribute'),
                 'fieldDelimiterForRelation' => $this->getFeedField('fieldDelimiterForRelation'),
-                'customField'               => $item->get('customField'),
+                'attributeValue'            => $item->get('attributeValue'),
                 'regex'                     => $item->get('regex')
             ];
         }

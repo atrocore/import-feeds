@@ -45,7 +45,7 @@ class ImportConfiguratorItem extends Base
             'foreignColumn',
             'foreignImportBy',
             'regex',
-            'customField'
+            'attributeValue'
         ];
 
     protected array $attributes = [];

@@ -18,9 +18,9 @@
     "foreignImportBy": "Related entity field(s)",
     "replaceArray": "Replace",
     "regex": "Regex",
-    "customField": "Custom Field"
+    "attributeValue": "Attribute Value"
   },
-  "customField": {
+  "attributeValue": {
     "value": "Value",
     "valueFrom": "Value From",
     "valueTo": "Value To",

@@ -18,9 +18,9 @@
     "foreignImportBy": "Feld(er) der verknüpften Entität",
     "replaceArray": "Ersetzen",
     "regex": "Regex",
-    "customField": "Benutzerdefiniertes Feld"
+    "attributeValue": "Attributwert"
   },
-  "customField": {
+  "attributeValue": {
     "value": "Wert",
     "valueFrom": "Wert von",
     "valueTo": "Wert auf",

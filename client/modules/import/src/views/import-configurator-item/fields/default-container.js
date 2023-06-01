@@ -46,7 +46,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     }
                 });
 
-                this.listenTo(this.model, 'change:name change:customField change:createIfNotExist', () => {
+                this.listenTo(this.model, 'change:name change:attributeValue change:createIfNotExist', () => {
                     this.clearDefaultField();
                     this.createDefaultField();
                 });
@@ -162,11 +162,11 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 type = this.model.get('attributeType');
                 options = this.model.get('attributeTypeValue') || [];
             }
-            if (this.model.get('customField') === 'unit') {
+            if (this.model.get('attributeValue') === 'unit') {
                 if (['rangeInt', 'rangeFloat', 'int', 'float'].includes(type)) {
                     type = 'unit'
                 }
-            } else if (this.model.get('customField') === 'currency') {
+            } else if (this.model.get('attributeValue') === 'currency') {
                 type = 'currency'
             } else {
                 if (type === 'rangeInt') {

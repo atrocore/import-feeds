@@ -18,14 +18,14 @@
     "foreignImportBy": "Поле(я) пов'язаної сутності",
     "replaceArray": "Замінювати",
     "regex": "Regex",
-    "customField": "Користувацьке поле"
+    "attributeValue": "Значення атрибуту"
   },
-  "customField": {
-    "value": "вартість",
+  "attributeValue": {
+    "value": "Значення",
     "valueFrom": "Значення від",
-    "valueTo": "Значення для",
-    "unit": "гуртувати",
-    "currency": "валюта"
+    "valueTo": "Значення до",
+    "unit": "Міра",
+    "currency": "Валюта"
   },
   "links": {
     "importFeed": "Імпортний фід"

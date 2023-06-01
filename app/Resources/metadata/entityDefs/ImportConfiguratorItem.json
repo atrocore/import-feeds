@@ -168,7 +168,7 @@
     "sortOrder": {
       "type": "int"
     },
-    "customField": {
+    "attributeValue": {
       "type": "enum",
       "required": true,
       "prohibitedEmptyValue": true,

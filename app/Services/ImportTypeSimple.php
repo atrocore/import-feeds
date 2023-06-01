@@ -182,8 +182,8 @@ class ImportTypeSimple extends QueueManagerBase
                                 $type = $attribute->get('type');
                             }
                         }
-                        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['customField'], $type);
 
+                        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['attributeValue'], $type);
 
                         try {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->convert($input, $item, $row);
@@ -422,7 +422,7 @@ class ImportTypeSimple extends QueueManagerBase
         $where = [];
         foreach ($configuration['configuration'] as $item) {
             if (in_array($item['name'], $configuration['idField'])) {
-                $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['customField'], $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar'));
+                $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['attributeValue'], $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar'));
                 $this
                     ->getService('ImportConfiguratorItem')
                     ->getFieldConverter($type)
@@ -537,7 +537,7 @@ class ImportTypeSimple extends QueueManagerBase
         if ($conf['scope'] === 'Channel') {
             $pavWhere['channelId'] = $conf['channelId'];
         }
-        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($conf['customField'], $attribute->get('type'));
+        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($conf['attributeValue'], $attribute->get('type'));
         $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
 
         $pav = $this->getEntityManager()->getRepository($entityType)->where($pavWhere)->findOne();

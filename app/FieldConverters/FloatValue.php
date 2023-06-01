@@ -79,7 +79,7 @@ class FloatValue extends Varchar
                     $value = $matches[0];
                 }
             }
-            $field = $config['customField'];
+            $field = $config['attributeValue'];
             $name = $config['name'] . ($field === "valueFrom" ? "From" : ($field === "valueTo" ? "To" : ""));
             $inputRow->{$name} = $this->prepareFloatValue((string)$value, $config);
         }

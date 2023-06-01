@@ -25,7 +25,6 @@ Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/
         this.listenTo(this.model, 'change:name change:type change:attributeId', () => {
             this.setupOptions();
             this.reRender();
-            // this.model.set('customField', null);
         });
     },
 
@@ -62,11 +61,11 @@ Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/
         }
 
         this.translatedOptions = {
-            value: this.translate('value', 'customField', 'ImportConfiguratorItem'),
-            valueFrom: this.translate('valueFrom', 'customField', 'ImportConfiguratorItem'),
-            valueTo: this.translate('valueTo', 'customField', 'ImportConfiguratorItem'),
-            unit: this.translate('unit', 'customField', 'ImportConfiguratorItem'),
-            currency: this.translate('currency', 'customField', 'ImportConfiguratorItem'),
+            value: this.translate('value', 'attributeValue', 'ImportConfiguratorItem'),
+            valueFrom: this.translate('valueFrom', 'attributeValue', 'ImportConfiguratorItem'),
+            valueTo: this.translate('valueTo', 'attributeValue', 'ImportConfiguratorItem'),
+            unit: this.translate('unit', 'attributeValue', 'ImportConfiguratorItem'),
+            currency: this.translate('currency', 'attributeValue', 'ImportConfiguratorItem'),
         };
     },
 
