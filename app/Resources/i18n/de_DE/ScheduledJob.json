@@ -13,5 +13,8 @@
       "ImportFeed": "Import Feed",
       "TrialImport": "Wiederholung von fehlgeschlagenen Import Jobs"
     }
+  },
+  "tooltips": {
+    "importFeeds": "Wenn kein Import-Feed ausgewählt ist, werden alle fehlgeschlagenen Importjobs erneut ausgeführt."
   }
 }
