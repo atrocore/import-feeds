@@ -70,15 +70,16 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
     },
 
     getType() {
-        let type = 'varchar';
         if (this.model.get('type') === 'Attribute') {
             if (this.model.get('attributeId')) {
-                type = this.getAttribute(this.model.get('attributeId')).type;
+                return this.getAttribute(this.model.get('attributeId')).type;
             }
-        } else if (this.model.get('type') === 'Field') {
-            type = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'type']);
         }
-        return type
+        // if (this.model.get('type') === 'Field') {
+        //     type = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'type']);
+        // }
+
+        return 'varchar';
     },
 
     isRequired() {
@@ -93,11 +94,13 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
                     return true
                 }
             }
-        } else if (this.model.get('type') === 'Field') {
-            if (this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'measureId'])) {
-                return true
-            }
         }
+
+        // if (this.model.get('type') === 'Field') {
+        //     if (this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'measureId'])) {
+        //         return true
+        //     }
+        // }
 
         return false
     },
