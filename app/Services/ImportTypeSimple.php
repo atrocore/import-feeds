@@ -59,19 +59,19 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         $result = [
-            "name" => $feed->get('name'),
-            "offset" => $feed->isFileHeaderRow() ? 1 : 0,
-            "limit" => \PHP_INT_MAX,
-            "fileFormat" => $feed->getFeedField('format'),
-            "delimiter" => $feed->getDelimiter(),
-            "enclosure" => $feed->getEnclosure(),
-            "isFileHeaderRow" => $feed->isFileHeaderRow(),
-            "adapter" => $feed->getFeedField('adapter'),
-            "action" => $feed->get('fileDataAction'),
-            "attachmentId" => $attachmentId,
-            "data" => $feed->getConfiguratorData(),
+            "name"             => $feed->get('name'),
+            "offset"           => $feed->isFileHeaderRow() ? 1 : 0,
+            "limit"            => \PHP_INT_MAX,
+            "fileFormat"       => $feed->getFeedField('format'),
+            "delimiter"        => $feed->getDelimiter(),
+            "enclosure"        => $feed->getEnclosure(),
+            "isFileHeaderRow"  => $feed->isFileHeaderRow(),
+            "adapter"          => $feed->getFeedField('adapter'),
+            "action"           => $feed->get('fileDataAction'),
+            "attachmentId"     => $attachmentId,
+            "data"             => $feed->getConfiguratorData(),
             "repeatProcessing" => $feed->get("repeatProcessing"),
-            "sheet" => $feed->get("sheet"),
+            "sheet"            => $feed->get("sheet"),
         ];
 
         return $this
@@ -174,16 +174,7 @@ class ImportTypeSimple extends QueueManagerBase
                             continue 1;
                         }
 
-                        $type = $this->getMetadata()->get(['entityDefs', $item['entity'], 'fields', $item['name'], 'type'], 'varchar');
-                        if ($item['entity'] === 'ProductAttributeValue' && $item['name'] === 'value') {
-                            if (property_exists($input, 'attributeType')) {
-                                $type = $input->attributeType;
-                            } elseif (!empty($entity) && !empty($attribute = $this->getEntityById('Attribute', $entity->get('attributeId')))) {
-                                $type = $attribute->get('type');
-                            }
-                        }
-
-                        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['attributeValue'], $type);
+                        $type = $this->prepareFieldType($item, $input, $entity ?? null);
 
                         try {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->convert($input, $item, $row);
@@ -235,6 +226,11 @@ class ImportTypeSimple extends QueueManagerBase
                     }
 
                     if ($this->getEntityManager()->getPDO()->inTransaction()) {
+
+                        echo '<pre>';
+                        print_r($input);
+                        die();
+
                         $this->getEntityManager()->getPDO()->commit();
                     }
                 } catch (\Throwable $e) {
@@ -422,7 +418,7 @@ class ImportTypeSimple extends QueueManagerBase
         $where = [];
         foreach ($configuration['configuration'] as $item) {
             if (in_array($item['name'], $configuration['idField'])) {
-                $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['attributeValue'], $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar'));
+                $type = $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar');
                 $this
                     ->getService('ImportConfiguratorItem')
                     ->getFieldConverter($type)
@@ -465,7 +461,7 @@ class ImportTypeSimple extends QueueManagerBase
         $this->restore[] = [
             'action' => $action,
             'entity' => $entityType,
-            'data' => $data
+            'data'   => $data
         ];
     }
 
@@ -528,17 +524,17 @@ class ImportTypeSimple extends QueueManagerBase
         $conf['name'] = 'value';
 
         $pavWhere = [
-            'productId' => $product->get('id'),
+            'productId'   => $product->get('id'),
             'attributeId' => $conf['attributeId'],
-            'scope' => $conf['scope'],
-            'language' => $conf['locale'],
+            'scope'       => $conf['scope'],
+            'language'    => $conf['locale'],
         ];
 
         if ($conf['scope'] === 'Channel') {
             $pavWhere['channelId'] = $conf['channelId'];
         }
-        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($conf['attributeValue'], $attribute->get('type'));
-        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
+
+        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($attribute->get('type'));
 
         $pav = $this->getEntityManager()->getRepository($entityType)->where($pavWhere)->findOne();
         if (!empty($pav)) {
@@ -618,15 +614,13 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         if ($data['data']['entity'] === 'ProductAttributeValue') {
-            foreach ($data['data']['configuration'] as $k => $item) {
-                if (!empty($item['name']) && $item['name'] === 'value') {
-                    $valueItem = $item;
-                    unset($data['data']['configuration'][$k]);
+            // sort items by ASC
+            usort($data['data']['configuration'], function ($a, $b) {
+                if ($a['name'] == $b['name']) {
+                    return 0;
                 }
-            }
-            if (isset($valueItem)) {
-                $data['data']['configuration'] = array_merge(array_values($data['data']['configuration']), [$valueItem]);
-            }
+                return ($a['name'] < $b['name']) ? -1 : 1;
+            });
         }
     }
 
@@ -669,5 +663,39 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return $this->entities[$scope][$id];
+    }
+
+    protected function prepareFieldType(array $item, \stdClass $input, ?Entity $entity): string
+    {
+        $fieldName = $item['name'];
+        $type = $this->getMetadata()->get(['entityDefs', $item['entity'], 'fields', $fieldName, 'type'], 'varchar');
+
+        if ($item['entity'] === 'ProductAttributeValue') {
+            if (in_array($fieldName, ['value', 'valueFrom', 'valueTo'])) {
+                if (property_exists($input, 'attributeType')) {
+                    $type = $input->attributeType;
+                } elseif (!empty($entity) && !empty($attribute = $this->getEntityById('Attribute', $entity->get('attributeId')))) {
+                    $type = $attribute->get('type');
+                }
+                switch ($type) {
+                    case 'extensibleEnum':
+                        $type = 'varchar';
+                        break;
+                    case 'extensibleMultiEnum':
+                        $type = 'array';
+                        break;
+                }
+            }
+
+            if ($fieldName === 'valueUnit') {
+                $type = 'unit';
+            }
+
+            if ($fieldName === 'valueCurrency') {
+                $type = 'currency';
+            }
+        }
+
+        return $type;
     }
 }

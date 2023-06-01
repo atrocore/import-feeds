@@ -22,24 +22,9 @@ declare(strict_types=1);
 
 namespace Import\Entities;
 
-class ImportConfiguratorItem extends \Espo\Core\Templates\Entities\Base
+use Espo\Core\Templates\Entities\Base;
+
+class ImportConfiguratorItem extends Base
 {
     protected $entityType = "ImportConfiguratorItem";
-
-    public static function getSingleType($field, $type){
-        if ($field === 'unit') {
-            $type = 'unit';
-        } elseif ($field === "currency") {
-            $type = "currency";
-        } else {
-            if (in_array($type, ['rangeFloat', 'float', 'currency'])) {
-                $type = "float";
-            }
-            if (in_array($type, ['rangeInt', 'int'])) {
-                $type = "int";
-            }
-        }
-
-        return $type;
-    }
 }

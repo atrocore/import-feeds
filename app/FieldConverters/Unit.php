@@ -37,7 +37,6 @@ class Unit extends Varchar
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $unit = trim($row[$config['column'][0]]);
-        $this->regexValue($unit, $config);
         if (empty($unit) && !empty($config['default'])) {
             $unit = (string)$config['default'];
         }

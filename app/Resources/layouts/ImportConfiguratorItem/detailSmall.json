@@ -25,12 +25,6 @@
       ],
       [
         {
-          "name": "regex"
-        },
-        false
-      ],
-      [
-        {
           "name": "attributeValue"
         },
         false

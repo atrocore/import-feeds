@@ -68,7 +68,6 @@ class ImportConfiguratorItem extends Base
 
     protected function beforeSave(Entity $entity, array $options = [])
     {
-
         if (empty($importFeed = $entity->get('importFeed'))) {
             throw new BadRequest('ImportFeed is required for Configurator item.');
         }
@@ -83,8 +82,6 @@ class ImportConfiguratorItem extends Base
             }
             $type = $attribute->get('type');
         }
-
-        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($entity->get('attributeValue'), $type);
 
         $this->prepareDefaultField($type, $entity);
 

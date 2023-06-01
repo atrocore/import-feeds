@@ -44,7 +44,6 @@ class ImportConfiguratorItem extends Base
             'sortOrder',
             'foreignColumn',
             'foreignImportBy',
-            'regex',
             'attributeValue'
         ];
 

@@ -17,7 +17,6 @@
     "foreignColumn": "Quellfeld(er)",
     "foreignImportBy": "Feld(er) der verknüpften Entität",
     "replaceArray": "Ersetzen",
-    "regex": "Regex",
     "attributeValue": "Attributwert"
   },
   "attributeValue": {

@@ -185,7 +185,9 @@ class Link extends Varchar
 
         $fieldName = $this->getFieldName($configuration);
 
-        $where[$fieldName] = $inputRow->$fieldName;
+        if (property_exists($inputRow, $fieldName)) {
+            $where[$fieldName] = $inputRow->$fieldName;
+        }
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
@@ -221,7 +223,6 @@ class Link extends Varchar
     protected function getSearchValue($column, array $config, array $row)
     {
         $value = $row[$column] ?? null;
-        $this->regexValue($value, $config);
         $this->ignoreAttribute($value, $config);
         if (strtolower((string)$value) === strtolower((string)$config['emptyValue'])) {
             $value = (string)$config['emptyValue'];

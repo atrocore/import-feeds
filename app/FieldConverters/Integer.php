@@ -40,7 +40,6 @@ class Integer extends Varchar
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
-            $this->regexValue($value, $config);
             $this->ignoreAttribute($value, $config);
             if (strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
                 $value = $default;

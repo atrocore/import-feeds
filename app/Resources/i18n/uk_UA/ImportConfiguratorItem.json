@@ -17,7 +17,6 @@
     "foreignColumn": "Вихідне поле(я)",
     "foreignImportBy": "Поле(я) пов'язаної сутності",
     "replaceArray": "Замінювати",
-    "regex": "Regex",
     "attributeValue": "Значення атрибуту"
   },
   "attributeValue": {
