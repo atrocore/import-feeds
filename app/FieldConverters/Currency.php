@@ -37,6 +37,7 @@ class Currency extends Varchar
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $currency = trim($row[$config['column'][0]]);
+        $this->regexValue($currency, $config);
         if (empty($currency) && !empty($config['default'])) {
             $currency = (string)$config['default'];
         }

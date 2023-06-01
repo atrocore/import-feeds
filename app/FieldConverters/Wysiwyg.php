@@ -52,6 +52,7 @@ class Wysiwyg
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
+            $this->regexValue($value, $config);
             $this->ignoreAttribute($value, $config);
             if (strtolower((string)$value) === strtolower($emptyValue) || $value === '') {
                 $value = $default;
@@ -128,6 +129,15 @@ class Wysiwyg
 
         if ($value === $config['markForNotLinkedAttribute']) {
             throw new IgnoreAttribute();
+        }
+    }
+
+    protected function regexValue(&$value, array $config)
+    {
+        if (!empty($value) && !empty($config['regex'])) {
+            if (preg_match_all((string)$value, $config['regex'], $matches) > 0) {
+                $value = $matches[0];
+            }
         }
     }
 }

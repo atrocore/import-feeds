@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/fields/enum', Dep => Dep.extend({
+Espo.define('import:views/import-configurator-item/fields/attribute-value', 'views/fields/enum', Dep => Dep.extend({
 
     setup() {
         Dep.prototype.setup.call(this);
@@ -80,25 +80,28 @@ Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/
         }
         return type
     },
+
     isRequired() {
         return ['rangeFloat', 'rangeInt', 'int', 'float', 'currency'].includes(this.getType()) && (this.params.options || []).length;
     },
+
     hasUnit() {
-        let hasUnit = false;
         if (this.model.get('type') === 'Attribute') {
             if (this.model.get('attributeId')) {
                 const attribute = this.getAttribute(this.model.get('attributeId'));
                 if (attribute.measureId) {
-                    hasUnit = true
+                    return true
                 }
             }
         } else if (this.model.get('type') === 'Field') {
             if (this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'measureId'])) {
-                hasUnit = true
+                return true
             }
         }
-        return hasUnit
+
+        return false
     },
+
     getAttribute(attributeId) {
         let key = `attribute_${attributeId}`;
         if (!Espo[key]) {
@@ -110,6 +113,5 @@ Espo.define('import:views/import-configurator-item/fields/custom-field', 'views/
 
         return Espo[key];
     },
-
 
 }));

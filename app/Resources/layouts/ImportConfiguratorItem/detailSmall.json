@@ -25,11 +25,15 @@
       ],
       [
         {
+          "name": "regex"
+        },
+        false
+      ],
+      [
+        {
           "name": "attributeValue"
         },
-        {
-          "name": "regex"
-        }
+        false
       ],
       [
         {
