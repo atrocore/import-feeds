@@ -73,8 +73,7 @@ class FloatValue extends Varchar
         }
 
         if ($value !== null && !$isValid) {
-            $field = $config['attributeValue'];
-            $name = $config['name'] . ($field === "valueFrom" ? "From" : ($field === "valueTo" ? "To" : ""));
+            $name = $config['name'];
             $inputRow->{$name} = $this->prepareFloatValue((string)$value, $config);
         }
     }

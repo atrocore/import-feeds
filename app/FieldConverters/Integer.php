@@ -52,8 +52,7 @@ class Integer extends Varchar
         }
 
         if ($value !== null) {
-            $field = $config['attributeValue'];
-            $name = $config['name'] . ($field === "valueFrom" ? "From" : ($field === "valueTo" ? "To" : ""));
+            $name = $config['name'];
             $inputRow->{$name} = $this->prepareIntValue((string)$value, $config);
         }
     }
