@@ -28,14 +28,15 @@ class V1Dot5Dot0 extends Base
 {
     public function up(): void
     {
-        $this->getPDO()->exec("Alter table import_configurator_item add custom_field varchar(255) null");
-        $this->getPDO()->exec("Alter table import_configurator_item add regex varchar(255) null ");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item ADD custom_field VARCHAR(255) DEFAULT 'value' COLLATE `utf8mb4_unicode_ci`");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item ADD regex VARCHAR(255) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item ADD measure_id VARCHAR(24) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
     }
 
     public function down(): void
     {
-
-        $this->getPDO()->exec("Alter table import_configurator_item drop column custom_field");
-        $this->getPDO()->exec("Alter table import_configurator_item drop column regex");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item DROP custom_field");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item DROP regex");
+        $this->getPDO()->exec("ALTER TABLE import_configurator_item DROP measure_id");
     }
 }
