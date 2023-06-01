@@ -40,6 +40,7 @@ class Integer extends Varchar
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
+            $this->regexValue((string)$value, $config);
             $this->ignoreAttribute($value, $config);
             if (strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
                 $value = $default;
@@ -52,11 +53,6 @@ class Integer extends Varchar
         }
 
         if ($value !== null) {
-            if (!empty($config['regex'])) {
-                if (preg_match_all((string)$value, $config['regex'], $matches) > 0) {
-                    $value = $matches[0];
-                }
-            }
             $field = $config['attributeValue'];
             $name = $config['name'] . ($field === "valueFrom" ? "From" : ($field === "valueTo" ? "To" : ""));
             $inputRow->{$name} = $this->prepareIntValue((string)$value, $config);
