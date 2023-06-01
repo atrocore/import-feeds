@@ -166,10 +166,14 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 if (['rangeInt', 'rangeFloat', 'int', 'float'].includes(type)) {
                     type = 'unit'
                 }
+            } else if (this.model.get('customField') === 'currency') {
+                type = 'currency'
             } else {
                 if (type === 'rangeInt') {
                     type = 'int'
                 } else if (type === 'rangeFloat') {
+                    type = 'float'
+                } else if (type === 'currency') {
                     type = 'float'
                 }
             }
@@ -198,6 +202,8 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             let viewName = this.getFieldManager().getViewName(type);
             if (type === 'unit') {
                 viewName = 'views/admin/field-manager/fields/default-unit'
+            } else if (type === 'currency') {
+                viewName = 'views/preferences/fields/default-currency'
             }
 
             if (type === 'extensibleEnum') {
@@ -208,7 +214,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
             }
 
-            if(type==='unit' && !this.model.get('measureId')) return
+            if (type === 'unit' && !this.model.get('measureId')) return
             this.createView('default', viewName, {
                 el: `${this.options.el} > .field[data-name="default"]`,
                 model: this.model,

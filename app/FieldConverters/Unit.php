@@ -20,26 +20,28 @@
 
 declare(strict_types=1);
 
-namespace Import\Entities;
+namespace Import\FieldConverters;
 
-class ImportConfiguratorItem extends \Espo\Core\Templates\Entities\Base
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Utils\Json;
+use Espo\ORM\Entity;
+
+/**
+ * Class Currency
+ */
+class Unit extends Varchar
 {
-    protected $entityType = "ImportConfiguratorItem";
-
-    public static function getSingleType($field, $type){
-        if ($field === 'unit') {
-            $type = 'unit';
-        } elseif ($field === "currency") {
-            $type = "currency";
-        } else {
-            if (in_array($type, ['rangeFloat', 'float', 'currency'])) {
-                $type = "float";
-            }
-            if (in_array($type, ['rangeInt', 'int'])) {
-                $type = "int";
-            }
+    /**
+     * @inheritDoc
+     */
+    public function convert(\stdClass $inputRow, array $config, array $row): void
+    {
+        $unit = trim($row[$config['column'][0]]);
+        if (empty($unit) && !empty($config['default'])) {
+            $unit = (string)$config['default'];
         }
 
-        return $type;
+        $inputRow->{$config['name'] . 'UnitId'} = $unit;
     }
+
 }

@@ -59,19 +59,19 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         $result = [
-            "name"             => $feed->get('name'),
-            "offset"           => $feed->isFileHeaderRow() ? 1 : 0,
-            "limit"            => \PHP_INT_MAX,
-            "fileFormat"       => $feed->getFeedField('format'),
-            "delimiter"        => $feed->getDelimiter(),
-            "enclosure"        => $feed->getEnclosure(),
-            "isFileHeaderRow"  => $feed->isFileHeaderRow(),
-            "adapter"          => $feed->getFeedField('adapter'),
-            "action"           => $feed->get('fileDataAction'),
-            "attachmentId"     => $attachmentId,
-            "data"             => $feed->getConfiguratorData(),
+            "name" => $feed->get('name'),
+            "offset" => $feed->isFileHeaderRow() ? 1 : 0,
+            "limit" => \PHP_INT_MAX,
+            "fileFormat" => $feed->getFeedField('format'),
+            "delimiter" => $feed->getDelimiter(),
+            "enclosure" => $feed->getEnclosure(),
+            "isFileHeaderRow" => $feed->isFileHeaderRow(),
+            "adapter" => $feed->getFeedField('adapter'),
+            "action" => $feed->get('fileDataAction'),
+            "attachmentId" => $attachmentId,
+            "data" => $feed->getConfiguratorData(),
             "repeatProcessing" => $feed->get("repeatProcessing"),
-            "sheet"            => $feed->get("sheet"),
+            "sheet" => $feed->get("sheet"),
         ];
 
         return $this
@@ -182,6 +182,8 @@ class ImportTypeSimple extends QueueManagerBase
                                 $type = $attribute->get('type');
                             }
                         }
+                        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['customField'], $type);
+
 
                         try {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->convert($input, $item, $row);
@@ -420,9 +422,10 @@ class ImportTypeSimple extends QueueManagerBase
         $where = [];
         foreach ($configuration['configuration'] as $item) {
             if (in_array($item['name'], $configuration['idField'])) {
+                $type = \Import\Entities\ImportConfiguratorItem::getSingleType($item['customField'], $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar'));
                 $this
                     ->getService('ImportConfiguratorItem')
-                    ->getFieldConverter($this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar'))
+                    ->getFieldConverter($type)
                     ->prepareFindExistEntityWhere($where, $item, $row);
             }
         }
@@ -462,7 +465,7 @@ class ImportTypeSimple extends QueueManagerBase
         $this->restore[] = [
             'action' => $action,
             'entity' => $entityType,
-            'data'   => $data
+            'data' => $data
         ];
     }
 
@@ -525,17 +528,17 @@ class ImportTypeSimple extends QueueManagerBase
         $conf['name'] = 'value';
 
         $pavWhere = [
-            'productId'   => $product->get('id'),
+            'productId' => $product->get('id'),
             'attributeId' => $conf['attributeId'],
-            'scope'       => $conf['scope'],
-            'language'    => $conf['locale'],
+            'scope' => $conf['scope'],
+            'language' => $conf['locale'],
         ];
 
         if ($conf['scope'] === 'Channel') {
             $pavWhere['channelId'] = $conf['channelId'];
         }
-
-        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($attribute->get('type'));
+        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($conf['customField'], $attribute->get('type'));
+        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
 
         $pav = $this->getEntityManager()->getRepository($entityType)->where($pavWhere)->findOne();
         if (!empty($pav)) {

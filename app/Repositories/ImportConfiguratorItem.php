@@ -83,6 +83,8 @@ class ImportConfiguratorItem extends Base
             }
             $type = $attribute->get('type');
         }
+        $type = \Import\Entities\ImportConfiguratorItem::getSingleType($entity->get('customField'), $type);
+
 
         $this->prepareDefaultField($type, $entity);
 

@@ -37,7 +37,7 @@ Espo.define('import:views/import-configurator-item/fields/regex', 'views/fields/
         },
 
         checkFieldVisibility() {
-            if (['rangeFloat', 'rangeInt', 'int', 'float'].includes(this.getType()) && ['value', 'valueFrom', "valueTo"].includes(this.model.get('customField'))) {
+            if (['rangeFloat', 'rangeInt', 'int', 'float','currency'].includes(this.getType()) && ['value', 'valueFrom', "valueTo"].includes(this.model.get('customField'))) {
                 this.show();
             } else {
                 this.hide();
