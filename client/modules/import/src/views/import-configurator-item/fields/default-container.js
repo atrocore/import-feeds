@@ -46,7 +46,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     }
                 });
 
-                this.listenTo(this.model, 'change:name change:createIfNotExist', () => {
+                this.listenTo(this.model, 'change:name change:customField change:createIfNotExist', () => {
                     this.clearDefaultField();
                     this.createDefaultField();
                 });
@@ -68,6 +68,10 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
 
             if (this.model.attributes.defaultUnit) {
                 delete this.model.attributes.defaultUnit;
+            }
+
+            if (this.model.attributes.measureId) {
+                delete this.model.attributes.measureId;
             }
 
             if (this.model.attributes.defaultId) {
@@ -120,6 +124,28 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     this.params.translatedOptions[option.toString()] = label;
                 });
             }
+
+            if (type === 'unit') {
+                let unitsOfMeasure = this.getConfig().get('unitsOfMeasure') || {};
+                if (this.model.get('type') === 'Attribute') {
+                    this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).then(attribute => {
+                        if (attribute.measureId) {
+                            this.model.set('measureId', attribute.measureId)
+                            let measure = attribute.measureName;
+                            if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
+                                this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
+                            }
+                        }
+                    });
+                } else {
+                    let measure = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureName`);
+                    let measureId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureId`);
+                    this.model.set('measureId', measureId)
+                    if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
+                        this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
+                    }
+                }
+            }
         },
 
         createDefaultField() {
@@ -135,6 +161,21 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             if (this.model.get('type') === 'Attribute') {
                 type = this.model.get('attributeType');
                 options = this.model.get('attributeTypeValue') || [];
+            }
+            if (this.model.get('customField') === 'unit') {
+                if (['rangeInt', 'rangeFloat', 'int', 'float'].includes(type)) {
+                    type = 'unit'
+                }
+            } else if (this.model.get('customField') === 'currency') {
+                type = 'currency'
+            } else {
+                if (type === 'rangeInt') {
+                    type = 'int'
+                } else if (type === 'rangeFloat') {
+                    type = 'float'
+                } else if (type === 'currency') {
+                    type = 'float'
+                }
             }
 
             this.prepareDefaultModel(type, options);
@@ -159,6 +200,11 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             }
 
             let viewName = this.getFieldManager().getViewName(type);
+            if (type === 'unit') {
+                viewName = 'views/admin/field-manager/fields/default-unit'
+            } else if (type === 'currency') {
+                viewName = 'views/preferences/fields/default-currency'
+            }
 
             if (type === 'extensibleEnum') {
                 viewName = 'views/admin/field-manager/fields/link/extensible-enum-default';
@@ -168,6 +214,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
             }
 
+            if (type === 'unit' && !this.model.get('measureId')) return
             this.createView('default', viewName, {
                 el: `${this.options.el} > .field[data-name="default"]`,
                 model: this.model,

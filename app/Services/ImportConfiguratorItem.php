@@ -43,7 +43,9 @@ class ImportConfiguratorItem extends Base
             'locale',
             'sortOrder',
             'foreignColumn',
-            'foreignImportBy'
+            'foreignImportBy',
+            'regex',
+            'customField'
         ];
 
     protected array $attributes = [];

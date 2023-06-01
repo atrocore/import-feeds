@@ -20,26 +20,22 @@
 
 declare(strict_types=1);
 
-namespace Import\Entities;
+namespace Import\Migrations;
 
-class ImportConfiguratorItem extends \Espo\Core\Templates\Entities\Base
+use Treo\Core\Migration\Base;
+
+class V1Dot4Dot55 extends Base
 {
-    protected $entityType = "ImportConfiguratorItem";
+    public function up(): void
+    {
+        $this->getPDO()->exec("Alter table import_configurator_item add custom_field varchar(255) null");
+        $this->getPDO()->exec("Alter table import_configurator_item add regex varchar(255) null ");
+    }
 
-    public static function getSingleType($field, $type){
-        if ($field === 'unit') {
-            $type = 'unit';
-        } elseif ($field === "currency") {
-            $type = "currency";
-        } else {
-            if (in_array($type, ['rangeFloat', 'float', 'currency'])) {
-                $type = "float";
-            }
-            if (in_array($type, ['rangeInt', 'int'])) {
-                $type = "int";
-            }
-        }
+    public function down(): void
+    {
 
-        return $type;
+        $this->getPDO()->exec("Alter table import_configurator_item drop column custom_field");
+        $this->getPDO()->exec("Alter table import_configurator_item drop column regex");
     }
 }

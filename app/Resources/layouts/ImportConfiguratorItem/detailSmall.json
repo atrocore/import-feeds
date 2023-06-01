@@ -25,6 +25,14 @@
       ],
       [
         {
+          "name": "customField"
+        },
+        {
+          "name": "regex"
+        }
+      ],
+      [
+        {
           "name": "createIfNotExist"
         },
         {

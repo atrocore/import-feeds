@@ -16,7 +16,16 @@
     "type": "Type",
     "foreignColumn": "Source Field(s)",
     "foreignImportBy": "Related entity field(s)",
-    "replaceArray": "Replace"
+    "replaceArray": "Replace",
+    "regex": "Regex",
+    "customField": "Custom Field"
+  },
+  "customField": {
+    "value": "Value",
+    "valueFrom": "Value From",
+    "valueTo": "Value To",
+    "unit": "Unit",
+    "currency": "Currency"
   },
   "links": {
     "importFeed": "Import Feed",

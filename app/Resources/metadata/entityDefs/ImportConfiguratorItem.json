@@ -167,6 +167,24 @@
     },
     "sortOrder": {
       "type": "int"
+    },
+    "customField": {
+      "type": "enum",
+      "required": true,
+      "prohibitedEmptyValue": true,
+      "view": "import:views/import-configurator-item/fields/custom-field",
+      "options": [
+        "value",
+        "valueFrom",
+        "valueTo",
+        "currency",
+        "unit"
+      ],
+      "default": "value"
+    },
+    "regex": {
+      "type": "varchar",
+      "view": "import:views/import-configurator-item/fields/regex"
     }
   },
   "links": {
@@ -185,6 +203,11 @@
       "type": "belongsTo",
       "entity": "Channel",
       "audited": false
+    },
+    "measure": {
+      "type": "belongsTo",
+      "foreign": "attributes",
+      "entity": "Measure"
     }
   },
   "collection": {

@@ -16,7 +16,16 @@
     "type": "Тип",
     "foreignColumn": "Вихідне поле(я)",
     "foreignImportBy": "Поле(я) пов'язаної сутності",
-    "replaceArray": "Замінювати"
+    "replaceArray": "Замінювати",
+    "regex": "Regex",
+    "customField": "Користувацьке поле"
+  },
+  "customField": {
+    "value": "вартість",
+    "valueFrom": "Значення від",
+    "valueTo": "Значення для",
+    "unit": "гуртувати",
+    "currency": "валюта"
   },
   "links": {
     "importFeed": "Імпортний фід"

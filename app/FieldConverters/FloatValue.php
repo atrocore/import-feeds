@@ -73,7 +73,15 @@ class FloatValue extends Varchar
         }
 
         if ($value !== null && !$isValid) {
-            $inputRow->{$config['name']} = $this->prepareFloatValue((string)$value, $config);
+
+            if (!empty($config['regex'])) {
+                if (preg_match_all((string)$value, $config['regex'], $matches) > 0) {
+                    $value = $matches[0];
+                }
+            }
+            $field = $config['customField'];
+            $name = $config['name'] . ($field === "valueFrom" ? "From" : ($field === "valueTo" ? "To" : ""));
+            $inputRow->{$name} = $this->prepareFloatValue((string)$value, $config);
         }
     }
 }

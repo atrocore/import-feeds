@@ -52,7 +52,14 @@ class Integer extends Varchar
         }
 
         if ($value !== null) {
-            $inputRow->{$config['name']} = $this->prepareIntValue((string)$value, $config);
+            if (!empty($config['regex'])) {
+                if (preg_match_all((string)$value, $config['regex'], $matches) > 0) {
+                    $value = $matches[0];
+                }
+            }
+            $field = $config['customField'];
+            $name = $config['name'] . ($field === "valueFrom" ? "From" : ($field === "valueTo" ? "To" : ""));
+            $inputRow->{$name} = $this->prepareIntValue((string)$value, $config);
         }
     }
 
