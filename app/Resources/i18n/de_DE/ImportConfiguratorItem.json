@@ -23,7 +23,7 @@
   "attributeValue": {
     "value": "Wert",
     "valueFrom": "Wert von",
-    "valueTo": "Wert auf",
+    "valueTo": "Wert bis",
     "unit": "Einheit",
     "currency": "Währung"
   },
