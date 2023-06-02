@@ -690,10 +690,6 @@ class ImportTypeSimple extends QueueManagerBase
             if ($fieldName === 'valueUnit') {
                 $type = 'unit';
             }
-
-            if ($fieldName === 'valueCurrency') {
-                $type = 'currency';
-            }
         }
 
         return $type;

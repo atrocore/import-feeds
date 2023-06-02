@@ -44,4 +44,31 @@ class Unit extends Varchar
         $inputRow->{$config['name'] . 'UnitId'} = $unit;
     }
 
+    public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
+    {
+        echo '<pre>';
+        print_r('1122 33 44 123');
+        die();
+        if ($entity->has('defaultId')) {
+            $entity->set('default', empty($entity->get('defaultId')) ? null : $entity->get('defaultId'));
+        }
+    }
+
+    public function prepareForOutputConfiguratorDefaultField(Entity $entity): void
+    {
+        echo '<pre>';
+        print_r('3333');
+        die();
+
+        $entity->set('defaultId', null);
+        $entity->set('defaultName', null);
+        if (!empty($entity->get('default'))) {
+            $relEntityName = $this->getForeignEntityName($entity->get('entity'), $entity->get('name'));
+            if (!empty($relEntityName)) {
+                $entity->set('defaultId', $entity->get('default'));
+                $relEntity = $this->getEntityManager()->getEntity($relEntityName, $entity->get('defaultId'));
+                $entity->set('defaultName', empty($relEntity) ? $entity->get('defaultId') : $relEntity->get('name'));
+            }
+        }
+    }
 }

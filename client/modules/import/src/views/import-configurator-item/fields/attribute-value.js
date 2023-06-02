@@ -57,8 +57,6 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
                 if (this.hasUnit()) {
                     this.params.options.push('valueUnit')
                 }
-            } else if (type === 'currency') {
-                this.params.options = ['value', 'valueCurrency']
             } else if (['float', 'int'].includes(type)) {
                 if (this.hasUnit()) {
                     this.params.options.push('valueUnit')

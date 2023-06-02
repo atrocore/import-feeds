@@ -24,8 +24,7 @@
       "value": "Wert",
       "valueFrom": "Wert von",
       "valueTo": "Wert bis",
-      "valueUnit": "Wert Einheit",
-      "valueCurrency": "Wert Währung"
+      "valueUnit": "Wert Einheit"
     }
   },
   "links": {

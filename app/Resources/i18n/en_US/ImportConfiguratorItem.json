@@ -24,8 +24,7 @@
       "value": "Value",
       "valueFrom": "Value From",
       "valueTo": "Value To",
-      "valueUnit": "Value Unit",
-      "valueCurrency": "Value Currency"
+      "valueUnit": "Value Unit"
     }
   },
   "links": {

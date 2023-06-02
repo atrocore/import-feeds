@@ -120,10 +120,6 @@
       "type": "varchar",
       "notStorable": true
     },
-    "defaultUnit": {
-      "type": "varchar",
-      "notStorable": true
-    },
     "defaultId": {
       "type": "varchar",
       "notStorable": true
@@ -173,14 +169,12 @@
         "value",
         "valueFrom",
         "valueTo",
-        "valueCurrency",
         "valueUnit"
       ],
       "options": [
         "value",
         "valueFrom",
         "valueTo",
-        "valueCurrency",
         "valueUnit"
       ]
     }
@@ -201,11 +195,6 @@
       "type": "belongsTo",
       "entity": "Channel",
       "audited": false
-    },
-    "measure": {
-      "type": "belongsTo",
-      "foreign": "attributes",
-      "entity": "Measure"
     }
   },
   "collection": {

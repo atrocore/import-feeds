@@ -24,8 +24,7 @@
       "value": "Значення",
       "valueFrom": "Значення від",
       "valueTo": "Значення до",
-      "valueUnit": "Значення міра",
-      "valueCurrency": "Значення валюти"
+      "valueUnit": "Значення міра"
     }
   },
   "links": {
