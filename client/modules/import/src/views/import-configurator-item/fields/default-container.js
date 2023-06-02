@@ -65,14 +65,6 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 delete this.model.attributes.defaultCurrency;
             }
 
-            if (this.model.attributes.defaultUnit) {
-                delete this.model.attributes.defaultUnit;
-            }
-
-            if (this.model.attributes.measureId) {
-                delete this.model.attributes.measureId;
-            }
-
             if (this.model.attributes.defaultId) {
                 delete this.model.attributes.defaultId;
             }
@@ -125,16 +117,26 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             }
 
             if (type === 'unit') {
-                if (this.model.get('type') === 'Attribute') {
-                    this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).then(attribute => {
-                        if (attribute.measureId) {
-                            this.model.set('measureId', attribute.measureId);
-                        }
-                    });
-                } else {
-                    let measureId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureId`);
-                    this.model.set('measureId', measureId);
-                }
+                this.params.measureId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureId`);
+                this.model.defs.fields["default"]['extensibleEnumId'] = this.params.measureId;
+            }
+
+            if (type === 'extensibleEnum') {
+                this.params.extensibleEnumId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
+                this.model.defs.fields["default"]['extensibleEnumId'] = this.params.extensibleEnumId;
+            }
+
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeId')) {
+                this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).then(attribute => {
+                    if (attribute.measureId) {
+                        this.params.measureId = attribute.measureId;
+                        this.model.defs.fields["default"]['extensibleEnumId'] = this.params.measureId;
+                    }
+                    if (attribute.extensibleEnumId) {
+                        this.params.extensibleEnumId = attribute.extensibleEnumId;
+                        this.model.defs.fields["default"]['extensibleEnumId'] = this.params.extensibleEnumId;
+                    }
+                });
             }
         },
 
@@ -187,20 +189,13 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
 
             let viewName = this.getFieldManager().getViewName(type);
             if (type === 'unit') {
-                viewName = 'views/admin/field-manager/fields/default-unit'
-            } else if (type === 'currency') {
-                viewName = 'views/preferences/fields/default-currency'
-            }
-
-            if (type === 'extensibleEnum') {
+                viewName = 'views/fields/unit-link'
+            } else if (type === 'extensibleEnum') {
                 viewName = 'views/admin/field-manager/fields/link/extensible-enum-default';
-                this.model.defs.fields["default"]['extensibleEnumId'] = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
             } else if (type === 'extensibleMultiEnum') {
                 viewName = 'views/admin/field-manager/fields/linkMultiple/extensible-multi-enum-default';
-                this.model.defs.fields["default"]['extensibleEnumId'] = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
             }
 
-            if (type === 'unit' && !this.model.get('measureId')) return
             this.createView('default', viewName, {
                 el: `${this.options.el} > .field[data-name="default"]`,
                 model: this.model,
