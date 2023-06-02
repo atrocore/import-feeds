@@ -97,7 +97,6 @@ class ImportConfiguratorItem extends Base
                         $entity->set('name', $attribute->get('name'));
                         $entity->set('attributeCode', $attribute->get('code'));
                         $entity->set('attributeType', $attribute->get('type'));
-                        $entity->set('attributeTypeValue', $attribute->get('typeValue'));
                         $entity->set('attributeIsMultilang', $attribute->get('isMultilang'));
                         $fieldType = $attribute->get('type');
                         break 1;
@@ -131,7 +130,6 @@ class ImportConfiguratorItem extends Base
             $entity->set('name', $attribute->get('name'));
             $entity->set('attributeCode', $attribute->get('code'));
             $entity->set('attributeType', $attribute->get('type'));
-            $entity->set('attributeTypeValue', $attribute->get('typeValue'));
             $entity->set('attributeIsMultilang', $attribute->get('isMultilang'));
             $fieldType = $attribute->get('type');
         } else {
