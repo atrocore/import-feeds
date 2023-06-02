@@ -24,7 +24,7 @@
       "value": "Wert",
       "valueFrom": "Wert von",
       "valueTo": "Wert bis",
-      "valueUnit": "Wert Einheit"
+      "valueUnitId": "Wert Einheit"
     }
   },
   "links": {

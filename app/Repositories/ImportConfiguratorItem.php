@@ -31,7 +31,7 @@ class ImportConfiguratorItem extends Base
 {
     public static function prepareConverterType(string $type, string $attributeValue): string
     {
-        if ($attributeValue === 'valueUnit') {
+        if ($attributeValue === 'valueUnitId') {
             return 'unit';
         }
 

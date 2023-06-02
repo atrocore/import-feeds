@@ -32,6 +32,7 @@ use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
 use Import\Entities\ImportFeed;
 use Import\Exceptions\IgnoreAttribute;
+use Import\Repositories\ImportConfiguratorItem as ImportConfiguratorItemRepository;
 use Treo\Core\Exceptions\NotModified;
 
 class ImportTypeSimple extends QueueManagerBase
@@ -518,19 +519,8 @@ class ImportTypeSimple extends QueueManagerBase
             $pavWhere['channelId'] = $conf['channelId'];
         }
 
+        $type = ImportConfiguratorItemRepository::prepareConverterType($attribute->get('type'), $data['item']['attributeValue']);
         $conf['name'] = $data['item']['attributeValue'] ?? 'value';
-
-        $type = $attribute->get('type');
-        switch ($type) {
-            case 'rangeInt':
-                $type = 'int';
-                $conf['name'] = $data['item']['attributeValue'];
-                break;
-            case 'rangeFloat':
-                $type = 'float';
-                $conf['name'] = $data['item']['attributeValue'];
-                break;
-        }
 
         $conf['attribute'] = $attribute;
 
@@ -687,7 +677,7 @@ class ImportTypeSimple extends QueueManagerBase
                 }
             }
 
-            if ($fieldName === 'valueUnit') {
+            if ($fieldName === 'valueUnitId') {
                 $type = 'unit';
             }
         }

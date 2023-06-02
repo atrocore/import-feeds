@@ -159,7 +159,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 } else if (type === 'currency') {
                     type = 'float'
                 }
-                if (this.model.get('attributeValue') === 'valueUnit') {
+                if (this.model.get('attributeValue') === 'valueUnitId') {
                     type = 'unit'
                 }
             }

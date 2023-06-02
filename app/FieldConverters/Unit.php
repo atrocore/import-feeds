@@ -36,12 +36,14 @@ class Unit extends Varchar
      */
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
-        $unit = trim($row[$config['column'][0]]);
+        $unit = $row[$config['column'][0]];
         if (empty($unit) && !empty($config['default'])) {
             $unit = (string)$config['default'];
         }
 
-        $inputRow->{$config['name'] . 'UnitId'} = $unit;
+        if (is_string($unit)) {
+            $inputRow->{$config['name']} = trim($unit);
+        }
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void

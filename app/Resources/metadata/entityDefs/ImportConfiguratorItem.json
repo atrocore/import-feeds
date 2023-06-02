@@ -169,13 +169,13 @@
         "value",
         "valueFrom",
         "valueTo",
-        "valueUnit"
+        "valueUnitId"
       ],
       "options": [
         "value",
         "valueFrom",
         "valueTo",
-        "valueUnit"
+        "valueUnitId"
       ]
     }
   },

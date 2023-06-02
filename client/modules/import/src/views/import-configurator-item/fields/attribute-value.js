@@ -55,11 +55,11 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
             if (['rangeFloat', 'rangeInt'].includes(type)) {
                 this.params.options = ['valueFrom', 'valueTo']
                 if (this.hasUnit()) {
-                    this.params.options.push('valueUnit')
+                    this.params.options.push('valueUnitId')
                 }
             } else if (['float', 'int'].includes(type)) {
                 if (this.hasUnit()) {
-                    this.params.options.push('valueUnit')
+                    this.params.options.push('valueUnitId')
                 }
             }
 

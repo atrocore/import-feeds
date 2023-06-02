@@ -24,7 +24,7 @@
       "value": "Value",
       "valueFrom": "Value From",
       "valueTo": "Value To",
-      "valueUnit": "Value Unit"
+      "valueUnitId": "Value Unit"
     }
   },
   "links": {
