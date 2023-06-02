@@ -29,6 +29,23 @@ use Espo\ORM\Entity;
 
 class ImportConfiguratorItem extends Base
 {
+    public static function prepareConverterType(string $type, string $attributeValue): string
+    {
+        if ($attributeValue === 'valueUnit') {
+            return 'unit';
+        }
+
+        if ($type === 'rangeInt') {
+            return 'int';
+        }
+
+        if ($type === 'rangeFloat') {
+            return 'float';
+        }
+
+        return $type;
+    }
+
     public function updatePosition(string $itemId, string $previousItemId): void
     {
         $res = $this
@@ -80,7 +97,7 @@ class ImportConfiguratorItem extends Base
             if (empty($attribute = $entity->get('attribute'))) {
                 throw new BadRequest('No such Attribute.');
             }
-            $type = $attribute->get('type');
+            $type = self::prepareConverterType($attribute->get('type'), $entity->get('attributeValue'));
         }
 
         $this->prepareDefaultField($type, $entity);

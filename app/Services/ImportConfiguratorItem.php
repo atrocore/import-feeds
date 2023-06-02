@@ -27,6 +27,7 @@ use Espo\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
 use Import\FieldConverters\Varchar;
+use Import\Repositories\ImportConfiguratorItem as ImportConfiguratorItemRepository;
 
 class ImportConfiguratorItem extends Base
 {
@@ -165,7 +166,8 @@ class ImportConfiguratorItem extends Base
 
     protected function prepareDefaultField(string $type, Entity $entity): void
     {
-        if (!empty($converter = $this->getFieldConverter($type))) {
+        $converter = $this->getFieldConverter(ImportConfiguratorItemRepository::prepareConverterType($type, $entity->get('attributeValue')));
+        if (!empty($converter)) {
             $converter->prepareForOutputConfiguratorDefaultField($entity);
         }
     }
