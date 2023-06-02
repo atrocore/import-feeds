@@ -24,6 +24,7 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
 
         this.listenTo(this.model, 'change:name change:type change:attributeId', () => {
             this.setupOptions();
+            this.model.set('attributeValue', this.params.options[0] ?? null);
             this.reRender();
         });
     },
@@ -45,62 +46,50 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
     },
 
     setupOptions() {
-        const type = this.getType()
-        if (['rangeFloat', 'rangeInt'].includes(type)) {
-            this.params.options = ['valueFrom', 'valueTo']
-            if (this.hasUnit()) {
-                this.params.options.push('unit')
-            }
-        } else if (type === 'currency') {
-            this.params.options = ['value', 'currency']
-        } else if (['float', 'int'].includes(type)) {
-            this.params.options = ['value']
-            if (this.hasUnit()) {
-                this.params.options.push('unit')
-            }
-        }
+        this.params.options = [];
+        this.translatedOptions = {};
 
-        this.translatedOptions = {
-            value: this.translate('value', 'attributeValue', 'ImportConfiguratorItem'),
-            valueFrom: this.translate('valueFrom', 'attributeValue', 'ImportConfiguratorItem'),
-            valueTo: this.translate('valueTo', 'attributeValue', 'ImportConfiguratorItem'),
-            unit: this.translate('unit', 'attributeValue', 'ImportConfiguratorItem'),
-            currency: this.translate('currency', 'attributeValue', 'ImportConfiguratorItem'),
-        };
+        if (this.isRequired()) {
+            const type = this.getType();
+            this.params.options = ['value'];
+            if (['rangeFloat', 'rangeInt'].includes(type)) {
+                this.params.options = ['valueFrom', 'valueTo']
+                if (this.hasUnit()) {
+                    this.params.options.push('valueUnit')
+                }
+            } else if (type === 'currency') {
+                this.params.options = ['value', 'valueCurrency']
+            } else if (['float', 'int'].includes(type)) {
+                if (this.hasUnit()) {
+                    this.params.options.push('valueUnit')
+                }
+            }
+
+            this.params.options.forEach(option => {
+                this.translatedOptions[option] = this.getLanguage().translateOption(option, 'attributeValue', 'ImportConfiguratorItem');
+            });
+        }
+    },
+
+    isRequired() {
+        return this.model.get('type') === 'Attribute' && this.model.get('attributeId');
     },
 
     getType() {
-        if (this.model.get('type') === 'Attribute') {
-            if (this.model.get('attributeId')) {
-                return this.getAttribute(this.model.get('attributeId')).type;
-            }
+        if (this.model.get('attributeId')) {
+            return this.getAttribute(this.model.get('attributeId')).type;
         }
-        // if (this.model.get('type') === 'Field') {
-        //     type = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'type']);
-        // }
 
         return 'varchar';
     },
 
-    isRequired() {
-        return ['rangeFloat', 'rangeInt', 'int', 'float', 'currency'].includes(this.getType()) && (this.params.options || []).length;
-    },
-
     hasUnit() {
-        if (this.model.get('type') === 'Attribute') {
-            if (this.model.get('attributeId')) {
-                const attribute = this.getAttribute(this.model.get('attributeId'));
-                if (attribute.measureId) {
-                    return true
-                }
+        if (this.model.get('attributeId')) {
+            const attribute = this.getAttribute(this.model.get('attributeId'));
+            if (attribute.measureId) {
+                return true
             }
         }
-
-        // if (this.model.get('type') === 'Field') {
-        //     if (this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'measureId'])) {
-        //         return true
-        //     }
-        // }
 
         return false
     },
