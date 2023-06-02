@@ -38,7 +38,6 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     if (this.model.get('attributeId')) {
                         this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`).then(attribute => {
                             this.model.set('attributeType', attribute.type);
-                            this.model.set('attributeTypeValue', attribute.typeValue || []);
 
                             this.clearDefaultField();
                             this.createDefaultField();
@@ -126,24 +125,15 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             }
 
             if (type === 'unit') {
-                let unitsOfMeasure = this.getConfig().get('unitsOfMeasure') || {};
                 if (this.model.get('type') === 'Attribute') {
                     this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).then(attribute => {
                         if (attribute.measureId) {
-                            this.model.set('measureId', attribute.measureId)
-                            let measure = attribute.measureName;
-                            if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
-                                this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
-                            }
+                            this.model.set('measureId', attribute.measureId);
                         }
                     });
                 } else {
-                    let measure = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureName`);
                     let measureId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureId`);
-                    this.model.set('measureId', measureId)
-                    if (!this.model.has('defaultUnit') && unitsOfMeasure[measure] && unitsOfMeasure[measure]['unitList'][0]) {
-                        this.model.set('defaultUnit', unitsOfMeasure[measure]['unitList'][0]);
-                    }
+                    this.model.set('measureId', measureId);
                 }
             }
         },
@@ -158,23 +148,19 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 options = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.options`) || [];
             }
 
-            if (this.model.get('type') === 'Attribute') {
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeId') && this.model.get('attributeType')) {
                 type = this.model.get('attributeType');
-                options = this.model.get('attributeTypeValue') || [];
-            }
-            if (this.model.get('attributeValue') === 'unit') {
-                if (['rangeInt', 'rangeFloat', 'int', 'float'].includes(type)) {
-                    type = 'unit'
-                }
-            } else if (this.model.get('attributeValue') === 'currency') {
-                type = 'currency'
-            } else {
                 if (type === 'rangeInt') {
                     type = 'int'
                 } else if (type === 'rangeFloat') {
                     type = 'float'
                 } else if (type === 'currency') {
                     type = 'float'
+                }
+                if (this.model.get('attributeValue') === 'valueUnit') {
+                    type = 'unit'
+                } else if (this.model.get('attributeValue') === 'valueCurrency') {
+                    type = 'currency'
                 }
             }
 
