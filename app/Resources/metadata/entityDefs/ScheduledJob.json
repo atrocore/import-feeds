@@ -2,7 +2,8 @@
   "fields": {
     "importFeed": {
       "type": "link",
-      "view": "import:views/scheduled-job/fields/import-feed"
+      "view": "import:views/scheduled-job/fields/import-feed",
+      "tooltip": true
     },
     "importFeeds": {
       "type": "linkMultiple",
