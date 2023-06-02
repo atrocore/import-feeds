@@ -22,45 +22,40 @@ declare(strict_types=1);
 
 namespace Import\FieldConverters;
 
-use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Utils\Json;
 use Espo\ORM\Entity;
 
-/**
- * Class Currency
- */
 class Unit extends Varchar
 {
-    /**
-     * @inheritDoc
-     */
-    public function convert(\stdClass $inputRow, array $config, array $row): void
+    public function prepareValue(\stdClass $restore, Entity $entity, array $item): void
     {
-        $unit = $row[$config['column'][0]];
-        if (empty($unit) && !empty($config['default'])) {
-            $unit = (string)$config['default'];
-        }
+        $fieldName = $this->getFieldName($item);
 
-        if (is_string($unit)) {
-            $inputRow->{$config['name']} = trim($unit);
-        }
+        $restore->$fieldName = $entity->get($item['name']);
     }
 
-    public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
+    protected function getFieldName(array $config): string
     {
-        if ($entity->has('defaultId')) {
-            $entity->set('default', empty($entity->get('defaultId')) ? null : $entity->get('defaultId'));
-        }
+        return $config['name'];
     }
 
-    public function prepareForOutputConfiguratorDefaultField(Entity $entity): void
+    protected function getForeignEntityName(string $entity, string $field): string
     {
-        $entity->set('defaultId', null);
-        $entity->set('defaultName', null);
-        if (!empty($entity->get('default'))) {
-            $entity->set('defaultId', $entity->get('default'));
-            $relEntity = $this->getEntityManager()->getEntity('Unit', $entity->get('defaultId'));
-            $entity->set('defaultName', empty($relEntity) ? $entity->get('defaultId') : $relEntity->get('name'));
+        return 'Unit';
+    }
+
+    protected function prepareWhere(array $config, string $entityName, array &$where): void
+    {
+        parent::prepareWhere($config, $entityName, $where);
+
+        $where['measureId'] = 'no-such-extensible-enum';
+
+        if (!empty($config['attributeId'])) {
+            $attribute = $this->configuratorItem->getAttributeById($config['attributeId']);
+            if (!empty($attribute) && !empty($attribute->get('measureId'))) {
+                $where['measureId'] = $attribute->get('measureId');
+            }
+        } else {
+            $where['measureId'] = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'measureId']);
         }
     }
 }

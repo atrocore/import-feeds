@@ -62,6 +62,9 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                     if (['extensibleEnum', 'extensibleMultiEnum'].includes(attribute.type)) {
                         foreignEntity = 'ExtensibleEnumOption';
                     }
+                    if (attribute.measureId) {
+                        foreignEntity = 'Unit';
+                    }
                 }
             }
 
