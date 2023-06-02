@@ -19,12 +19,14 @@
     "replaceArray": "Замінювати",
     "attributeValue": "Значення атрибуту"
   },
-  "attributeValue": {
-    "value": "Значення",
-    "valueFrom": "Значення від",
-    "valueTo": "Значення до",
-    "unit": "Міра",
-    "currency": "Валюта"
+  "options": {
+    "attributeValue": {
+      "value": "Значення",
+      "valueFrom": "Значення від",
+      "valueTo": "Значення до",
+      "valueUnit": "Значення міра",
+      "valueCurrency": "Значення валюти"
+    }
   },
   "links": {
     "importFeed": "Імпортний фід"

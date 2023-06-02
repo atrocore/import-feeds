@@ -19,12 +19,14 @@
     "replaceArray": "Replace",
     "attributeValue": "Attribute Value"
   },
-  "attributeValue": {
-    "value": "Value",
-    "valueFrom": "Value From",
-    "valueTo": "Value To",
-    "unit": "Unit",
-    "currency": "Currency"
+  "options": {
+    "attributeValue": {
+      "value": "Value",
+      "valueFrom": "Value From",
+      "valueTo": "Value To",
+      "valueUnit": "Value Unit",
+      "valueCurrency": "Value Currency"
+    }
   },
   "links": {
     "importFeed": "Import Feed",

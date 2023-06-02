@@ -226,11 +226,6 @@ class ImportTypeSimple extends QueueManagerBase
                     }
 
                     if ($this->getEntityManager()->getPDO()->inTransaction()) {
-
-                        echo '<pre>';
-                        print_r($input);
-                        die();
-
                         $this->getEntityManager()->getPDO()->commit();
                     }
                 } catch (\Throwable $e) {
@@ -494,14 +489,6 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        /**
-         * @todo deprecated. Kept for backward compatibility
-         */
-        if (method_exists($this->getEntityManager()->getRepository('Product'), 'updateInconsistentAttributes')) {
-            $entity->set('hasInconsistentAttributes', true);
-            $this->getEntityManager()->getRepository('Product')->updateInconsistentAttributes($entity);
-        }
-
         return $result;
     }
 
@@ -520,9 +507,6 @@ class ImportTypeSimple extends QueueManagerBase
 
         $attribute = $this->getEntityById('Attribute', $conf['attributeId']);
 
-        $conf['attribute'] = $attribute;
-        $conf['name'] = 'value';
-
         $pavWhere = [
             'productId'   => $product->get('id'),
             'attributeId' => $conf['attributeId'],
@@ -534,7 +518,23 @@ class ImportTypeSimple extends QueueManagerBase
             $pavWhere['channelId'] = $conf['channelId'];
         }
 
-        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($attribute->get('type'));
+        $conf['name'] = $data['item']['attributeValue'] ?? 'value';
+
+        $type = $attribute->get('type');
+        switch ($type) {
+            case 'rangeInt':
+                $type = 'int';
+                $conf['name'] = $data['item']['attributeValue'];
+                break;
+            case 'rangeFloat':
+                $type = 'float';
+                $conf['name'] = $data['item']['attributeValue'];
+                break;
+        }
+
+        $conf['attribute'] = $attribute;
+
+        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
 
         $pav = $this->getEntityManager()->getRepository($entityType)->where($pavWhere)->findOne();
         if (!empty($pav)) {

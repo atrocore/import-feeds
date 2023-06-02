@@ -19,12 +19,14 @@
     "replaceArray": "Ersetzen",
     "attributeValue": "Attributwert"
   },
-  "attributeValue": {
-    "value": "Wert",
-    "valueFrom": "Wert von",
-    "valueTo": "Wert bis",
-    "unit": "Einheit",
-    "currency": "Währung"
+  "options": {
+    "attributeValue": {
+      "value": "Wert",
+      "valueFrom": "Wert von",
+      "valueTo": "Wert bis",
+      "valueUnit": "Wert Einheit",
+      "valueCurrency": "Wert Währung"
+    }
   },
   "links": {
     "importFeed": "Import Feed"

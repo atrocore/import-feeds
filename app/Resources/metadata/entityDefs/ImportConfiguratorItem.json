@@ -70,10 +70,6 @@
       "type": "varchar",
       "notStorable": true
     },
-    "attributeTypeValue": {
-      "type": "array",
-      "notStorable": true
-    },
     "attributeIsMultilang": {
       "type": "bool",
       "notStorable": true
