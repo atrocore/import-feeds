@@ -52,7 +52,7 @@ class ImportJob extends Base
         }
 
         if ($entity->isAttributeChanged('state')) {
-            if ($entity->get('state') == 'Running') {
+            if (in_array($entity->get('state'), ['Running', 'Pending'])) {
                 $entity->set('start', date('Y-m-d H:i:s'));
             } elseif ($entity->get('state') == 'Success') {
                 $entity->set('end', date('Y-m-d H:i:s'));
