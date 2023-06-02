@@ -47,7 +47,7 @@ class Unit extends Varchar
     {
         parent::prepareWhere($config, $entityName, $where);
 
-        $where['measureId'] = 'no-such-extensible-enum';
+        $where['measureId'] = 'no-such-measure';
 
         if (!empty($config['attributeId'])) {
             $attribute = $this->configuratorItem->getAttributeById($config['attributeId']);
