@@ -170,17 +170,23 @@
     },
     "attributeValue": {
       "type": "enum",
-      "required": true,
+      "required": false,
       "prohibitedEmptyValue": true,
       "view": "import:views/import-configurator-item/fields/attribute-value",
+      "optionsIds": [
+        "value",
+        "valueFrom",
+        "valueTo",
+        "valueCurrency",
+        "valueUnit"
+      ],
       "options": [
         "value",
         "valueFrom",
         "valueTo",
-        "currency",
-        "unit"
-      ],
-      "default": "value"
+        "valueCurrency",
+        "valueUnit"
+      ]
     }
   },
   "links": {
