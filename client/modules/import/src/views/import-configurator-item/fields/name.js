@@ -102,7 +102,7 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                 }
 
                 extraInfo += `<span class="text-muted small">${this.translate('code', 'fields', 'Attribute')}: ${this.model.get('attributeCode')}</span>`;
-                extraInfo += `<br><span class="text-muted small">${this.translate('attributeValue', 'fields', 'ImportConfiguratorItem')}: ${this.translate(this.model.get('attributeValue'), 'attributeValue', 'ImportConfiguratorItem')}</span>`;
+                extraInfo += `<br><span class="text-muted small">${this.translate('attributeValue', 'fields', 'ImportConfiguratorItem')}: ${this.getLanguage().translateOption(this.model.get('attributeValue'), 'attributeValue', 'ImportConfiguratorItem')}</span>`;
                 extraInfo += `<br><span class="text-muted small">${this.translate('scope', 'fields')}: ${this.model.get('scope')}</span>`;
             }
 
