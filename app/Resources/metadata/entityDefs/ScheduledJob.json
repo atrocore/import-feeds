@@ -8,7 +8,8 @@
     "importFeeds": {
       "type": "linkMultiple",
       "layoutDetailDisabled": true,
-      "layoutDetailSmallDisabled": true
+      "layoutDetailSmallDisabled": true,
+      "tooltip": true
     },
     "maximumHoursToLookBack": {
       "type": "float",

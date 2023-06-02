@@ -15,6 +15,6 @@
     }
   },
   "tooltips": {
-    "importFeed": "Wenn kein Import-Feed ausgewählt ist, werden alle fehlgeschlagenen Importjobs erneut ausgeführt."
+    "importFeeds": "Wenn kein Import-Feed ausgewählt ist, werden alle fehlgeschlagenen Importjobs erneut ausgeführt."
   }
 }
