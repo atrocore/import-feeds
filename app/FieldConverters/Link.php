@@ -185,9 +185,11 @@ class Link extends Varchar
 
         $fieldName = $this->getFieldName($configuration);
 
-        if (property_exists($inputRow, $fieldName)) {
-            $where[$fieldName] = $inputRow->$fieldName;
+        if (!property_exists($inputRow, $fieldName)) {
+            throw new BadRequest("System cannot find '$fieldName'. Please, check configuration.");
         }
+
+        $where[$fieldName] = $inputRow->$fieldName;
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
