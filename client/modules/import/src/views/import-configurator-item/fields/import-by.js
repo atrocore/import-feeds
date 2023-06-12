@@ -29,7 +29,7 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             }
 
             this.prepareImportByOptions();
-            this.listenTo(this.model, 'change:name change:type change:attributeId', () => {
+            this.listenTo(this.model, 'change:name change:type change:attributeId change:attributeValue', () => {
                 this.model.set('importBy', null);
                 this.prepareImportByOptions(() => {
                     this.reRender();
@@ -62,7 +62,7 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                     if (['extensibleEnum', 'extensibleMultiEnum'].includes(attribute.type)) {
                         foreignEntity = 'ExtensibleEnumOption';
                     }
-                    if (attribute.measureId) {
+                    if (attribute.measureId && this.model.get('attributeValue') === 'valueUnitId') {
                         foreignEntity = 'Unit';
                     }
                 }

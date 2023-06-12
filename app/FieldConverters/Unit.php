@@ -24,7 +24,7 @@ namespace Import\FieldConverters;
 
 use Espo\ORM\Entity;
 
-class Unit extends Varchar
+class Unit extends Link
 {
     public function prepareValue(\stdClass $restore, Entity $entity, array $item): void
     {
