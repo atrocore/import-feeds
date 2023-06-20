@@ -26,7 +26,7 @@ Espo.define('import:views/import-configurator-item/fields/foreign-column', 'view
 
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'change:name', () => {
+            this.listenTo(this.model, 'change:name change:createIfNotExist', () => {
                 this.model.set(this.name, null);
             });
         }
