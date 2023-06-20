@@ -58,7 +58,7 @@ class Integer extends Varchar
 
     public function prepareIntValue(string $value, array $config): int
     {
-        $thousandSeparator = $config['thousandSeparator'];
+        $thousandSeparator = (string)$config['thousandSeparator'];
         $decimalMark = $config['decimalMark'];
 
         $intValue = (int)str_replace($thousandSeparator, '', $value);
