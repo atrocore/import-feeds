@@ -88,7 +88,7 @@ class Link extends Varchar
                         ->findOne();
 
                     if (empty($config['createIfNotExist'])) {
-                        throw new BadRequest("Entity '$entityName' can not be found by where: " . json_encode($where));
+                        throw new BadRequest("Entity '$entityName' can not be found by where " . json_encode($where));
                     }
                 }
 
