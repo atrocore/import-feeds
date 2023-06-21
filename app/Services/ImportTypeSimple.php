@@ -37,8 +37,6 @@ use Treo\Core\Exceptions\NotModified;
 
 class ImportTypeSimple extends QueueManagerBase
 {
-    public const CSV_LIMIT = 500;
-
     private array $restore = [];
     private array $updatedPav = [];
     private array $deletedPav = [];
@@ -334,12 +332,15 @@ class ImportTypeSimple extends QueueManagerBase
 
         switch ($data['fileFormat']) {
             case 'CSV':
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], null, self::CSV_LIMIT);
+                $limit = 500;
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $limit);
+                $data['offset'] = $data['offset'] + $limit;
                 break;
             case 'Excel':
+                $limit = 500;
                 $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], PHP_INT_MAX, $sheet);
-                $this->lastIteration = true;
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $limit, $sheet);
+                $data['offset'] = $data['offset'] + $limit;
                 break;
             case 'JSON':
             case 'XML':
