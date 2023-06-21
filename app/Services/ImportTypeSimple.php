@@ -332,12 +332,12 @@ class ImportTypeSimple extends QueueManagerBase
 
         switch ($data['fileFormat']) {
             case 'CSV':
-                $limit = 500;
+                $limit = 5000;
                 $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $limit);
                 $data['offset'] = $data['offset'] + $limit;
                 break;
             case 'Excel':
-                $limit = 500;
+                $limit = 5000;
                 $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
                 $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $limit, $sheet);
                 $data['offset'] = $data['offset'] + $limit;
