@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Espo\Core\EventManager\Event;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Entities\Attachment;
 
 class CsvFileParser extends AbstractFileParser
@@ -60,17 +61,40 @@ class CsvFileParser extends AbstractFileParser
 
     public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', ?int $offset = 0, ?int $limit = null): array
     {
-        // prepare path
         $path = $this->getLocalFilePath($attachment);
+
+        if (!file_exists($path)) {
+            throw new BadRequest("File '$path' does not exist.");
+        }
 
         if ($delimiter === '\t') {
             $delimiter = "\t";
         }
 
-        if ($offset === null) {
-            $data = $this->readLineByLine($path, $delimiter, $enclosure, $limit);
-        } else {
-            $data = $this->getParsedFileData($path, $delimiter, $enclosure, $offset, $limit);
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+        $reader->setDelimiter($delimiter);
+        $reader->setEnclosure($enclosure);
+
+        $rowNumber = 0;
+
+        $data = [];
+        $worksheet = $reader->load($path)->getActiveSheet();
+        foreach ($worksheet->getRowIterator() as $row) {
+            $dataRow = [];
+            $cellIterator = $row->getCellIterator();
+            $cellIterator->setIterateOnlyExistingCells(false);
+            foreach ($cellIterator as $cell) {
+                $dataRow[] = $cell->getValue();
+            }
+
+            if ($limit !== null && count($data) >= $limit) {
+                break;
+            }
+
+            if ($offset === null || $rowNumber >= $offset) {
+                $data[] = $dataRow;
+            }
+            $rowNumber++;
         }
 
         return $this
@@ -115,53 +139,5 @@ class CsvFileParser extends AbstractFileParser
             ->getLocalFilePath($attachment);
 
         return (empty($path)) ? '' : (string)$path;
-    }
-
-    protected function getParsedFileData(string $path, string $delimiter = ";", string $enclosure = '"', int $offset = 0, int $limit = null): array
-    {
-        // prepare result
-        $result = [];
-
-        if (file_exists($path) && ($handle = fopen($path, "r")) !== false) {
-            $row = 0;
-            while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== false && (is_null($limit) || count($result) < $limit)) {
-                if ($row >= $offset) {
-                    $result[] = $data;
-                }
-
-                // increase
-                $row++;
-            }
-            fclose($handle);
-        }
-
-        return $result;
-    }
-
-    protected function readLineByLine(string $path, string $delimiter = ";", string $enclosure = '"', int $limit = 200): array
-    {
-        if (!array_key_exists($path, $this->fileHandles)) {
-            $this->fileHandles[$path] = fopen($path, "r");
-        }
-
-        $handle = $this->fileHandles[$path];
-
-        if ($handle === null) {
-            return [];
-        }
-
-        $result = [];
-        if ($handle !== false) {
-            while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== false && count($result) < $limit) {
-                $result[] = $data;
-            }
-        }
-
-        if (empty($result) || count($result) < $limit) {
-            fclose($this->fileHandles[$path]);
-            $this->fileHandles[$path] = null;
-        }
-
-        return $result;
     }
 }

@@ -55,13 +55,5 @@ Espo.define('import:views/import-feed/fields/file', 'views/fields/file',
             }
         },
 
-        afterRender() {
-            Dep.prototype.afterRender.call(this);
-
-            if (this.mode === 'edit' && this.model.get('format') === 'CSV') {
-                this.$el.find('.attachment-upload .attachment-button .pull-left').append('<div class="text-muted small">UTF-8</div>');
-            }
-        },
-
     })
 );

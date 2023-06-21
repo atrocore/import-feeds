@@ -23,12 +23,13 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Espo\Core\EventManager\Event;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Entities\Attachment;
 
 class ExcelFileParser extends CsvFileParser
 {
-    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null, int $sheet = 0): array
-    {
+    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null, int $sheet = 0
+    ): array {
         if ($data === null) {
             $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2, $sheet);
         }
@@ -55,41 +56,38 @@ class ExcelFileParser extends CsvFileParser
     {
         $path = $this->getLocalFilePath($attachment);
 
+        if (!file_exists($path)) {
+            throw new BadRequest("File '$path' does not exist.");
+        }
+
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($path);
         $reader->setReadDataOnly(true);
 
-        try {
-            $data = $reader->load($path)->getSheet($sheet)->toArray();
-        } catch (\Throwable $e) {
-            $data = [];
-        }
+        $rowNumber = 0;
 
-        unset($reader);
+        $data = [];
 
-        $result = [];
-        foreach ($data as $k => $row) {
-            if ($k < $offset) {
-                continue 1;
+        $worksheet = $reader->load($path)->getSheet($sheet);
+        foreach ($worksheet->getRowIterator() as $row) {
+            $dataRow = [];
+            $cellIterator = $row->getCellIterator();
+            $cellIterator->setIterateOnlyExistingCells(false);
+            foreach ($cellIterator as $cell) {
+                $dataRow[] = $cell->getValue();
             }
-            $result[] = $row;
-        }
 
-        unset($data);
-
-        if (!empty($limit)) {
-            $limited = [];
-            foreach ($result as $v) {
-                if (count($limited) >= $limit) {
-                    break;
-                }
-                $limited[] = $v;
+            if ($limit !== null && count($data) >= $limit) {
+                break;
             }
-            $result = $limited;
-            unset($limited);
+
+            if ($offset === null || $rowNumber >= $offset) {
+                $data[] = $dataRow;
+            }
+            $rowNumber++;
         }
 
         return $this
-            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $result, 'attachment' => $attachment, 'type' => 'excel']))
+            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'excel']))
             ->getArgument('data');
     }
 }
