@@ -69,6 +69,7 @@
     "importNow": "Möchten Sie wirklich die Daten aus der ausgewählten Quelle importieren?"
   },
   "exceptions": {
+    "noRecordsFoundFor": "Es wurden keine Datensätze in der Entität „%s“ mit: %s gefunden.",
     "convertValidationPrefix": "Fehler für den Wert '{{value}}' aus der Spalte '{{column}}': ",
     "sourceFieldsEmpty": "Quellfelder sollten erkannt werden.",
     "noFeedFileFound": "Feeddatei fehlt.",
