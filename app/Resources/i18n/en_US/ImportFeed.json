@@ -72,6 +72,7 @@
     "importNow": "Are you sure you want to import data from the selected source?"
   },
   "exceptions": {
+    "noRecordsFoundFor": "No record(s) found in the entity '%s' with: %s.",
     "convertValidationPrefix": "Error for value '{{value}}' from column '{{column}}': ",
     "sourceFieldsEmpty": "Source Fields should be recognized.",
     "noFeedFileFound": "Feed file is missing.",

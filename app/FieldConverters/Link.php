@@ -88,7 +88,7 @@ class Link extends Varchar
                         ->findOne();
 
                     if (empty($entity) && empty($config['createIfNotExist'])) {
-                        throw new BadRequest("Entity '$entityName' can not be found by where " . json_encode($where));
+                        throw new BadRequest(sprintf($this->translate('noRecordsFoundFor', 'exceptions', 'ImportFeed'), $this->translate($entityName, 'scopeNames'), json_encode($where)));
                     }
                 }
 
