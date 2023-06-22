@@ -168,8 +168,10 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $attributes = [];
                     foreach ($data['data']['configuration'] as $item) {
-                        if ($item['type'] == 'Attribute') {
-                            $attributes[] = ['item' => $item, 'row' => $row];
+                        if ($item['type'] == 'Attribute' && !empty($item['attributeId'])) {
+                            $key = self::preparePavKey($item);
+                            $attributes[$key]['row'] = $row;
+                            $attributes[$key]['configuration'][] = $item;
                             continue 1;
                         }
 
@@ -504,67 +506,72 @@ class ImportTypeSimple extends QueueManagerBase
         $inputRow = new \stdClass();
         $restoreRow = new \stdClass();
 
-        $conf = $data['item'];
         $row = $data['row'];
+        $configuration = $data['configuration'];
 
-        $attribute = $this->getEntityById('Attribute', $conf['attributeId']);
-
+        $attribute = $this->getEntityById('Attribute', $configuration[0]['attributeId']);
         $pavWhere = [
             'productId'   => $product->get('id'),
-            'attributeId' => $conf['attributeId'],
-            'scope'       => $conf['scope'],
-            'language'    => $conf['locale'],
+            'attributeId' => $attribute->get('id'),
+            'scope'       => $configuration[0]['scope'],
+            'language'    => $configuration[0]['locale'],
         ];
 
-        if ($conf['scope'] === 'Channel') {
-            $pavWhere['channelId'] = $conf['channelId'];
+        if ($pavWhere['scope'] === 'Channel') {
+            $pavWhere['channelId'] = $configuration[0]['channelId'];
         }
-
-        $type = ImportConfiguratorItemRepository::prepareConverterType($attribute->get('type'), $data['item']['attributeValue']);
-        $conf['name'] = $data['item']['attributeValue'] ?? 'value';
-
-        $conf['attribute'] = $attribute;
-
-        $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
 
         $pav = $this->getEntityManager()->getRepository($entityType)->where($pavWhere)->findOne();
-        if (!empty($pav)) {
-            $inputRow->id = $pav->get('id');
-            $converter->prepareValue($restoreRow, $pav, $conf);
-        }
 
-        try {
-            $converter->convert($inputRow, $conf, $row);
-        } catch (IgnoreAttribute $e) {
-            if (in_array(implode('_', $pavWhere), $this->updatedPav)) {
-                throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
+        foreach ($configuration as $conf) {
+            $type = ImportConfiguratorItemRepository::prepareConverterType($attribute->get('type'), $conf['attributeValue']);
+            $conf['name'] = $conf['attributeValue'] ?? 'value';
+            $conf['attribute'] = $attribute;
+
+            $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
+
+            if (!empty($pav)) {
+                $inputRow->id = $pav->get('id');
+                $converter->prepareValue($restoreRow, $pav, $conf);
             }
 
-            $this->deletedPav[] = implode('_', $pavWhere);
-
-            if (property_exists($inputRow, 'id')) {
-                $this->saveRestoreRow('deleted', $entityType, $pav->toArray());
-                $service->deleteEntity($inputRow->id);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (BadRequest $e) {
-            $message = '';
-            if (array_key_exists('column', $conf)) {
-                $message = $this->translate('convertValidationPrefix', 'exceptions', 'ImportFeed');
-                $values = [];
-                foreach ($conf['column'] as $column) {
-                    $values[] = array_key_exists($column, $row) ? $row[$column] : '';
+            try {
+                $converter->convert($inputRow, $conf, $row);
+            } catch (IgnoreAttribute $e) {
+                if (in_array(implode('_', $pavWhere), $this->updatedPav)) {
+                    throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
                 }
-                $message = str_replace(['{{value}}', '{{column}}'], [implode(', ', $values), implode(', ', $conf['column'])], $message);
+
+//                $this->deletedPav[] = implode('_', $pavWhere);
+//
+//                if (property_exists($inputRow, 'id')) {
+//                    $this->saveRestoreRow('deleted', $entityType, $pav->toArray());
+//                    $service->deleteEntity($inputRow->id);
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+            } catch (BadRequest $e) {
+                $message = '';
+                if (array_key_exists('column', $conf)) {
+                    $message = $this->translate('convertValidationPrefix', 'exceptions', 'ImportFeed');
+                    $values = [];
+                    foreach ($conf['column'] as $column) {
+                        $values[] = array_key_exists($column, $row) ? $row[$column] : '';
+                    }
+                    $message = str_replace(['{{value}}', '{{column}}'], [implode(', ', $values), implode(', ', $conf['column'])], $message);
+                }
+                throw new BadRequest($message . lcfirst($e->getMessage()));
             }
-            throw new BadRequest($message . lcfirst($e->getMessage()));
         }
 
         if (in_array(implode('_', $pavWhere), $this->deletedPav)) {
             throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
         }
+
+        echo '<pre>';
+        print_r($inputRow);
+        die();
 
         $this->updatedPav[] = implode('_', $pavWhere);
 
@@ -684,5 +691,19 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return $type;
+    }
+
+    public static function preparePavKey(array $item): string
+    {
+        $arr = ['attributeId', 'scope', 'channelId', 'locale'];
+
+        $res = [];
+        foreach ($arr as $v) {
+            if (!array_key_exists($v, $item)) {
+                throw new \Error("'$v' is required for configurator item.");
+            }
+            $res[] = $item[$v];
+        }
+        return implode("_", $res);
     }
 }
