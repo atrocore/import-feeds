@@ -542,15 +542,15 @@ class ImportTypeSimple extends QueueManagerBase
                     throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
                 }
 
-//                $this->deletedPav[] = implode('_', $pavWhere);
-//
-//                if (property_exists($inputRow, 'id')) {
-//                    $this->saveRestoreRow('deleted', $entityType, $pav->toArray());
-//                    $service->deleteEntity($inputRow->id);
-//                    return true;
-//                } else {
-//                    return false;
-//                }
+                $this->deletedPav[] = implode('_', $pavWhere);
+
+                if (property_exists($inputRow, 'id')) {
+                    $this->saveRestoreRow('deleted', $entityType, $pav->toArray());
+                    $service->deleteEntity($inputRow->id);
+                    return true;
+                } else {
+                    return false;
+                }
             } catch (BadRequest $e) {
                 $message = '';
                 if (array_key_exists('column', $conf)) {
@@ -568,10 +568,6 @@ class ImportTypeSimple extends QueueManagerBase
         if (in_array(implode('_', $pavWhere), $this->deletedPav)) {
             throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
         }
-
-        echo '<pre>';
-        print_r($inputRow);
-        die();
 
         $this->updatedPav[] = implode('_', $pavWhere);
 
