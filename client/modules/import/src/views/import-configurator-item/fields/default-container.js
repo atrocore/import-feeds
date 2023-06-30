@@ -121,7 +121,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.params.measureId;
             }
 
-            if (type === 'extensibleEnum') {
+            if (type === 'extensibleEnum' || type === 'extensibleMultiEnum') {
                 this.params.extensibleEnumId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.params.extensibleEnumId;
             }
