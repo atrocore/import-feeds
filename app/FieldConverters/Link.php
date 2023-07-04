@@ -72,7 +72,7 @@ class Link extends Varchar
                         ->getFieldConverter($fieldData['type'])
                         ->convert($input, ['name' => $field, 'column' => [0], 'default' => null], [$values[$k]]);
 
-                    if (empty($fieldData['notStorable'])) {
+                    if (empty($fieldData['notStorable']) && isset($values[$k]) && $values[$k] !== '') {
                         $where[$field] = $values[$k];
                     }
                 }
