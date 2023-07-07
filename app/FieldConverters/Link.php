@@ -44,7 +44,7 @@ class Link extends Varchar
                 }
             }
 
-            if ($value !== null) {
+            if ($value !== null && $value !== (string)$config['emptyValue']) {
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
@@ -72,7 +72,7 @@ class Link extends Varchar
                         ->getFieldConverter($fieldData['type'])
                         ->convert($input, ['name' => $field, 'column' => [0], 'default' => null], [$values[$k]]);
 
-                    if (empty($fieldData['notStorable']) && isset($values[$k]) && $values[$k] !== '') {
+                    if (empty($fieldData['notStorable']) && isset($values[$k]) && $values[$k] !== '' && $values[$k] !== (string)$config['emptyValue']) {
                         $where[$field] = $values[$k];
                     }
                 }

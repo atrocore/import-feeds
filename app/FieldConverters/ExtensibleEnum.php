@@ -47,6 +47,10 @@ class ExtensibleEnum extends Link
     {
         parent::prepareWhere($config, $entityName, $where);
 
+        if (empty($where)) {
+            return;
+        }
+
         $where['extensibleEnumId'] = 'no-such-extensible-enum';
 
         if (!empty($config['attributeId'])) {
