@@ -62,7 +62,7 @@ class ImportJob extends Base
 
         $errorsRowsNumbers = [];
 
-        switch ($feed->get('format')) {
+        switch ($feed->getFeedField('format')) {
             case 'CSV':
             case 'Excel':
                 $isFileHeaderRow = !empty($feed->getFeedField('isFileHeaderRow'));
