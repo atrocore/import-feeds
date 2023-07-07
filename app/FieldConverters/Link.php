@@ -45,20 +45,20 @@ class Link extends Varchar
             }
 
             if (is_array($value)) {
-                $valueNullOrEmpty = true;
+                $valueIsNullOrEmpty = true;
                 foreach ($value as $v) {
                     if ($v !== null && $v !== '') {
-                        $valueNullOrEmpty = false;
+                        $valueIsNullOrEmpty = false;
                     }
                 }
-                if ($valueNullOrEmpty) {
+                if ($valueIsNullOrEmpty) {
                     $value = in_array(null, $value, true) ? null : '';
                 }
             } else {
-                $valueNullOrEmpty = $value === null || $value === '';
+                $valueIsNullOrEmpty = $value === null || $value === '';
             }
 
-            if (!$valueNullOrEmpty) {
+            if (!$valueIsNullOrEmpty) {
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
