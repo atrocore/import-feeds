@@ -152,7 +152,7 @@ class Link extends Varchar
             return;
         }
 
-        if ($value === '') {
+        if ($value === '' || (string)$config['emptyValue']) {
             $value = null;
         }
 
