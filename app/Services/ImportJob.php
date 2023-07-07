@@ -69,7 +69,7 @@ class ImportJob extends Base
                 $attachmentId = $importJob->get('attachmentId');
                 $delimiter = $feed->getDelimiter();
                 $enclosure = $feed->getEnclosure();
-                $format = $feed->get('format');
+                $format = $feed->getFeedField('format');
                 break;
             default:
                 $isFileHeaderRow = true;
