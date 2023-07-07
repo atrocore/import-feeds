@@ -44,7 +44,21 @@ class Link extends Varchar
                 }
             }
 
-            if ($value !== null) {
+            if (is_array($value)) {
+                $valueNullOrEmpty = true;
+                foreach ($value as $v) {
+                    if ($v !== null && $v !== '') {
+                        $valueNullOrEmpty = false;
+                    }
+                }
+                if ($valueNullOrEmpty) {
+                    $value = in_array(null, $value, true) ? null : '';
+                }
+            } else {
+                $valueNullOrEmpty = $value === null || $value === '';
+            }
+
+            if (!$valueNullOrEmpty) {
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
