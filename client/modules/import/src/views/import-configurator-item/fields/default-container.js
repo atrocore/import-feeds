@@ -104,7 +104,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 };
             }
 
-            if (type === 'enum' || type === 'multiEnum' || type === 'array') {
+            if (type === 'enum' || type === 'multiEnum' || type === 'array' || type === 'language') {
                 this.params.options = options;
                 this.params.translatedOptions = {};
                 options.forEach(option => {
@@ -114,6 +114,10 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     }
                     this.params.translatedOptions[option.toString()] = label;
                 });
+            }
+
+            if (type === 'language') {
+                this.model.defs.fields["default"]['prohibitedEmptyValue'] = true;
             }
 
             if (type === 'unit') {
