@@ -60,7 +60,7 @@ class ImportTypeSimple extends QueueManagerBase
         $result = [
             "name"             => $feed->get('name'),
             "offset"           => $feed->isFileHeaderRow() ? 1 : 0,
-            "limit"            => \PHP_INT_MAX,
+            "limit"            => 5000,
             "fileFormat"       => $feed->getFeedField('format'),
             "delimiter"        => $feed->getDelimiter(),
             "enclosure"        => $feed->getEnclosure(),
@@ -334,15 +334,13 @@ class ImportTypeSimple extends QueueManagerBase
 
         switch ($data['fileFormat']) {
             case 'CSV':
-                $limit = 5000;
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $limit);
-                $data['offset'] = $data['offset'] + $limit;
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
+                $data['offset'] = $data['offset'] + $data['limit'];
                 break;
             case 'Excel':
-                $limit = 5000;
                 $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $limit, $sheet);
-                $data['offset'] = $data['offset'] + $limit;
+                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $sheet);
+                $data['offset'] = $data['offset'] + $data['limit'];
                 break;
             case 'JSON':
             case 'XML':

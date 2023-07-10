@@ -24,8 +24,14 @@
           "name": "attachment"
         },
         {
-          "name": "convertedFile"
+          "name": "uploadedFile"
         }
+      ],
+      [
+        {
+          "name": "convertedFile"
+        },
+        false
       ],
       [
         {

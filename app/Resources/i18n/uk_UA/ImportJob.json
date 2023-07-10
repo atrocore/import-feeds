@@ -10,6 +10,7 @@
     "deletedCount": "Видалено",
     "errorsCount": "Помилка",
     "attachment": "Файл імпорту",
+    "uploadedFile": "Файл що був завантажений",
     "convertedFile": "Конвертований файл імпорту",
     "errorsAttachment": "Файл помилок",
     "importJobLogs": "Лог помилок"

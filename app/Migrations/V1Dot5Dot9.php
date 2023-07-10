@@ -29,11 +29,13 @@ class V1Dot5Dot9 extends Base
     public function up(): void
     {
         $this->exec("ALTER TABLE import_feed ADD max_per_job INT DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
+        $this->exec("ALTER TABLE import_job ADD uploaded_file_id VARCHAR(24) DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
     }
 
     public function down(): void
     {
         $this->exec("ALTER TABLE import_feed DROP max_per_job");
+        $this->exec("ALTER TABLE import_job DROP uploaded_file_id");
     }
 
     protected function exec(string $sql): void

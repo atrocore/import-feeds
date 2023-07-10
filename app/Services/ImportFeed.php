@@ -51,7 +51,7 @@ class ImportFeed extends Base
             ->order('start', 'DESC')
             ->limit(1, 0)
             ->findOne();
-        if(!empty($latestJob)){
+        if (!empty($latestJob)) {
             $entity->set('lastStatus', $latestJob->get('state'));
             $entity->set('lastTime', $latestJob->get('start'));
         }
@@ -251,17 +251,30 @@ class ImportFeed extends Base
             return $service->runImport($feed, $attachmentId, $payload);
         }
 
-        $attachmentId = (!empty($attachmentId)) ? $attachmentId : $feed->get('fileId');
-        $data = $service->prepareJobData($feed, $attachmentId);
-        $data['data']['importJobId'] = $this->createImportJob($feed, $feed->getFeedField('entity'), $attachmentId, $payload)->get('id');
-
-        $this->push($this->getName($feed), $serviceName, $data);
+        $this->pushJobs($feed, !empty($attachmentId) ? $attachmentId : $feed->get('fileId'), $payload);
 
         $this
             ->getInjection('eventManager')
             ->dispatch('ImportFeedService', 'afterImportJobsCreations', new Event(['importFeedId' => $importFeedId]));
 
         return true;
+    }
+
+    public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, \stdClass $payload = null): void
+    {
+        $serviceName = $this->getImportTypeService($importFeed);
+        $service = $this->getServiceFactory()->create($serviceName);
+
+        if (!empty($importFeed->get('maxPerJob')) && $importFeed->get('maxPerJob') > 0 && in_array($importFeed->getFeedField('format'), ['CSV', 'Excel'])) {
+            $fileParser = $this->getFileParser($importFeed->getFeedField('format'));
+            echo '<pre>';
+            print_r('123');
+            die();
+        } else {
+            $data = $service->prepareJobData($importFeed, $attachmentId);
+            $data['data']['importJobId'] = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload)->get('id');
+            $this->push($this->getName($importFeed), $serviceName, $data);
+        }
     }
 
     public function findLinkedEntities($id, $link, $params)
@@ -447,16 +460,15 @@ class ImportFeed extends Base
         return 'ImportType' . ucfirst($feed->get('type'));
     }
 
-    public function createImportJob(ImportFeedEntity $feed, string $entityType, ?string $attachmentId, \stdClass $payload = null): ImportJob
+    public function createImportJob(ImportFeedEntity $feed, string $entityType, string $uploadedFileId, \stdClass $payload = null, string $attachmentId = null): ImportJob
     {
         $entity = $this->getEntityManager()->getEntity('ImportJob');
         $entity->set('name', date('Y-m-d H:i:s'));
         $entity->set('importFeedId', $feed->get('id'));
         $entity->set('entityName', $entityType);
+        $entity->set('uploadedFileId', $uploadedFileId);
+        $entity->set('attachmentId', empty($attachmentId) ? $uploadedFileId : $attachmentId);
         $entity->set('payload', $payload);
-        if (!empty($attachmentId)) {
-            $entity->set('attachmentId', $attachmentId);
-        }
 
         $this->getEntityManager()->saveEntity($entity);
 
