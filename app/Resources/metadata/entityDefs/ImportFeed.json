@@ -10,7 +10,8 @@
     },
     "maxPerJob": {
       "type": "int",
-      "required": false
+      "required": false,
+      "min": 0
     },
     "configuratorItems": {
       "type": "linkMultiple",
