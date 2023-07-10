@@ -1,5 +1,6 @@
 {
   "fields": {
+    "maxPerJob": "Maximale Anzahl von Datensätzen pro Job",
     "excludedNodes": "Ausgeschlossene Knoten",
     "keptStringNodes": "Array-Knoten",
     "adapter": "Adapter",

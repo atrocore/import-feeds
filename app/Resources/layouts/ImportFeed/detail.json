@@ -49,6 +49,12 @@
       ],
       [
         {
+          "name": "maxPerJob"
+        },
+        false
+      ],
+      [
+        {
           "name": "excludedNodes"
         },
         {
