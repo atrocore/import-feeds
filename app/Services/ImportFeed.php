@@ -26,6 +26,7 @@ use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\FilePathBuilder;
 use Espo\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Import\Entities\ImportFeed as ImportFeedEntity;
@@ -265,11 +266,49 @@ class ImportFeed extends Base
         $serviceName = $this->getImportTypeService($importFeed);
         $service = $this->getServiceFactory()->create($serviceName);
 
-        if (!empty($importFeed->get('maxPerJob')) && $importFeed->get('maxPerJob') > 0 && in_array($importFeed->getFeedField('format'), ['CSV', 'Excel'])) {
-            $fileParser = $this->getFileParser($importFeed->getFeedField('format'));
-            echo '<pre>';
-            print_r('123');
-            die();
+        $maxPerJob = (int)$importFeed->get('maxPerJob');
+        $fileFormat = $importFeed->getFeedField('format');
+
+        if ($maxPerJob > 0 && in_array($fileFormat, ['CSV', 'Excel'])) {
+            $isFileHeaderRow = !empty($importFeed->getFeedField('isFileHeaderRow'));
+            $fileParser = $this->getFileParser($fileFormat);
+            $attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId);
+            $sheet = $fileFormat === 'CSV' ? null : $importFeed->get('sheet');
+
+            $offset = 0;
+
+            $header = [];
+            if ($isFileHeaderRow) {
+                $header = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), 0, 1, $sheet);
+                $offset = 1;
+            }
+
+            while (!empty($fileData = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), $offset, $maxPerJob, $sheet))) {
+                $part = array_merge($header, $fileData);
+
+                $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
+
+                $repository = $this->getEntityManager()->getRepository('Attachment');
+                $attachment = $repository->get();
+                $attachment->set('name', date('Y-m-d H:i:s') . '.' . $fileExt);
+                $attachment->set('role', 'Attachment');
+                $attachment->set('relatedType', 'ImportFeed');
+                $attachment->set('relatedId', $importFeed->get('id'));
+                $attachment->set('storage', 'UploadDir');
+                $attachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
+                $fileName = $repository->getFilePath($attachment);
+                $fileParser->createFile($fileName, $part, ['delimiter' => $importFeed->getDelimiter(), 'enclosure' => $importFeed->getEnclosure()]);
+                $attachment->set('md5', \md5_file($fileName));
+                $attachment->set('type', \mime_content_type($fileName));
+                $attachment->set('size', \filesize($fileName));
+                $this->getEntityManager()->saveEntity($attachment);
+
+                $data = $service->prepareJobData($importFeed, $attachment->get('id'));
+                $data['data']['importJobId'] = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $attachment->get('id'))->get('id');
+                $this->push($this->getName($importFeed), $serviceName, $data);
+
+                $offset = $offset + $maxPerJob;
+            }
         } else {
             $data = $service->prepareJobData($importFeed, $attachmentId);
             $data['data']['importJobId'] = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload)->get('id');
@@ -328,6 +367,7 @@ class ImportFeed extends Base
 
         $this->addDependency('language');
         $this->addDependency('queueManager');
+        $this->addDependency('filePathBuilder');
     }
 
     protected function duplicateConfiguratorItems(Entity $entity, Entity $duplicatingEntity): void
