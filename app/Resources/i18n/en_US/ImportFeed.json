@@ -1,5 +1,6 @@
 {
   "fields": {
+    "code": "Code",
     "excludedNodes": "Excluded Nodes",
     "keptStringNodes": "Array Nodes",
     "adapter": "Adapter",
