@@ -26,6 +26,7 @@ use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\FilePathBuilder;
 use Espo\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Import\Entities\ImportFeed as ImportFeedEntity;
@@ -51,7 +52,7 @@ class ImportFeed extends Base
             ->order('start', 'DESC')
             ->limit(1, 0)
             ->findOne();
-        if(!empty($latestJob)){
+        if (!empty($latestJob)) {
             $entity->set('lastStatus', $latestJob->get('state'));
             $entity->set('lastTime', $latestJob->get('start'));
         }
@@ -251,17 +252,75 @@ class ImportFeed extends Base
             return $service->runImport($feed, $attachmentId, $payload);
         }
 
-        $attachmentId = (!empty($attachmentId)) ? $attachmentId : $feed->get('fileId');
-        $data = $service->prepareJobData($feed, $attachmentId);
-        $data['data']['importJobId'] = $this->createImportJob($feed, $feed->getFeedField('entity'), $attachmentId, $payload)->get('id');
-
-        $this->push($this->getName($feed), $serviceName, $data);
+        $this->pushJobs($feed, !empty($attachmentId) ? $attachmentId : $feed->get('fileId'), $payload);
 
         $this
             ->getInjection('eventManager')
             ->dispatch('ImportFeedService', 'afterImportJobsCreations', new Event(['importFeedId' => $importFeedId]));
 
         return true;
+    }
+
+    public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, \stdClass $payload = null): void
+    {
+        $serviceName = $this->getImportTypeService($importFeed);
+        $service = $this->getServiceFactory()->create($serviceName);
+        $attachmentRepo = $this->getEntityManager()->getRepository('Attachment');
+
+        $maxPerJob = (int)$importFeed->get('maxPerJob');
+        $fileFormat = $importFeed->getFeedField('format');
+
+        if ($maxPerJob > 0 && in_array($fileFormat, ['CSV', 'Excel'])) {
+            $isFileHeaderRow = !empty($importFeed->getFeedField('isFileHeaderRow'));
+            $fileParser = $this->getFileParser($fileFormat);
+            $attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId);
+            $sheet = $fileFormat === 'CSV' ? null : $importFeed->get('sheet');
+
+            $offset = 0;
+
+            $header = [];
+            if ($isFileHeaderRow) {
+                $header = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), 0, 1, $sheet);
+                $offset = 1;
+            }
+
+            $partNumber = 1;
+            while (!empty($fileData = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), $offset, $maxPerJob, $sheet))) {
+                $part = array_merge($header, $fileData);
+
+                $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
+
+                $jobAttachment = $attachmentRepo->get();
+                $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ')' . '.' . $fileExt);
+                $jobAttachment->set('role', 'Attachment');
+                $jobAttachment->set('relatedType', 'ImportFeed');
+                $jobAttachment->set('relatedId', $importFeed->get('id'));
+                $jobAttachment->set('storage', 'UploadDir');
+                $jobAttachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
+
+                $fileName = $attachmentRepo->getFilePath($jobAttachment);
+                $fileParser->createFile($fileName, $part, ['delimiter' => $importFeed->getDelimiter(), 'enclosure' => $importFeed->getEnclosure()]);
+
+                $jobAttachment->set('md5', \md5_file($fileName));
+                $jobAttachment->set('type', \mime_content_type($fileName));
+                $jobAttachment->set('size', \filesize($fileName));
+                $this->getEntityManager()->saveEntity($jobAttachment);
+
+                $data = $service->prepareJobData($importFeed, $jobAttachment->get('id'));
+                $data['sheet'] = 0;
+                $data['data']['importJobId'] = $this
+                    ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $jobAttachment->get('id'))
+                    ->get('id');
+                $this->push($this->getName($importFeed) . ' (' . $partNumber . ')', $serviceName, $data);
+
+                $offset = $offset + $maxPerJob;
+                $partNumber++;
+            }
+        } else {
+            $data = $service->prepareJobData($importFeed, $attachmentId);
+            $data['data']['importJobId'] = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload)->get('id');
+            $this->push($this->getName($importFeed), $serviceName, $data);
+        }
     }
 
     public function findLinkedEntities($id, $link, $params)
@@ -315,6 +374,7 @@ class ImportFeed extends Base
 
         $this->addDependency('language');
         $this->addDependency('queueManager');
+        $this->addDependency('filePathBuilder');
     }
 
     protected function duplicateConfiguratorItems(Entity $entity, Entity $duplicatingEntity): void
@@ -447,16 +507,15 @@ class ImportFeed extends Base
         return 'ImportType' . ucfirst($feed->get('type'));
     }
 
-    public function createImportJob(ImportFeedEntity $feed, string $entityType, ?string $attachmentId, \stdClass $payload = null): ImportJob
+    public function createImportJob(ImportFeedEntity $feed, string $entityType, string $uploadedFileId, \stdClass $payload = null, string $attachmentId = null): ImportJob
     {
         $entity = $this->getEntityManager()->getEntity('ImportJob');
         $entity->set('name', date('Y-m-d H:i:s'));
         $entity->set('importFeedId', $feed->get('id'));
         $entity->set('entityName', $entityType);
+        $entity->set('uploadedFileId', $uploadedFileId);
+        $entity->set('attachmentId', empty($attachmentId) ? $uploadedFileId : $attachmentId);
         $entity->set('payload', $payload);
-        if (!empty($attachmentId)) {
-            $entity->set('attachmentId', $attachmentId);
-        }
 
         $this->getEntityManager()->saveEntity($entity);
 

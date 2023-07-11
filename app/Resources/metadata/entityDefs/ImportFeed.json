@@ -8,6 +8,11 @@
     "description": {
       "type": "text"
     },
+    "maxPerJob": {
+      "type": "int",
+      "required": false,
+      "min": 0
+    },
     "configuratorItems": {
       "type": "linkMultiple",
       "layoutDetailDisabled": true,

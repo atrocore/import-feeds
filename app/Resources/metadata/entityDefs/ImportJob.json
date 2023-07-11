@@ -99,6 +99,11 @@
       "noAsset": true,
       "readOnly": true
     },
+    "uploadedFile": {
+      "type": "file",
+      "noAsset": true,
+      "readOnly": true
+    },
     "convertedFile": {
       "type": "file",
       "noAsset": true,

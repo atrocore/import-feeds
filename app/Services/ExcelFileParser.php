@@ -25,6 +25,8 @@ namespace Import\Services;
 use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Entities\Attachment;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class ExcelFileParser extends CsvFileParser
 {
@@ -81,7 +83,16 @@ class ExcelFileParser extends CsvFileParser
             }
 
             if ($offset === null || $rowNumber >= $offset) {
-                $data[] = $dataRow;
+                $skip = true;
+                foreach ($dataRow as $v) {
+                    if ($v !== null) {
+                        $skip = false;
+                        break;
+                    }
+                }
+                if (!$skip) {
+                    $data[] = $dataRow;
+                }
             }
             $rowNumber++;
         }
@@ -89,5 +100,26 @@ class ExcelFileParser extends CsvFileParser
         return $this
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'excel']))
             ->getArgument('data');
+    }
+
+    public function createFile(string $fileName, array $data, array $conf = []): void
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $row = 1;
+        foreach ($data as $rowData) {
+            $column = 1;
+            foreach ($rowData as $cellData) {
+                $sheet->setCellValueByColumnAndRow($column, $row, $cellData);
+                $column++;
+            }
+            $row++;
+        }
+
+        $this->createDir($fileName);
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save($fileName);
     }
 }

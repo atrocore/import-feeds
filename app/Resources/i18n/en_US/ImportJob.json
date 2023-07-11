@@ -10,6 +10,7 @@
     "deletedCount": "Deleted",
     "errorsCount": "Errors",
     "attachment": "Imported File",
+    "uploadedFile": "Uploaded File",
     "convertedFile": "Converted File",
     "errorsAttachment": "Error file",
     "importJobLogs": "Error Logs"
