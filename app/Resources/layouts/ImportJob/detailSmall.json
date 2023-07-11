@@ -19,10 +19,10 @@
       ],
       [
         {
-          "name": "attachment"
+          "name": "uploadedFile"
         },
         {
-          "name": "uploadedFile"
+          "name": "attachment"
         }
       ],
       [

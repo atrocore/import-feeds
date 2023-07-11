@@ -32,7 +32,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
 
 class ImportJob extends Base
 {
-    protected $mandatorySelectAttributeList = ['message'];
+    protected $mandatorySelectAttributeList = ['message', 'uploadedFileId', 'uploadedFileName', 'attachmentId', 'attachmentName'];
 
     public function generateErrorsAttachment(string $jobId): array
     {
