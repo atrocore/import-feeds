@@ -83,7 +83,16 @@ class ExcelFileParser extends CsvFileParser
             }
 
             if ($offset === null || $rowNumber >= $offset) {
-                $data[] = $dataRow;
+                $skip = true;
+                foreach ($dataRow as $v) {
+                    if ($v !== null) {
+                        $skip = false;
+                        break;
+                    }
+                }
+                if (!$skip) {
+                    $data[] = $dataRow;
+                }
             }
             $rowNumber++;
         }

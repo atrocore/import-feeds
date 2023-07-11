@@ -95,12 +95,19 @@ class CsvFileParser extends AbstractFileParser
             }
 
             if ($offset === null || $rowNumber >= $offset) {
-                $data[] = $dataRow;
+                $skip = true;
+                foreach ($dataRow as $v) {
+                    if ($v !== null) {
+                        $skip = false;
+                        break;
+                    }
+                }
+                if (!$skip) {
+                    $data[] = $dataRow;
+                }
             }
             $rowNumber++;
         }
-
-        $foo = '1';
 
         return $this
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'csv']))

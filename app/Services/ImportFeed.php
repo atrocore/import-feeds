@@ -265,6 +265,7 @@ class ImportFeed extends Base
     {
         $serviceName = $this->getImportTypeService($importFeed);
         $service = $this->getServiceFactory()->create($serviceName);
+        $attachmentRepo = $this->getEntityManager()->getRepository('Attachment');
 
         $maxPerJob = (int)$importFeed->get('maxPerJob');
         $fileFormat = $importFeed->getFeedField('format');
@@ -283,31 +284,36 @@ class ImportFeed extends Base
                 $offset = 1;
             }
 
+            $partNumber = 1;
             while (!empty($fileData = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), $offset, $maxPerJob, $sheet))) {
                 $part = array_merge($header, $fileData);
 
                 $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
 
-                $repository = $this->getEntityManager()->getRepository('Attachment');
-                $attachment = $repository->get();
-                $attachment->set('name', date('Y-m-d H:i:s') . '.' . $fileExt);
-                $attachment->set('role', 'Attachment');
-                $attachment->set('relatedType', 'ImportFeed');
-                $attachment->set('relatedId', $importFeed->get('id'));
-                $attachment->set('storage', 'UploadDir');
-                $attachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
-                $fileName = $repository->getFilePath($attachment);
-                $fileParser->createFile($fileName, $part, ['delimiter' => $importFeed->getDelimiter(), 'enclosure' => $importFeed->getEnclosure()]);
-                $attachment->set('md5', \md5_file($fileName));
-                $attachment->set('type', \mime_content_type($fileName));
-                $attachment->set('size', \filesize($fileName));
-                $this->getEntityManager()->saveEntity($attachment);
+                $jobAttachment = $attachmentRepo->get();
+                $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ').' . $fileExt);
+                $jobAttachment->set('role', 'Attachment');
+                $jobAttachment->set('relatedType', 'ImportFeed');
+                $jobAttachment->set('relatedId', $importFeed->get('id'));
+                $jobAttachment->set('storage', 'UploadDir');
+                $jobAttachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
 
-                $data = $service->prepareJobData($importFeed, $attachment->get('id'));
-                $data['data']['importJobId'] = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $attachment->get('id'))->get('id');
+                $fileName = $attachmentRepo->getFilePath($jobAttachment);
+                $fileParser->createFile($fileName, $part, ['delimiter' => $importFeed->getDelimiter(), 'enclosure' => $importFeed->getEnclosure()]);
+
+                $jobAttachment->set('md5', \md5_file($fileName));
+                $jobAttachment->set('type', \mime_content_type($fileName));
+                $jobAttachment->set('size', \filesize($fileName));
+                $this->getEntityManager()->saveEntity($jobAttachment);
+
+                $data = $service->prepareJobData($importFeed, $jobAttachment->get('id'));
+                $data['data']['importJobId'] = $this
+                    ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $jobAttachment->get('id'))
+                    ->get('id');
                 $this->push($this->getName($importFeed), $serviceName, $data);
 
                 $offset = $offset + $maxPerJob;
+                $partNumber++;
             }
         } else {
             $data = $service->prepareJobData($importFeed, $attachmentId);
