@@ -291,7 +291,7 @@ class ImportFeed extends Base
                 $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
 
                 $jobAttachment = $attachmentRepo->get();
-                $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ').' . $fileExt);
+                $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ')' . '.' . $fileExt);
                 $jobAttachment->set('role', 'Attachment');
                 $jobAttachment->set('relatedType', 'ImportFeed');
                 $jobAttachment->set('relatedId', $importFeed->get('id'));
@@ -311,7 +311,7 @@ class ImportFeed extends Base
                 $data['data']['importJobId'] = $this
                     ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $jobAttachment->get('id'))
                     ->get('id');
-                $this->push($this->getName($importFeed), $serviceName, $data);
+                $this->push($this->getName($importFeed) . ' (' . $partNumber . ')', $serviceName, $data);
 
                 $offset = $offset + $maxPerJob;
                 $partNumber++;
