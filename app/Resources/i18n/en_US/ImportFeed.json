@@ -1,6 +1,7 @@
 {
   "fields": {
     "code": "Code",
+    "maxPerJob": "Maximum Number of Records per Job",
     "excludedNodes": "Excluded Nodes",
     "keptStringNodes": "Array Nodes",
     "adapter": "Adapter",

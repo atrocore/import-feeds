@@ -25,6 +25,9 @@ namespace Import\Services;
 use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Entities\Attachment;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class CsvFileParser extends AbstractFileParser
 {
@@ -71,7 +74,7 @@ class CsvFileParser extends AbstractFileParser
             $delimiter = "\t";
         }
 
-        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+        $reader = new Csv();
         $reader->setDelimiter($delimiter);
         $reader->setEnclosure($enclosure);
 
@@ -92,7 +95,16 @@ class CsvFileParser extends AbstractFileParser
             }
 
             if ($offset === null || $rowNumber >= $offset) {
-                $data[] = $dataRow;
+                $skip = true;
+                foreach ($dataRow as $v) {
+                    if ($v !== null) {
+                        $skip = false;
+                        break;
+                    }
+                }
+                if (!$skip) {
+                    $data[] = $dataRow;
+                }
             }
             $rowNumber++;
         }
@@ -100,6 +112,29 @@ class CsvFileParser extends AbstractFileParser
         return $this
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'csv']))
             ->getArgument('data');
+    }
+
+    public function createFile(string $fileName, array $data, array $conf = []): void
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $row = 1;
+        foreach ($data as $rowData) {
+            $column = 1;
+            foreach ($rowData as $cellData) {
+                $sheet->setCellValueByColumnAndRow($column, $row, $cellData);
+                $column++;
+            }
+            $row++;
+        }
+
+        $this->createDir($fileName);
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Csv');
+        $writer->setDelimiter($conf['delimiter'] ?? ',');
+        $writer->setEnclosure($conf['enclosure'] ?? '"');
+        $writer->save($fileName);
     }
 
     /**
@@ -139,5 +174,17 @@ class CsvFileParser extends AbstractFileParser
             ->getLocalFilePath($attachment);
 
         return (empty($path)) ? '' : (string)$path;
+    }
+
+    protected function createDir(string $fileName): void
+    {
+        $parts = explode('/', $fileName);
+        array_pop($parts);
+        $dir = implode('/', $parts);
+
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+            sleep(1);
+        }
     }
 }
