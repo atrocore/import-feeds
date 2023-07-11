@@ -307,6 +307,7 @@ class ImportFeed extends Base
                 $this->getEntityManager()->saveEntity($jobAttachment);
 
                 $data = $service->prepareJobData($importFeed, $jobAttachment->get('id'));
+                $data['sheet'] = 0;
                 $data['data']['importJobId'] = $this
                     ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $jobAttachment->get('id'))
                     ->get('id');
