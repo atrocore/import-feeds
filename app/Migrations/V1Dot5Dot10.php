@@ -24,7 +24,7 @@ namespace Import\Migrations;
 
 use Treo\Core\Migration\Base;
 
-class V1Dot5Dot1 extends Base
+class V1Dot5Dot10 extends Base
 {
     public function up(): void
     {

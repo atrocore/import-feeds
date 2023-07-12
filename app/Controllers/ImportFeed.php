@@ -89,21 +89,30 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
         }
 
         $sourceFields = [];
-        foreach ($exportFeed->configuratorItems as $exportConfiguratorItem) {
-            $sourceFields[] = $exportConfiguratorItem->column;
+        foreach ($exportFeed->configuratorItems as $configuratorItem) {
+            if ($configuratorItem->type === 'Fixed value') continue;
+            $sourceFields[] = $configuratorItem->column;
+        }
+        if (empty($sourceFields)) {
+            $sourceFields = ['ID'];
         }
 
         $attachment = new \stdClass();
-        $attachment->name = $exportFeed->name . '(From Export)';
-        $attachment->description = $exportFeed->description;
+        $attachment->name = $exportFeed->get('name') . '(From Export)';
+        $attachment->description = $exportFeed->get('description');
 //        $attachment->code = $exportFeed->code;
-        $attachment->isActive = $exportFeed->isActive;
+        $attachment->isActive = $exportFeed->get('isActive');
         $attachment->type = 'simple';
         $attachment->fileDataAction = 'update';
+        $format = $exportFeed->get('fileType') === 'xlsx' ? 'Excel' : strtoupper($exportFeed->get('fileType'));
+        $attachment->format = $format;
         $attachment->sourceFields = $sourceFields;
+        $attachment->entity = $exportFeed->getFeedField('entity');
         $importFeed = $this->getRecordService()->createEntity($attachment);
 
         foreach ($exportFeed->configuratorItems as $configuratorItem) {
+            if ($configuratorItem->type === 'Fixed value') continue;
+
             $attachment = new \stdClass();
             $attachment->importFeedId = $importFeed->id;
             $attachment->name = $configuratorItem->name;
@@ -115,6 +124,9 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
             $attachment->channelId = $configuratorItem->channelId;
             $attachment->sortOrder = $configuratorItem->sortOrder;
             $attachment->importBy = $configuratorItem->exportBy;
+            if (!empty($configuratorItem->attributeValue)) {
+                $attachment->attributeValue = $configuratorItem->attributeValue;
+            }
 
             if ($configuratorItem->name === 'id') {
                 $attachment->entityIdentifier = true;
@@ -124,6 +136,31 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
         }
 
         return ["id" => $importFeed->id];
+    }
+
+    public function actionEasyCatalogVerifyCode($params, $data, $request)
+    {
+        if (!$request->isGet() || empty($request->get("code"))) {
+            throw new BadRequest();
+        }
+        $importFeed = $this->getEntityManager()->getRepository('ImportFeed')->where(['code' => $request->get("code")])->findOne();
+        if (empty($importFeed)) {
+            return 'Import Feed code is invalid';
+        }
+
+        $hasIdColumn = false;
+        foreach ($importFeed->configuratorItems as $configuratorItem) {
+            if ($configuratorItem->get('name') == 'id' && !empty($configuratorItem->get('column')) && $configuratorItem->get('column')[0] == "ID") {
+                $hasIdColumn = true;
+                break;
+            }
+        }
+
+        if (!$hasIdColumn) {
+            return 'This import feed do not have ID column';
+        }
+
+        return 'Import feed is correctly configured';
     }
 
     public function actionEasyCatalog($params, $data, $request)
