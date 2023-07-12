@@ -160,7 +160,7 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
         }
 
         if (!$hasIdColumn) {
-            return 'This import feed do not have ID column';
+            return 'This import feed has no ID column';
         }
 
         return 'Import feed is correctly configured';
