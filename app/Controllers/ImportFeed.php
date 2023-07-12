@@ -26,7 +26,6 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\FilePathBuilder;
-use Espo\Core\Utils\Log;
 
 class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 {
@@ -74,6 +73,10 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 
     public function actionCreateFromExport($params, $data, $request)
     {
+        if (!$this->getMetadata()->isModuleInstalled('Export')) {
+            throw new Forbidden();
+        }
+
         if (!$request->isPost() || !property_exists($data, 'exportFeedId')) {
             throw new BadRequest();
         }
@@ -100,7 +103,7 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
         $attachment = new \stdClass();
         $attachment->name = $exportFeed->get('name') . '(From Export)';
         $attachment->description = $exportFeed->get('description');
-//        $attachment->code = $exportFeed->code;
+        $attachment->code = $exportFeed->code;
         $attachment->isActive = $exportFeed->get('isActive');
         $attachment->type = 'simple';
         $attachment->fileDataAction = 'update';
