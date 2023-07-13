@@ -85,58 +85,7 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
             throw new Forbidden();
         }
 
-        $exportFeed = $this->getEntityManager()->getEntity('ExportFeed', $data->exportFeedId);
-
-        if (empty($exportFeed)) {
-            throw new NotFound();
-        }
-
-        $sourceFields = [];
-        foreach ($exportFeed->configuratorItems as $configuratorItem) {
-            if ($configuratorItem->type === 'Fixed value') continue;
-            $sourceFields[] = $configuratorItem->column;
-        }
-        if (empty($sourceFields)) {
-            $sourceFields = ['ID'];
-        }
-
-        $attachment = new \stdClass();
-        $attachment->name = $exportFeed->get('name') . '(From Export)';
-        $attachment->description = $exportFeed->get('description');
-        $attachment->code = $exportFeed->code;
-        $attachment->isActive = $exportFeed->get('isActive');
-        $attachment->type = 'simple';
-        $attachment->fileDataAction = 'update';
-        $format = $exportFeed->get('fileType') === 'xlsx' ? 'Excel' : strtoupper($exportFeed->get('fileType'));
-        $attachment->format = $format;
-        $attachment->sourceFields = $sourceFields;
-        $attachment->entity = $exportFeed->getFeedField('entity');
-        $importFeed = $this->getRecordService()->createEntity($attachment);
-
-        foreach ($exportFeed->configuratorItems as $configuratorItem) {
-            if ($configuratorItem->type === 'Fixed value') continue;
-
-            $attachment = new \stdClass();
-            $attachment->importFeedId = $importFeed->id;
-            $attachment->name = $configuratorItem->name;
-            $attachment->column = [$configuratorItem->column];
-            $attachment->type = $configuratorItem->type;
-            $attachment->scope = $configuratorItem->scope;
-            $attachment->locale = $configuratorItem->locale;
-            $attachment->attributeId = $configuratorItem->attributeId;
-            $attachment->channelId = $configuratorItem->channelId;
-            $attachment->sortOrder = $configuratorItem->sortOrder;
-            $attachment->importBy = $configuratorItem->exportBy;
-            if (!empty($configuratorItem->attributeValue)) {
-                $attachment->attributeValue = $configuratorItem->attributeValue;
-            }
-
-            if ($configuratorItem->name === 'id') {
-                $attachment->entityIdentifier = true;
-            }
-
-            $this->getRecordService("ImportConfiguratorItem")->createEntity($attachment);
-        }
+        $importFeed = $this->getRecordService()->createFromExportFeed($data->exportFeedId);
 
         return ["id" => $importFeed->id];
     }
@@ -146,24 +95,7 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
         if (!$request->isGet() || empty($request->get("code"))) {
             throw new BadRequest();
         }
-        $importFeed = $this->getEntityManager()->getRepository('ImportFeed')->where(['code' => $request->get("code")])->findOne();
-        if (empty($importFeed)) {
-            return 'Import Feed code is invalid';
-        }
-
-        $hasIdColumn = false;
-        foreach ($importFeed->configuratorItems as $configuratorItem) {
-            if ($configuratorItem->get('name') == 'id' && !empty($configuratorItem->get('column')) && $configuratorItem->get('column')[0] == "ID") {
-                $hasIdColumn = true;
-                break;
-            }
-        }
-
-        if (!$hasIdColumn) {
-            return 'This import feed has no ID column';
-        }
-
-        return 'Import feed is correctly configured';
+        return $this->getRecordService()->verifyCodeEasyCatalog($request->get('code'));
     }
 
     public function actionEasyCatalog($params, $data, $request)
@@ -172,44 +104,9 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
             throw new BadRequest();
         }
 
-        $importFeed = $this->getEntityManager()->getRepository('ImportFeed')->where(['code' => $data->code])->findOne();
-        if (empty($importFeed)) {
-            throw new NotFound();
-        }
-
-        $repository = $this->getEntityManager()->getRepository('Attachment');
-        $attachment = $repository->get();
-        $attachment->set('name', 'easy-catalog.json');
-        $attachment->set('role', 'Import');
-        $attachment->set('storage', 'UploadDir');
-        $attachment->set('type', 'application/json');
-        $attachment->set('storageFilePath', $this->createPath());
-        $fileName = $repository->getFilePath($attachment);
-
-        $this->createDir($fileName);
-        file_put_contents($fileName, json_encode($data->json));
-        $attachment->set('size', \filesize($fileName));
-
-        $this->getEntityManager()->saveEntity($attachment);
-
-        $this->getRecordService()->runImport($importFeed->id, $attachment->id);
+        $this->getRecordService()->importFromEasyCatalog($data);
         return true;
     }
 
-    protected function createDir(string $fileName): void
-    {
-        $parts = explode('/', $fileName);
-        array_pop($parts);
-        $dir = implode('/', $parts);
 
-        if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
-            sleep(1);
-        }
-    }
-
-    protected function createPath(): string
-    {
-        return $this->getContainer()->get('filePathBuilder')->createPath(FilePathBuilder::UPLOAD);
-    }
 }
