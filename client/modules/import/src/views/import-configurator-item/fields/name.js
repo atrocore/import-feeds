@@ -113,7 +113,6 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
             let result = {};
             let notAvailableTypes = [
                 'address',
-                'available-currency',
                 'attachmentMultiple',
                 'currencyConverted',
                 'file',
