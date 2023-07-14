@@ -86,6 +86,7 @@ class Metadata extends AbstractListener
         $data['entityDefs']['ImportFeed']['fields']['lastStatus'] = [
             'type' => 'enum',
             'notStorable' => true,
+            'filterDisabled' => true,
             'readOnly' => true,
             'optionsIds' => $data['entityDefs']['ImportJob']['fields']['state']['optionsIds'],
             'options' => $data['entityDefs']['ImportJob']['fields']['state']['options'],

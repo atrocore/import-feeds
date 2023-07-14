@@ -211,6 +211,7 @@
       "notStorable": true,
       "dataField": true,
       "prohibitedEmptyValue": false,
+      "filterDisabled": true,
       "view": "import:views/import-feed/fields/adapter"
     },
     "createdAt": {
@@ -336,7 +337,8 @@
     "lastTime": {
       "type": "datetime",
       "readOnly": true,
-      "notStorable": true
+      "notStorable": true,
+      "filterDisabled": true
     }
   },
   "links": {
