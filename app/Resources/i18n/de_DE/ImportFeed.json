@@ -1,5 +1,6 @@
 {
   "fields": {
+    "code": "Code",
     "maxPerJob": "Maximale Anzahl von Datensätzen pro Job",
     "excludedNodes": "Ausgeschlossene Knoten",
     "keptStringNodes": "Array-Knoten",

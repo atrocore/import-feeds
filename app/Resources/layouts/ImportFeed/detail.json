@@ -23,7 +23,9 @@
         {
           "name": "description"
         },
-        false
+        {
+          "name": "code"
+        }
       ],
       [
         {

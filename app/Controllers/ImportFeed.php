@@ -24,6 +24,8 @@ namespace Import\Controllers;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\Exceptions\NotFound;
+use Espo\Core\FilePathBuilder;
 
 class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 {
@@ -68,4 +70,43 @@ class ImportFeed extends \Espo\Core\Templates\Controllers\Base
 
         return $this->getRecordService()->runImport((string)$data->importFeedId, $attachmentId);
     }
+
+    public function actionCreateFromExport($params, $data, $request)
+    {
+        if (!$this->getMetadata()->isModuleInstalled('Export')) {
+            throw new Forbidden();
+        }
+
+        if (!$request->isPost() || !property_exists($data, 'exportFeedId')) {
+            throw new BadRequest();
+        }
+
+        if (!$this->getAcl()->check($this->name, 'create')) {
+            throw new Forbidden();
+        }
+
+        $importFeed = $this->getRecordService()->createFromExportFeed($data->exportFeedId);
+
+        return ["id" => $importFeed->id];
+    }
+
+    public function actionEasyCatalogVerifyCode($params, $data, $request)
+    {
+        if (!$request->isGet() || empty($request->get("code"))) {
+            throw new BadRequest();
+        }
+        return $this->getRecordService()->verifyCodeEasyCatalog($request->get('code'));
+    }
+
+    public function actionEasyCatalog($params, $data, $request)
+    {
+        if (!$request->isPost() || !property_exists($data, 'code') || !property_exists($data, 'json')) {
+            throw new BadRequest();
+        }
+
+        $this->getRecordService()->importFromEasyCatalog($data);
+        return true;
+    }
+
+
 }
