@@ -553,7 +553,9 @@ class ImportFeed extends Base
 
         $sourceFields = [];
         foreach ($exportFeed->configuratorItems as $configuratorItem) {
-            if ($configuratorItem->type === 'Fixed value') continue;
+            if ($configuratorItem->type === 'Fixed value') {
+                continue;
+            }
             $sourceFields[] = $configuratorItem->column;
         }
         if (empty($sourceFields)) {
@@ -574,7 +576,9 @@ class ImportFeed extends Base
         $importFeed = $this->createEntity($attachment);
 
         foreach ($exportFeed->configuratorItems as $configuratorItem) {
-            if ($configuratorItem->type === 'Fixed value') continue;
+            if ($configuratorItem->type === 'Fixed value') {
+                continue;
+            }
 
             $attachment = new \stdClass();
             $attachment->importFeedId = $importFeed->id;
@@ -634,9 +638,11 @@ class ImportFeed extends Base
         $repository = $this->getEntityManager()->getRepository('Attachment');
         $attachment = $repository->get();
         $attachment->set('name', 'easy-catalog.json');
-        $attachment->set('role', 'Import');
-        $attachment->set('storage', 'UploadDir');
         $attachment->set('type', 'application/json');
+        $attachment->set('role', 'Import');
+        $attachment->set('relatedType', 'ImportFeed');
+        $attachment->set('relatedId', $importFeed->get('id'));
+        $attachment->set('storage', 'UploadDir');
         $attachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
         $fileName = $repository->getFilePath($attachment);
 
