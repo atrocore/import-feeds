@@ -25,12 +25,12 @@ namespace Import\Services;
 use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Entities\Attachment;
-use PhpOffice\PhpSpreadsheet\Reader\Csv;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class CsvFileParser extends AbstractFileParser
 {
+    const UTF8_BOM = "\xEF\xBB\xBF";
+    const UTF8_BOM_LEN = 3;
+
     public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null): array
     {
         // prepare result
@@ -75,6 +75,8 @@ class CsvFileParser extends AbstractFileParser
         $data = [];
 
         $file = fopen($path, 'r');
+
+        $this->skipBOM($file);
 
         $row = 0;
         while (($rowData = fgetcsv($file, 0, $delimiter, $enclosure)) !== false && (is_null($limit) || count($data) < $limit)) {
@@ -184,6 +186,18 @@ class CsvFileParser extends AbstractFileParser
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
             sleep(1);
+        }
+    }
+
+    /**
+     * Move file pointer past any BOM marker.
+     */
+    protected function skipBOM($fileHandle): void
+    {
+        rewind($fileHandle);
+
+        if (fgets($fileHandle, self::UTF8_BOM_LEN + 1) !== self::UTF8_BOM) {
+            rewind($fileHandle);
         }
     }
 }
