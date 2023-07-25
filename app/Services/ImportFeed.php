@@ -274,7 +274,18 @@ class ImportFeed extends Base
             $isFileHeaderRow = !empty($importFeed->getFeedField('isFileHeaderRow'));
             $fileParser = $this->getFileParser($fileFormat);
             $attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId);
-            $sheet = $fileFormat === 'CSV' ? null : $importFeed->get('sheet');
+
+            switch ($fileFormat) {
+                case 'CSV':
+                    $fileParser->convertAttachmentToUTF8($attachment);
+                    $fileExt = 'csv';
+                    $sheet = null;
+                    break;
+                case 'Excel':
+                    $fileExt = 'xlsx';
+                    $sheet = $importFeed->get('sheet');
+                    break;
+            }
 
             $offset = 0;
 
@@ -287,8 +298,6 @@ class ImportFeed extends Base
             $partNumber = 1;
             while (!empty($fileData = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), $offset, $maxPerJob, $sheet))) {
                 $part = array_merge($header, $fileData);
-
-                $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
 
                 $jobAttachment = $attachmentRepo->get();
                 $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ')' . '.' . $fileExt);
