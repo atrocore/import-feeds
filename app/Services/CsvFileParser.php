@@ -31,8 +31,6 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class CsvFileParser extends AbstractFileParser
 {
-    protected array $fileHandles = [];
-
     public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null): array
     {
         // prepare result
@@ -74,40 +72,18 @@ class CsvFileParser extends AbstractFileParser
             $delimiter = "\t";
         }
 
-        $reader = new Csv();
-        $reader->setDelimiter($delimiter);
-        $reader->setEnclosure($enclosure);
-
-        $rowNumber = 0;
-
         $data = [];
-        $worksheet = $reader->load($path)->getActiveSheet();
-        foreach ($worksheet->getRowIterator() as $row) {
-            $dataRow = [];
-            $cellIterator = $row->getCellIterator();
-            $cellIterator->setIterateOnlyExistingCells(false);
-            foreach ($cellIterator as $cell) {
-                $dataRow[] = $cell->getValue();
-            }
 
-            if ($limit !== null && count($data) >= $limit) {
-                break;
-            }
+        $file = fopen($path, 'r');
 
-            if ($offset === null || $rowNumber >= $offset) {
-                $skip = true;
-                foreach ($dataRow as $v) {
-                    if ($v !== null) {
-                        $skip = false;
-                        break;
-                    }
-                }
-                if (!$skip) {
-                    $data[] = $dataRow;
-                }
+        $row = 0;
+        while (($rowData = fgetcsv($file, 0, $delimiter, $enclosure)) !== false && (is_null($limit) || count($data) < $limit)) {
+            if ($row >= $offset) {
+                $data[] = $rowData;
             }
-            $rowNumber++;
+            $row++;
         }
+        fclose($file);
 
         return $this
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'csv']))
@@ -116,25 +92,48 @@ class CsvFileParser extends AbstractFileParser
 
     public function createFile(string $fileName, array $data, array $conf = []): void
     {
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        $row = 1;
-        foreach ($data as $rowData) {
-            $column = 1;
-            foreach ($rowData as $cellData) {
-                $sheet->setCellValueByColumnAndRow($column, $row, $cellData);
-                $column++;
-            }
-            $row++;
-        }
-
         $this->createDir($fileName);
 
-        $writer = IOFactory::createWriter($spreadsheet, 'Csv');
-        $writer->setDelimiter($conf['delimiter'] ?? ',');
-        $writer->setEnclosure($conf['enclosure'] ?? '"');
-        $writer->save($fileName);
+        $fp = fopen($fileName, 'w');
+        foreach ($data as $fields) {
+            fputcsv($fp, $fields, $conf['delimiter'] ?? ',', $conf['enclosure'] ?? '"');
+        }
+        fclose($fp);
+
+        // convert to utf-8
+        $this->convertToUTF8($fileName);
+    }
+
+    public function convertAttachmentToUTF8(Attachment $attachment): void
+    {
+        $this->convertToUTF8($this->getLocalFilePath($attachment));
+    }
+
+    public function convertToUTF8(string $filename): void
+    {
+        $file = fopen($filename, 'r');
+
+        $tempFilename = tempnam(sys_get_temp_dir(), 'utf8tmp');
+        $tempFile = fopen($tempFilename, 'w');
+
+        while (($line = fgets($file)) !== false) {
+            $originalEncoding = mb_detect_encoding($line, mb_detect_order(), true);
+
+            if ($originalEncoding === false || $originalEncoding === 'UTF-8') {
+                fclose($file);
+                fclose($tempFile);
+                return;
+            }
+
+            $utf8Line = mb_convert_encoding($line, 'UTF-8', $originalEncoding);
+
+            fwrite($tempFile, $utf8Line);
+        }
+
+        fclose($file);
+        fclose($tempFile);
+
+        rename($tempFilename, $filename);
     }
 
     /**
