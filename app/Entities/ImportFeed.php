@@ -65,6 +65,28 @@ class ImportFeed extends Base
         return [];
     }
 
+    public function getFileParserClass(): string
+    {
+        switch ($this->getFeedField('format')) {
+            case 'CSV':
+                $className = \Import\FileParser\Csv::class;
+                break;
+            case 'Excel':
+                $className = \Import\FileParser\Excel::class;
+                break;
+            case 'JSON':
+                $className = \Import\FileParser\Json::class;
+                break;
+            case 'XML':
+                $className = \Import\FileParser\Xml::class;
+                break;
+            default:
+                throw new \Error('Unknown file format');
+        }
+
+        return $className;
+    }
+
     public function getDelimiter(): string
     {
         if (empty($this->getFeedField('fileFieldDelimiter'))) {
