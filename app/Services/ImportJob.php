@@ -97,7 +97,7 @@ class ImportJob extends Base
         }
 
         /** @var \Import\FileParsers\FileParserInterface $fileParser */
-        $fileParser = $this->getInjection('container')->get($this->getEntityManager()->getRepository('ImportFeed')->getFileParserClass($format));
+        $fileParser = $this->getInjection('container')->get(\Import\Services\ImportFeed::getFileParserClass($format));
         $fileParser->setData([
             'delimiter' => $delimiter,
             'enclosure' => $enclosure

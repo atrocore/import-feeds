@@ -65,11 +65,6 @@ class ImportFeed extends Base
         return [];
     }
 
-    public function getFileParserClass(): string
-    {
-        return $this->getEntityManager()->getRepository('ImportFeed')->getFileParserClass($this->getFeedField('format'));
-    }
-
     public function getDelimiter(): string
     {
         if (empty($this->getFeedField('fileFieldDelimiter'))) {
