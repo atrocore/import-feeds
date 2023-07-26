@@ -57,7 +57,7 @@ class Csv extends Injectable implements ParserInterface
 
         // get data
         if ($data === null) {
-            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
+            $data = $this->getFileData($attachment, 0, 2);
         }
 
         if (isset($data[0])) {
