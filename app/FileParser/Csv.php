@@ -27,7 +27,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Injectable;
 use Espo\Entities\Attachment;
 
-class Csv extends Injectable implements ParserInterface
+class Csv extends Injectable implements FileParserInterface
 {
     const UTF8_BOM = "\xEF\xBB\xBF";
     const UTF8_BOM_LEN = 3;

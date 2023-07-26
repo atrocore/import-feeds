@@ -24,7 +24,7 @@ namespace Import\FileParser;
 
 use Espo\Entities\Attachment;
 
-interface ParserInterface
+interface FileParserInterface
 {
     public function setData(array $data): void;
 

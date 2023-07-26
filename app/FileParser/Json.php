@@ -26,7 +26,7 @@ use Espo\Core\EventManager\Event;
 use Espo\Core\Injectable;
 use Espo\Entities\Attachment;
 
-class Json extends Injectable implements ParserInterface
+class Json extends Injectable implements FileParserInterface
 {
     protected array $data = [];
     protected array $excludedNodes = [];
