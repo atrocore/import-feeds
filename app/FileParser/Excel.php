@@ -133,4 +133,8 @@ class Excel extends Csv implements ParserInterface
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save($fileName);
     }
+
+    public function convertToUTF8(string $filename): void
+    {
+    }
 }
