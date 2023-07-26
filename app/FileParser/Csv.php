@@ -32,7 +32,7 @@ class Csv extends Injectable implements ParserInterface
     const UTF8_BOM = "\xEF\xBB\xBF";
     const UTF8_BOM_LEN = 3;
 
-    protected array $payload = [];
+    protected array $data = [];
 
     public function __construct()
     {
@@ -40,15 +40,15 @@ class Csv extends Injectable implements ParserInterface
         $this->addDependency('eventManager');
     }
 
-    public function setPayload(array $payload): void
+    public function setData(array $data): void
     {
-        $this->payload = $payload;
+        $this->data = $data;
     }
 
     public function getFileColumns(Attachment $attachment): array
     {
-        $isFileHeaderRow = $this->payload['isFileHeaderRow'] ?? true;
-        $data = $this->payload['fileData'] ?? null;
+        $isFileHeaderRow = $this->data['isFileHeaderRow'] ?? true;
+        $data = $this->data['fileData'] ?? null;
 
         // prepare result
         $result = [];
@@ -79,8 +79,8 @@ class Csv extends Injectable implements ParserInterface
 
     public function getFileData(Attachment $attachment, int $offset = 0, ?int $limit = null): array
     {
-        $delimiter = $this->payload['delimiter'] ?? ';';
-        $enclosure = $this->payload['enclosure'] ?? '"';
+        $delimiter = $this->data['delimiter'] ?? ';';
+        $enclosure = $this->data['enclosure'] ?? '"';
 
         $path = $this->getLocalFilePath($attachment);
 
@@ -112,13 +112,16 @@ class Csv extends Injectable implements ParserInterface
             ->getArgument('data');
     }
 
-    public function createFile(string $fileName, array $data, array $conf = []): void
+    public function createFile(string $fileName, array $data): void
     {
+        $delimiter = $this->data['delimiter'] ?? ';';
+        $enclosure = $this->data['enclosure'] ?? '"';
+
         $this->createDir($fileName);
 
         $fp = fopen($fileName, 'w');
         foreach ($data as $fields) {
-            fputcsv($fp, $fields, $conf['delimiter'] ?? ',', $conf['enclosure'] ?? '"');
+            fputcsv($fp, $fields, $delimiter, $enclosure);
         }
         fclose($fp);
 

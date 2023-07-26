@@ -26,7 +26,7 @@ use Espo\Entities\Attachment;
 
 interface ParserInterface
 {
-    public function setPayload(array $payload): void;
+    public function setData(array $data): void;
 
     public function getFileColumns(Attachment $attachment): array;
 
