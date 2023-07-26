@@ -20,17 +20,31 @@
 
 declare(strict_types=1);
 
-namespace Import\FileParser;
+namespace Import\FileParsers;
 
+use Espo\Core\EventManager\Event;
 use Espo\Entities\Attachment;
 
-interface FileParserInterface
+class Xml extends Json
 {
-    public function setData(array $data): void;
+    public function getFileData(Attachment $attachment, int $offset = 0, ?int $limit = null): array
+    {
+        $contents = file_get_contents($attachment->getFilePath());
 
-    public function getFileColumns(Attachment $attachment): array;
+        if (empty($contents)) {
+            return [];
+        }
 
-    public function getFileData(Attachment $attachment, int $offset = 0, ?int $limit = null): array;
+        $json = json_encode(simplexml_load_string($contents));
 
-    public function createFile(string $fileName, array $data): void;
+        $data = \Import\Core\Utils\JsonToVerticalArray::mutate($json, $this->data);
+
+        return $this->getInjection('eventManager')
+            ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'xml']))
+            ->getArgument('data');
+    }
+
+    public function createFile(string $fileName, array $data): void
+    {
+    }
 }

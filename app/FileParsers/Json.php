@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace Import\FileParser;
+namespace Import\FileParsers;
 
 use Espo\Core\EventManager\Event;
 use Espo\Core\Injectable;

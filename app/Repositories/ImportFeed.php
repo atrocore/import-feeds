@@ -40,16 +40,16 @@ class ImportFeed extends Base
     {
         switch ($format) {
             case 'CSV':
-                $className = \Import\FileParser\Csv::class;
+                $className = \Import\FileParsers\Csv::class;
                 break;
             case 'Excel':
-                $className = \Import\FileParser\Excel::class;
+                $className = \Import\FileParsers\Excel::class;
                 break;
             case 'JSON':
-                $className = \Import\FileParser\Json::class;
+                $className = \Import\FileParsers\Json::class;
                 break;
             case 'XML':
-                $className = \Import\FileParser\Xml::class;
+                $className = \Import\FileParsers\Xml::class;
                 break;
             default:
                 throw new \Error('Unknown file format');

@@ -458,7 +458,7 @@ class ImportFeed extends Base
         return $feed;
     }
 
-    public function getFileParser(string $format): \Import\FileParser\FileParserInterface
+    public function getFileParser(string $format): \Import\FileParsers\FileParserInterface
     {
         return $this->getInjection('container')->get($this->getRepository()->getFileParserClass($format));
     }

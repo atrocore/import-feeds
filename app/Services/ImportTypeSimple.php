@@ -631,7 +631,7 @@ class ImportTypeSimple extends QueueManagerBase
         return $this->getContainer()->get('eventManager');
     }
 
-    protected function getFileParser(string $format): \Import\FileParser\FileParserInterface
+    protected function getFileParser(string $format): \Import\FileParsers\FileParserInterface
     {
         return $this->getContainer()->get($this->getEntityManager()->getRepository('ImportFeed')->getFileParserClass($format));
     }
