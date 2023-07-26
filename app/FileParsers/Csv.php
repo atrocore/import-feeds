@@ -192,7 +192,6 @@ class Csv extends Injectable implements FileParserInterface
         return (empty($path)) ? '' : (string)$path;
     }
 
-
     /**
      * Move file pointer past any BOM marker.
      */
