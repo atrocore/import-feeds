@@ -130,24 +130,16 @@ class ImportFeed extends Base
         }
 
         $parser = $this->getFileParser($payload->format);
+        $parser->setData([
+            'delimiter'       => (property_exists($payload, 'delimiter') && !empty($payload->delimiter)) ? $payload->delimiter : ';',
+            'enclosure'       => (property_exists($payload, 'enclosure') && $payload->enclosure == 'singleQuote') ? "'" : '"',
+            'isFileHeaderRow' => (property_exists($payload, 'isHeaderRow') && is_null($payload->isHeaderRow)) ? true : !empty($payload->isHeaderRow),
+            'sheet'           => property_exists($payload, 'sheet') ? (int)$payload->sheet : 0,
+            'excludedNodes'   => (property_exists($payload, 'excludedNodes') && !empty($payload->excludedNodes)) ? $payload->excludedNodes : [],
+            'keptStringNodes' => (property_exists($payload, 'keptStringNodes') && !empty($payload->keptStringNodes)) ? $payload->keptStringNodes : [],
+        ]);
 
-        if ($parser instanceof CsvFileParser) {
-            $delimiter = (property_exists($payload, 'delimiter') && !empty($payload->delimiter)) ? $payload->delimiter : ';';
-            $enclosure = (property_exists($payload, 'enclosure') && $payload->enclosure == 'singleQuote') ? "'" : '"';
-            $isFileHeaderRow = (property_exists($payload, 'isHeaderRow') && is_null($payload->isHeaderRow)) ? true : !empty($payload->isHeaderRow);
-            $sheet = intval($payload->sheet);
-
-            return $parser->getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow, null, $sheet);
-        }
-
-        if ($parser instanceof JsonFileParser) {
-            $excludedNodes = (property_exists($payload, 'excludedNodes') && !empty($payload->excludedNodes)) ? $payload->excludedNodes : [];
-            $keptStringNodes = (property_exists($payload, 'keptStringNodes') && !empty($payload->keptStringNodes)) ? $payload->keptStringNodes : [];
-
-            return $parser->getFileColumns($attachment, $excludedNodes, $keptStringNodes);
-        }
-
-        return [];
+        return $parser->getFileColumns($attachment);
     }
 
     public function validateXMLFile(string $attachmentId): void
@@ -272,33 +264,29 @@ class ImportFeed extends Base
 
         if ($maxPerJob > 0 && in_array($fileFormat, ['CSV', 'Excel'])) {
             $isFileHeaderRow = !empty($importFeed->getFeedField('isFileHeaderRow'));
-            $fileParser = $this->getFileParser($fileFormat);
             $attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId);
+            $fileParser = $this->getFileParser($fileFormat);
+            $fileParser->setData([
+                'isFileHeaderRow' => $isFileHeaderRow,
+                'delimiter'       => $importFeed->getDelimiter(),
+                'enclosure'       => $importFeed->getEnclosure(),
+                'sheet'           => $importFeed->get('sheet') ?? 0,
+            ]);
 
-            switch ($fileFormat) {
-                case 'CSV':
-                    $fileParser->convertAttachmentToUTF8($attachment);
-                    $fileExt = 'csv';
-                    $sheet = null;
-                    break;
-                case 'Excel':
-                    $fileExt = 'xlsx';
-                    $sheet = $importFeed->get('sheet');
-                    break;
-            }
+            $fileParser->convertAttachmentToUTF8($attachment);
 
             $offset = 0;
 
             $header = [];
             if ($isFileHeaderRow) {
-                $header = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), 0, 1, $sheet);
+                $header = $fileParser->getFileData($attachment, 0, 1);
                 $offset = 1;
             }
 
             $partNumber = 1;
-            while (!empty($fileData = $fileParser->getFileData($attachment, $importFeed->getDelimiter(), $importFeed->getEnclosure(), $offset, $maxPerJob, $sheet))) {
+            while (!empty($fileData = $fileParser->getFileData($attachment, $offset, $maxPerJob))) {
                 $part = array_merge($header, $fileData);
-
+                $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
                 $jobAttachment = $attachmentRepo->get();
                 $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ')' . '.' . $fileExt);
                 $jobAttachment->set('role', 'Attachment');
@@ -308,7 +296,7 @@ class ImportFeed extends Base
                 $jobAttachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
 
                 $fileName = $attachmentRepo->getFilePath($jobAttachment);
-                $fileParser->createFile($fileName, $part, ['delimiter' => $importFeed->getDelimiter(), 'enclosure' => $importFeed->getEnclosure()]);
+                $fileParser->createFile($fileName, $part);
 
                 $jobAttachment->set('md5', \md5_file($fileName));
                 $jobAttachment->set('type', \mime_content_type($fileName));
@@ -384,6 +372,7 @@ class ImportFeed extends Base
         $this->addDependency('language');
         $this->addDependency('queueManager');
         $this->addDependency('filePathBuilder');
+        $this->addDependency('container');
     }
 
     protected function duplicateConfiguratorItems(Entity $entity, Entity $duplicatingEntity): void
@@ -469,31 +458,9 @@ class ImportFeed extends Base
         return $feed;
     }
 
-    /**
-     * @param string $format
-     *
-     * @return CsvFileParser|ExcelFileParser
-     * @throws BadRequest
-     */
-    public function getFileParser(string $format)
+    public function getFileParser(string $format): \Import\FileParser\FileParserInterface
     {
-        if ($format === 'CSV') {
-            return $this->getInjection('serviceFactory')->create('CsvFileParser');
-        }
-
-        if ($format === 'Excel') {
-            return $this->getInjection('serviceFactory')->create('ExcelFileParser');
-        }
-
-        if ($format === 'JSON') {
-            return $this->getInjection('serviceFactory')->create('JsonFileParser');
-        }
-
-        if ($format === 'XML') {
-            return $this->getInjection('serviceFactory')->create('XmlFileParser');
-        }
-
-        throw new BadRequest("No such file parser type '$format'.");
+        return $this->getInjection('container')->get($this->getRepository()->getFileParserClass($format));
     }
 
     /**
