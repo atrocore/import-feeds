@@ -28,15 +28,8 @@ use Espo\Entities\Attachment;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
-class Excel extends Csv implements ParserInterface
+class Excel extends Csv
 {
-    protected array $data = [];
-
-    public function setData(array $data): void
-    {
-        $this->data = $data;
-    }
-
     public function getFileColumns(Attachment $attachment): array
     {
         $data = $this->data['fileData'] ?? null;
