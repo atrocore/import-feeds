@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace Import\Services;
+namespace Import\FileParsers;
 
 use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
@@ -28,15 +28,24 @@ use Espo\Entities\Attachment;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
-class ExcelFileParser extends CsvFileParser
+class Excel extends Csv implements ParserInterface
 {
-    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null, int $sheet = 0
-    ): array {
+    protected array $data = [];
+
+    public function setData(array $data): void
+    {
+        $this->data = $data;
+    }
+
+    public function getFileColumns(Attachment $attachment): array
+    {
+        $data = $this->data['fileData'] ?? null;
+
         if ($data === null) {
-            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2, $sheet);
+            $data = $this->getFileData($attachment, 0, 2);
         }
 
-        return parent::getFileColumns($attachment, $delimiter, $enclosure, $isFileHeaderRow, $data);
+        return parent::getFileColumns($attachment);
     }
 
     public function getFileSheetsNames(Attachment $attachment)
@@ -54,8 +63,10 @@ class ExcelFileParser extends CsvFileParser
         return $data;
     }
 
-    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', ?int $offset = 0, int $limit = null, int $sheet = 0): array
+    public function getFileData(Attachment $attachment, int $offset = 0, ?int $limit = null): array
     {
+        $sheet = $this->data['sheet'] ?? 0;
+
         $path = $this->getLocalFilePath($attachment);
 
         if (!file_exists($path)) {
@@ -97,12 +108,12 @@ class ExcelFileParser extends CsvFileParser
             $rowNumber++;
         }
 
-        return $this
+        return $this->getInjection('eventManager')
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'excel']))
             ->getArgument('data');
     }
 
-    public function createFile(string $fileName, array $data, array $conf = []): void
+    public function createFile(string $fileName, array $data): void
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -121,5 +132,9 @@ class ExcelFileParser extends CsvFileParser
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save($fileName);
+    }
+
+    public function convertToUTF8(string $filename): void
+    {
     }
 }

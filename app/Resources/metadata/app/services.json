@@ -1,8 +1,4 @@
 {
-  "CsvFileParser": "\\Import\\Services\\CsvFileParser",
-  "ExcelFileParser": "\\Import\\Services\\ExcelFileParser",
-  "JsonFileParser": "\\Import\\Services\\JsonFileParser",
-  "XmlFileParser": "\\Import\\Services\\XmlFileParser",
   "BackgroundFileParser": "\\Import\\Services\\BackgroundFileParser",
   "ImportTypeSimple": "\\Import\\Services\\ImportTypeSimple",
   "DataSyncErrorsImportDashlet": "\\Import\\Services\\DataSyncErrorsImportDashlet"

@@ -20,25 +20,42 @@
 
 declare(strict_types=1);
 
-namespace Import\Services;
+namespace Import\FileParsers;
 
 use Espo\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Injectable;
 use Espo\Entities\Attachment;
 
-class CsvFileParser extends AbstractFileParser
+class Csv extends Injectable implements FileParserInterface
 {
     const UTF8_BOM = "\xEF\xBB\xBF";
     const UTF8_BOM_LEN = 3;
 
-    public function getFileColumns(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', bool $isFileHeaderRow = true, array $data = null): array
+    protected array $data = [];
+
+    public function __construct()
     {
+        $this->addDependency('fileStorageManager');
+        $this->addDependency('eventManager');
+    }
+
+    public function setData(array $data): void
+    {
+        $this->data = $data;
+    }
+
+    public function getFileColumns(Attachment $attachment): array
+    {
+        $isFileHeaderRow = $this->data['isFileHeaderRow'] ?? true;
+        $data = $this->data['fileData'] ?? null;
+
         // prepare result
         $result = [];
 
         // get data
         if ($data === null) {
-            $data = $this->getFileData($attachment, $delimiter, $enclosure, 0, 2);
+            $data = $this->getFileData($attachment, 0, 2);
         }
 
         if (isset($data[0])) {
@@ -60,8 +77,11 @@ class CsvFileParser extends AbstractFileParser
         return $result;
     }
 
-    public function getFileData(Attachment $attachment, string $delimiter = ";", string $enclosure = '"', ?int $offset = 0, ?int $limit = null): array
+    public function getFileData(Attachment $attachment, int $offset = 0, ?int $limit = null): array
     {
+        $delimiter = $this->data['delimiter'] ?? ';';
+        $enclosure = $this->data['enclosure'] ?? '"';
+
         $path = $this->getLocalFilePath($attachment);
 
         if (!file_exists($path)) {
@@ -87,18 +107,21 @@ class CsvFileParser extends AbstractFileParser
         }
         fclose($file);
 
-        return $this
+        return $this->getInjection('eventManager')
             ->dispatch('ImportFileParser', 'afterGetFileData', new Event(['data' => $data, 'attachment' => $attachment, 'type' => 'csv']))
             ->getArgument('data');
     }
 
-    public function createFile(string $fileName, array $data, array $conf = []): void
+    public function createFile(string $fileName, array $data): void
     {
+        $delimiter = $this->data['delimiter'] ?? ';';
+        $enclosure = $this->data['enclosure'] ?? '"';
+
         $this->createDir($fileName);
 
         $fp = fopen($fileName, 'w');
         foreach ($data as $fields) {
-            fputcsv($fp, $fields, $conf['delimiter'] ?? ',', $conf['enclosure'] ?? '"');
+            fputcsv($fp, $fields, $delimiter, $enclosure);
         }
         fclose($fp);
 
@@ -138,11 +161,6 @@ class CsvFileParser extends AbstractFileParser
         rename($tempFilename, $filename);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return string
-     */
     protected function removeNonPrintableCharacters(string $value): string
     {
         return preg_replace('/[\x00-\x1f]/', '', $value);
@@ -169,24 +187,9 @@ class CsvFileParser extends AbstractFileParser
 
     public function getLocalFilePath(Attachment $attachment): string
     {
-        $path = $this
-            ->getContainer()
-            ->get('fileStorageManager')
-            ->getLocalFilePath($attachment);
+        $path = $this->getInjection('fileStorageManager')->getLocalFilePath($attachment);
 
         return (empty($path)) ? '' : (string)$path;
-    }
-
-    protected function createDir(string $fileName): void
-    {
-        $parts = explode('/', $fileName);
-        array_pop($parts);
-        $dir = implode('/', $parts);
-
-        if (!file_exists($dir)) {
-            mkdir($dir, 0777, true);
-            sleep(1);
-        }
     }
 
     /**
@@ -198,6 +201,18 @@ class CsvFileParser extends AbstractFileParser
 
         if (fgets($fileHandle, self::UTF8_BOM_LEN + 1) !== self::UTF8_BOM) {
             rewind($fileHandle);
+        }
+    }
+
+    protected function createDir(string $fileName): void
+    {
+        $parts = explode('/', $fileName);
+        array_pop($parts);
+        $dir = implode('/', $parts);
+
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777, true);
+            sleep(1);
         }
     }
 }

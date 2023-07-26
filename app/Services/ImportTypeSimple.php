@@ -42,7 +42,6 @@ class ImportTypeSimple extends QueueManagerBase
     private array $deletedPav = [];
     private bool $lastIteration = false;
 
-    protected array $fileParsers = [];
     protected array $entities = [];
     protected array $services = [];
 
@@ -324,7 +323,7 @@ class ImportTypeSimple extends QueueManagerBase
         $attachment = $this->getEntityById('Attachment', $data['attachmentId']);
 
         $fileParser = $this->getFileParser($data['fileFormat']);
-        $fileParser->setImportPayload($data);
+        $fileParser->setData($data);
 
         // for getting header row
         $includedHeaderRow = $data['offset'] === 1 && !empty($data['isFileHeaderRow']);
@@ -334,12 +333,8 @@ class ImportTypeSimple extends QueueManagerBase
 
         switch ($data['fileFormat']) {
             case 'CSV':
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit']);
-                $data['offset'] = $data['offset'] + $data['limit'];
-                break;
             case 'Excel':
-                $sheet = empty($data['sheet']) ? 0 : (int)$data['sheet'];
-                $fileData = $fileParser->getFileData($attachment, $data['delimiter'], $data['enclosure'], $data['offset'], $data['limit'], $sheet);
+                $fileData = $fileParser->getFileData($attachment, $data['offset'], $data['limit']);
                 $data['offset'] = $data['offset'] + $data['limit'];
                 break;
             case 'JSON':
@@ -358,7 +353,8 @@ class ImportTypeSimple extends QueueManagerBase
          */
         if (in_array($data['fileFormat'], ['CSV', 'Excel'])) {
             if (empty($data['sourceFields'])) {
-                $data['sourceFields'] = $fileParser->getFileColumns($attachment, $data['delimiter'], $data['enclosure'], $data['isFileHeaderRow'], $fileData);
+                $fileParser->setData(array_merge($data, ['fileData' => $fileData]));
+                $data['sourceFields'] = $fileParser->getFileColumns($attachment);
                 if ($includedHeaderRow) {
                     array_shift($fileData);
                 }
@@ -635,13 +631,9 @@ class ImportTypeSimple extends QueueManagerBase
         return $this->getContainer()->get('eventManager');
     }
 
-    protected function getFileParser(string $format): AbstractFileParser
+    protected function getFileParser(string $format): \Import\FileParsers\FileParserInterface
     {
-        if (!isset($this->fileParsers[$format])) {
-            $this->fileParsers[$format] = $this->getService('ImportFeed')->getFileParser($format);
-        }
-
-        return $this->fileParsers[$format];
+        return $this->getContainer()->get(ImportFeed::getFileParserClass($format));
     }
 
     public function getEntityById(string $scope, string $id): Entity

@@ -29,6 +29,7 @@ use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
 use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
+use Import\Entities\ImportFeed as ImportFeedEntity;
 
 class ImportJob extends Base
 {
@@ -96,11 +97,14 @@ class ImportJob extends Base
             throw new BadRequest("Attachment '$attachmentId' does not exist.");
         }
 
-        $data = $this
-            ->getServiceFactory()
-            ->create('ImportFeed')
-            ->getFileParser($format)
-            ->getFileData($attachment, $delimiter, $enclosure);
+        /** @var \Import\FileParsers\FileParserInterface $fileParser */
+        $fileParser = $this->getInjection('container')->get(ImportFeedEntity::getFileParserClass($format));
+        $fileParser->setData([
+            'delimiter' => $delimiter,
+            'enclosure' => $enclosure
+        ]);
+
+        $data = $fileParser->getFileData($attachment);
 
         // collect errors rows
         $errorsRows = [];
