@@ -96,11 +96,14 @@ class ImportJob extends Base
             throw new BadRequest("Attachment '$attachmentId' does not exist.");
         }
 
-        $data = $this
-            ->getServiceFactory()
-            ->create('ImportFeed')
-            ->getFileParser($format)
-            ->getFileData($attachment, $delimiter, $enclosure);
+        /** @var \Import\FileParser\FileParserInterface $fileParser */
+        $fileParser = $this->getInjection('container')->get($this->getEntityManager()->getRepository('ImportFeed')->getFileParserClass($format));
+        $fileParser->setData([
+            'delimiter' => $delimiter,
+            'enclosure' => $enclosure
+        ]);
+
+        $data = $fileParser->getFileData($attachment);
 
         // collect errors rows
         $errorsRows = [];
