@@ -20,8 +20,6 @@
 Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi-enum',
     Dep => Dep.extend({
 
-        jobId: null,
-
         setup() {
             Dep.prototype.setup.call(this);
 
@@ -62,8 +60,8 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
             }
         },
 
-        readSourceFieldsFromJob() {
-            this.ajaxGetRequest(`QueueItem/${this.jobId}`).success(queueItem => {
+        readSourceFieldsFromJob(jobId) {
+            this.ajaxGetRequest(`QueueItem/${jobId}`).success(queueItem => {
                 if (queueItem.status === 'Canceled') {
                     $('.attachment-upload .remove-attachment').click();
                     this.model.set('sourceFields', []);
@@ -72,7 +70,7 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
                     this.model.set('sourceFields', queueItem.data.sourceFields);
                 } else {
                     setTimeout(() => {
-                        this.readSourceFieldsFromJob();
+                        this.readSourceFieldsFromJob(jobId);
                     }, 4000);
                 }
             }).error(response => {
@@ -104,13 +102,9 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
 
             this.ajaxPostRequest(`ImportFeed/action/ParseFileColumns`, data).success(response => {
                 if (response.jobId) {
-                    if (this.jobId !== null) {
-                        this.ajaxPutRequest(`QueueItem/${this.jobId}`, {status: "Canceled"}, {async: false});
-                    }
-                    this.jobId = response.jobId;
                     Backbone.trigger('showQueuePanel');
                     this.$el.html('<img alt="preloader" class="preloader" style="height:19px;margin-top:6px;margin-left:-8px" src="client/img/atro-loader.svg" />');
-                    this.readSourceFieldsFromJob();
+                    this.readSourceFieldsFromJob(response.jobId);
                 } else {
                     this.model.set('sourceFields', response);
                 }
