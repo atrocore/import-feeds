@@ -633,7 +633,7 @@ class ImportTypeSimple extends QueueManagerBase
 
     protected function getFileParser(string $format): \Import\FileParsers\FileParserInterface
     {
-        return $this->getContainer()->get(\Import\Services\ImportFeed::getFileParserClass($format));
+        return $this->getContainer()->get(ImportFeed::getFileParserClass($format));
     }
 
     public function getEntityById(string $scope, string $id): Entity

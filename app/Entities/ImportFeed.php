@@ -30,6 +30,28 @@ class ImportFeed extends Base
 {
     protected $entityType = "ImportFeed";
 
+    public static function getFileParserClass(string $format): string
+    {
+        switch ($format) {
+            case 'CSV':
+                $className = \Import\FileParsers\Csv::class;
+                break;
+            case 'Excel':
+                $className = \Import\FileParsers\Excel::class;
+                break;
+            case 'JSON':
+                $className = \Import\FileParsers\Json::class;
+                break;
+            case 'XML':
+                $className = \Import\FileParsers\Xml::class;
+                break;
+            default:
+                throw new \Error('Unknown file format');
+        }
+
+        return $className;
+    }
+
     public function setFeedField(string $name, $value): void
     {
         $data = [];
