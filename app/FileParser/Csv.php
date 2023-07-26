@@ -47,8 +47,6 @@ class Csv extends Injectable implements ParserInterface
 
     public function getFileColumns(Attachment $attachment): array
     {
-        $delimiter = $this->payload['delimiter'] ?? ';';
-        $enclosure = $this->payload['enclosure'] ?? '"';
         $isFileHeaderRow = $this->payload['isFileHeaderRow'] ?? true;
         $data = $this->payload['fileData'] ?? null;
 
