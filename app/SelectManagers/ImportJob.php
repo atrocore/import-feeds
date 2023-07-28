@@ -22,11 +22,19 @@ declare(strict_types=1);
 
 namespace Import\SelectManagers;
 
-use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Utils\Util;
+use Espo\Core\SelectManagers\Base;
 
-class ImportJob extends \Espo\Core\SelectManagers\Base
+class ImportJob extends Base
 {
+    protected function access(&$result)
+    {
+        $importFeeds = $this->getEntityManager()->getRepository('ImportFeed')
+            ->select(['id'])
+            ->find($this->createSelectManager('ImportFeed')->getSelectParams([], true, true));
+
+        $result['whereClause'][] = ['OR' => ['importFeedId' => array_column($importFeeds->toArray(), 'id')]];
+    }
+
     protected function boolFilterOnlyImportFailed24Hours(array &$result): void
     {
         $result['whereClause'][] = [

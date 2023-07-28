@@ -2,12 +2,8 @@
   "entity": true,
   "layouts": false,
   "tab": true,
-  "acl": true,
-  "aclActionList": [
-    "read",
-    "delete"
-  ],
-  "aclPortal": true,
+  "acl": false,
+  "aclPortal": false,
   "customizable": false,
   "importable": false,
   "notifications": false,
