@@ -144,11 +144,11 @@ class ImportTypeSimple extends QueueManagerBase
                     continue 1;
                 }
 
-                if (in_array($data['action'], ['update', 'update_delete']) && empty($entity)) {
+                if (in_array($data['action'], ['delete_found', 'update', 'update_delete']) && empty($entity)) {
                     continue 1;
                 }
 
-                if ($data['action'] == 'delete') {
+                if ($data['action'] == 'delete_not_found') {
                     continue 1;
                 }
 
@@ -205,6 +205,10 @@ class ImportTypeSimple extends QueueManagerBase
 
                         $this->importAttributes($attributes, $updatedEntity);
                         $this->saveRestoreRow('created', $scope, $updatedEntity->get('id'));
+                    } elseif ($data['action'] == 'delete_found') {
+                        $entityService->deleteEntity($id);
+                        $updatedEntity = $entity;
+                        $processedIds[] = $id;
                     } else {
                         $notModified = true;
                         try {
@@ -242,7 +246,7 @@ class ImportTypeSimple extends QueueManagerBase
                     continue 1;
                 }
 
-                $action = empty($id) ? 'create' : 'update';
+                $action = empty($id) ? 'create' : ($data['action'] == 'delete_found' ? 'delete' : 'update');
                 $this->log($scope, $importJob->get('id'), $action, (string)$fileRow, $updatedEntity->get('id'));
             }
         }
@@ -310,7 +314,7 @@ class ImportTypeSimple extends QueueManagerBase
 
     protected static function isDeleteAction(string $action): bool
     {
-        return in_array($action, ['delete', 'create_delete', 'update_delete', 'create_update_delete']);
+        return in_array($action, ['delete_not_found', 'create_delete', 'update_delete', 'create_update_delete']);
     }
 
     public function getInputData(array &$data): array
