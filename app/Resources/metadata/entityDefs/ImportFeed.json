@@ -168,7 +168,8 @@
       "optionsIds": [
         "create",
         "update",
-        "delete",
+        "delete_found",
+        "delete_not_found",
         "create_update",
         "create_delete",
         "update_delete",
@@ -177,7 +178,8 @@
       "options": [
         "create",
         "update",
-        "delete",
+        "delete_found",
+        "delete_not_found",
         "create_update",
         "create_delete",
         "update_delete",
