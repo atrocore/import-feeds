@@ -58,7 +58,7 @@
     "create_update": "Erstellen und aktualisieren",
     "update": "Nur aktualisieren",
     "delete_found": "Nur löschen (gefundene Datensätze)",
-    "delete_not_found": "Nur löschen für (nicht gefundene Datensätze)",
+    "delete_not_found": "Nur löschen (für nicht gefundene Datensätze)",
     "create_delete": "Nur erstellen und löschen",
     "update_delete": "Nur aktualisieren und löschen",
     "create_update_delete": "Erstellen, aktualisieren und löschen",
