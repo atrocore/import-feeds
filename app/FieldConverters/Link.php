@@ -153,7 +153,7 @@ class Link extends Varchar
         }
 
         if ($value === '' || (string)$config['emptyValue']) {
-            $value = null;
+            $value = $default;
         }
 
         $fieldName = $this->getFieldName($config);
