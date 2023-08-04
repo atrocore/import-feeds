@@ -66,7 +66,12 @@
     "update_delete": "Update and Delete",
     "create_update_delete": "Create, Update and Delete",
     "import": "Import",
-    "uploadAndImport": "Upload & Import"
+    "uploadAndImport": "Upload & Import",
+    "Pending": "Pending",
+    "Success": "Success",
+    "Running": "Running",
+    "Failed": "Failed",
+    "Canceled": "Canceled"
   },
   "additionalTranslates": {
     "importName": "Importing data by feed '%s'"

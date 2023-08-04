@@ -65,7 +65,12 @@
     "update_delete": "Оновити і видалити",
     "create_update_delete": "Створити, оновити і видалити",
     "import": "Імпорт",
-    "uploadAndImport": "Завантажити & Імпортувати"
+    "uploadAndImport": "Завантажити & Імпортувати",
+    "Pending": "В очікуванні",
+    "Success": "Успішно",
+    "Running": "Виконується",
+    "Failed": "Не виконано",
+    "Canceled": "Скасовано"
   },
   "additionalTranslates": {
     "importName": "Імпорт даних за фідом '%s'"

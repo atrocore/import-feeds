@@ -63,7 +63,12 @@
     "update_delete": "Nur aktualisieren und löschen",
     "create_update_delete": "Erstellen, aktualisieren und löschen",
     "import": "Importieren",
-    "uploadAndImport": "Hochladen & Importieren"
+    "uploadAndImport": "Hochladen & Importieren",
+    "Pending": "Steht aus",
+    "Success": "Erfolg",
+    "Running": "In Arbeit",
+    "Failed": "Fehlgeschlagen",
+    "Canceled": "Abgebrochen"
   },
   "additionalTranslates": {
     "importName": "Importieren von Daten nach Feed '%s'"
