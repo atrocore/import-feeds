@@ -71,7 +71,7 @@ class Currency extends FloatValue
             }
         } else {
             if (!empty($config['column'][0]) && isset($row[$config['column'][0]])) {
-                $cellValue = trim($row[$config['column'][0]]);
+                $cellValue = trim((string)$row[$config['column'][0]]);
                 $this->ignoreAttribute($cellValue, $config);
 
                 if (strtolower((string)$cellValue) === strtolower((string)$config['emptyValue']) || $cellValue === ''
@@ -91,7 +91,7 @@ class Currency extends FloatValue
             }
 
             if (!empty($config['column'][1]) && isset($row[$config['column'][1]])) {
-                $cellCurrency = trim($row[$config['column'][1]]);
+                $cellCurrency = trim((string)$row[$config['column'][1]]);
                 $this->ignoreAttribute($cellCurrency, $config);
                 if (strtolower((string)$cellCurrency) === strtolower((string)$config['emptyValue']) || $cellCurrency === ''
                     || strtolower((string)$cellCurrency) === strtolower(
