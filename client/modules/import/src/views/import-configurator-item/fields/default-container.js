@@ -90,21 +90,13 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
         },
 
         prepareDefaultModel(type, options) {
-            if (type === 'link') {
+            if (['link', 'linkMultiple'].includes(type)) {
+                let linkEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
                 this.model.defs.links["default"] = {
-                    type: 'belongsTo',
-                    entity: this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`)
+                    type: type === 'link' ? 'belongsTo' : 'hasMany',
+                    entity: linkEntity
                 };
-            }
-
-            if (type === 'linkMultiple') {
-                this.model.defs.links["default"] = {
-                    type: 'hasMany',
-                    entity: this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`)
-                };
-            }
-
-            if (type === 'enum' || type === 'multiEnum' || type === 'array' || type === 'language') {
+            } else if (['enum', 'multiEnum', 'array', 'language'].includes(type)) {
                 this.params.options = options;
                 this.params.translatedOptions = {};
                 options.forEach(option => {
@@ -114,18 +106,14 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                     }
                     this.params.translatedOptions[option.toString()] = label;
                 });
-            }
 
-            if (type === 'language') {
-                this.model.defs.fields["default"]['prohibitedEmptyValue'] = true;
-            }
-
-            if (type === 'unit') {
+                if (type === 'language') {
+                    this.model.defs.fields["default"]['prohibitedEmptyValue'] = true;
+                }
+            } else if (type === 'unit') {
                 this.params.measureId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureId`);
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.params.measureId;
-            }
-
-            if (type === 'extensibleEnum' || type === 'extensibleMultiEnum') {
+            } else if (type === 'extensibleEnum' || type === 'extensibleMultiEnum') {
                 this.params.extensibleEnumId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.params.extensibleEnumId;
             }
