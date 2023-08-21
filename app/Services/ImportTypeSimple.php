@@ -423,13 +423,6 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        /**
-         * Hack for product attribute scoping
-         */
-        if (!empty($where['scope']) && $where['scope'] === 'Global' && array_key_exists('channelId', $where)) {
-            unset($where['channelId']);
-        }
-
         return $where;
     }
 
