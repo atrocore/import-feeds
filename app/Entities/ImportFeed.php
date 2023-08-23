@@ -150,7 +150,7 @@ class ImportFeed extends Base
                 'delimiter'                 => $result['delimiter'],
                 'emptyValue'                => $this->getFeedField('emptyValue'),
                 'nullValue'                 => $this->getFeedField('nullValue'),
-                'decimalMark'               => $this->getFeedField('decimalMark'),
+                'decimalMark'               => $this->get('format') === 'CSV' ? $this->getFeedField('decimalMark') : ".",
                 'thousandSeparator'         => $this->getFeedField('thousandSeparator'),
                 'markForNotLinkedAttribute' => $this->getFeedField('markForNotLinkedAttribute'),
                 'fieldDelimiterForRelation' => $this->getFeedField('fieldDelimiterForRelation'),

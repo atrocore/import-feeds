@@ -109,6 +109,26 @@
           ]
         }
       },
+      "decimalMark": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "equals",
+              "attribute": "format",
+              "value": "CSV"
+            }
+          ]
+        },
+        "required": {
+          "conditionGroup": [
+            {
+              "type": "equals",
+              "attribute": "format",
+              "value": "CSV"
+            }
+          ]
+        }
+      },
       "fileFieldDelimiter": {
         "visible": {
           "conditionGroup": [
