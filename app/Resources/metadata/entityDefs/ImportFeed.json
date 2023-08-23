@@ -324,7 +324,7 @@
       "required": false,
       "default": "Null"
     },
-    "markForNotLinkedAttribute": {
+    "markForNoRelation": {
       "type": "varchar",
       "notStorable": true,
       "dataField": true,

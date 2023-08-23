@@ -29,7 +29,7 @@
     "configuratorItems": "Конфігуратор",
     "emptyValue": "Порожнє значення",
     "nullValue": "Нульове значення",
-    "markForNotLinkedAttribute": "Позначка неприв'язаного атрибута",
+    "markForNoRelation": "Отметка об отсутствии отношений",
     "fieldDelimiterForRelation": "Роздільник полів для зв'язку"
   },
   "links": {

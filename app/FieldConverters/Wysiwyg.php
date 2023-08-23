@@ -126,7 +126,7 @@ class Wysiwyg
             return;
         }
 
-        if ($value === $config['markForNotLinkedAttribute']) {
+        if ($value === $config['markForNoRelation']) {
             throw new IgnoreAttribute();
         }
     }

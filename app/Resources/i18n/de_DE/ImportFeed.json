@@ -26,7 +26,7 @@
     "configuratorItems": "Konfigurator",
     "emptyValue": "Leerer Wert",
     "nullValue": "Nullwert",
-    "markForNotLinkedAttribute": "Markierung für ein nicht verknüpftes Attribut",
+    "markForNoRelation": "Markierung für fehlende Relationen",
     "fieldDelimiterForRelation": "Feldtrennzeichen für Relation"
   },
   "links": {
