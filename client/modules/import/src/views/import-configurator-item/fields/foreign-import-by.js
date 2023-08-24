@@ -56,7 +56,7 @@ Espo.define('import:views/import-configurator-item/fields/foreign-import-by', 'v
                 this.params.options = [];
                 this.translatedOptions = {};
 
-                let foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
+                let foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
                 if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset'){
                     foreignEntity = 'Asset';
                 }

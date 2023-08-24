@@ -194,6 +194,13 @@ class Link extends Varchar
         $fieldName = $this->getFieldName($configuration);
 
         if (!property_exists($inputRow, $fieldName)) {
+            /**
+             * Hack for product attribute scoping
+             */
+            if ($fieldName === 'channelId' && $configuration['entity'] === 'ProductAttributeValue') {
+                return;
+            }
+
             throw new BadRequest("System cannot find value for '$fieldName'. Please, check configuration.");
         }
 
@@ -246,7 +253,12 @@ class Link extends Varchar
 
     protected function getForeignEntityName(string $entity, string $field): string
     {
-        return $this->getMetadata()->get(['entityDefs', $entity, 'links', $field, 'entity']);
+        $res = $this->getMetadata()->get(['entityDefs', $entity, 'fields', $field, 'entity']);
+        if (empty($res)) {
+            $res = $this->getMetadata()->get(['entityDefs', $entity, 'links', $field, 'entity']);
+        }
+
+        return $res;
     }
 
     protected function getFieldName(array $config): string

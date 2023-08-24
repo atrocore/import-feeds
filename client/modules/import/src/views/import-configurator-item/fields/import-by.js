@@ -50,7 +50,7 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
 
             let foreignEntity;
             if (this.model.get('type') === 'Field') {
-                foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
+                foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
                 if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`)) {
                     foreignEntity = 'ExtensibleEnumOption';
                 } else if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset') {
