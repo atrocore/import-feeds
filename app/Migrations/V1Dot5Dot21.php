@@ -43,6 +43,15 @@ class V1Dot5Dot21 extends Base
 
     public function down(): void
     {
-        throw new BadRequest('Downgrade is prohibited.');
+        $feeds = $this->getPDO()->query("SELECT * FROM import_feed WHERE deleted=0")->fetchAll(\PDO::FETCH_ASSOC);
+        foreach ($feeds as $feed) {
+            $data = @json_decode($feed['data'], true);
+            if (is_array($data) && isset($data['feedFields']['markForNoRelation'])) {
+                $data['feedFields']['markForNotLinkedAttribute'] = $data['feedFields']['markForNoRelation'];
+                unset($data['feedFields']['markForNoRelation']);
+                $newData = $this->getPDO()->quote(json_encode($data));
+                $this->getPDO()->exec("UPDATE import_feed SET data=$newData WHERE id='{$feed['id']}'");
+            }
+        }
     }
 }
