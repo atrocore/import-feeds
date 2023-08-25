@@ -200,7 +200,7 @@ class ImportFeed extends Base
         }
 
         $contents = file_get_contents($attachment->getFilePath());
-        if (!preg_match('//u', $contents)) {
+        if (is_string($contents) && !preg_match('//u', $contents)) {
             throw new BadRequest($this->getInjection('language')->translate('utf8Expected', 'exceptions', 'ImportFeed'));
         }
     }
