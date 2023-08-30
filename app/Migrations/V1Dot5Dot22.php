@@ -25,7 +25,7 @@ namespace Import\Migrations;
 use Espo\Core\Exceptions\BadRequest;
 use Treo\Core\Migration\Base;
 
-class V1Dot5Dot21 extends Base
+class V1Dot5Dot22 extends Base
 {
     public function up(): void
     {
