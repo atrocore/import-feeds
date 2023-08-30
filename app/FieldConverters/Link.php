@@ -44,7 +44,7 @@ class Link extends Varchar
                 }
             }
 
-            if ($value !== null && $value !== (string)$config['emptyValue']) {
+            if ($value !== null && $value !== (string)$config['emptyValue'] && $value !== (string)$config['markForNoRelation']) {
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
@@ -154,6 +154,10 @@ class Link extends Varchar
 
         if ($value === '' || (string)$config['emptyValue']) {
             $value = $default;
+        }
+
+        if ($value === (string)$config['markForNoRelation']) {
+            $value = null;
         }
 
         $fieldName = $this->getFieldName($config);

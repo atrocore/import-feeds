@@ -324,13 +324,13 @@
       "required": false,
       "default": "Null"
     },
-    "markForNotLinkedAttribute": {
+    "markForNoRelation": {
       "type": "varchar",
       "notStorable": true,
       "dataField": true,
       "filterDisabled": true,
       "required": false,
-      "default": "--"
+      "default": "Null"
     },
     "sourceFields": {
       "type": "array",

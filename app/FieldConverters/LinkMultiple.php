@@ -36,6 +36,15 @@ class LinkMultiple extends Varchar
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $ids = [];
+        $fieldName = $this->getFieldName($config);
+
+        foreach ($config['column'] as $column) {
+            if ($row[$column] === $config['markForNoRelation']) {
+                $inputRow->$fieldName = [];
+                return;
+            }
+        }
+
 
         $this->relationEntityName = $config['relEntityName'] ?? $this->getForeignEntityName($config['entity'], $config['name']);
 
@@ -66,7 +75,6 @@ class LinkMultiple extends Varchar
 
         $ids = array_values($ids);
 
-        $fieldName = $this->getFieldName($config);
 
         if (!empty($inputRow->$fieldName)) {
             $inputRow->$fieldName = array_merge($inputRow->$fieldName, $ids);
