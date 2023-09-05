@@ -213,7 +213,7 @@ class ImportFeed extends Base
         }
     }
 
-    public function runImport(string $importFeedId, string $attachmentId, \stdClass $payload = null): bool
+    public function runImport(string $importFeedId, string $attachmentId, \stdClass $payload = null, ?string $priority = null): bool
     {
         $event = $this
             ->getInjection('eventManager')
@@ -232,10 +232,10 @@ class ImportFeed extends Base
         $service = $this->getServiceFactory()->create($serviceName);
 
         if (method_exists($service, 'runImport')) {
-            return $service->runImport($feed, $attachmentId, $payload);
+            return $service->runImport($feed, $attachmentId, $payload, $priority);
         }
 
-        $this->pushJobs($feed, !empty($attachmentId) ? $attachmentId : $feed->get('fileId'), $payload);
+        $this->pushJobs($feed, !empty($attachmentId) ? $attachmentId : $feed->get('fileId'), $payload, $priority);
 
         $this
             ->getInjection('eventManager')
@@ -244,7 +244,7 @@ class ImportFeed extends Base
         return true;
     }
 
-    public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, \stdClass $payload = null): void
+    public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, \stdClass $payload = null, ?string $priority = null): void
     {
         $serviceName = $this->getImportTypeService($importFeed);
         $service = $this->getServiceFactory()->create($serviceName);
@@ -295,6 +295,9 @@ class ImportFeed extends Base
                 $this->getEntityManager()->saveEntity($jobAttachment);
 
                 $data = $service->prepareJobData($importFeed, $jobAttachment->get('id'));
+                if (!empty($priority)) {
+                    $data['data']['priority'] = $priority;
+                }
                 $data['sheet'] = 0;
                 $data['data']['importJobId'] = $this
                     ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $jobAttachment->get('id'))
@@ -306,6 +309,9 @@ class ImportFeed extends Base
             }
         } else {
             $data = $service->prepareJobData($importFeed, $attachmentId);
+            if (!empty($priority)) {
+                $data['data']['priority'] = $priority;
+            }
             $data['data']['importJobId'] = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload)->get('id');
             $this->push($this->getName($importFeed), $serviceName, $data);
         }
