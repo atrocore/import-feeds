@@ -56,6 +56,9 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                     if (attribute.measureId && this.model.get('attributeValue') === 'valueUnitId') {
                         foreignEntity = 'Unit';
                     }
+                    if (attribute.type === 'link') {
+                        foreignEntity = attribute.entityType;
+                    }
                 }
             }
 

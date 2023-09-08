@@ -119,6 +119,13 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                         this.params.extensibleEnumId = attribute.extensibleEnumId;
                         this.model.defs.fields["default"]['extensibleEnumId'] = this.params.extensibleEnumId;
                     }
+
+                    if (attribute.type === 'link') {
+                        this.model.defs.links["default"] = {
+                            type: 'belongsTo',
+                            entity: attribute.entityType
+                        };
+                    }
                 });
             }
         },

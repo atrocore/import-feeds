@@ -50,7 +50,7 @@ class ExtensibleMultiEnum extends LinkMultiple
         return $config['name'];
     }
 
-    protected function getForeignEntityName(string $entity, string $field): string
+    protected function getForeignEntityName(array $config): string
     {
         return 'ExtensibleEnumOption';
     }

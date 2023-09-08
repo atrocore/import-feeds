@@ -39,7 +39,7 @@ class Link extends Varchar
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
-                    $entityName = $this->getForeignEntityName($config['entity'], $config['name']);
+                    $entityName = $this->getForeignEntityName($config);
                 }
 
                 $input = new \stdClass();
@@ -242,11 +242,15 @@ class Link extends Varchar
         return $value;
     }
 
-    protected function getForeignEntityName(string $entity, string $field): string
+    protected function getForeignEntityName(array $config): string
     {
-        $res = $this->getMetadata()->get(['entityDefs', $entity, 'fields', $field, 'entity']);
+        if ($config['type'] === 'Attribute') {
+            return $config['attribute']->get('entityType');
+        }
+
+        $res = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'entity']);
         if (empty($res)) {
-            $res = $this->getMetadata()->get(['entityDefs', $entity, 'links', $field, 'entity']);
+            $res = $this->getMetadata()->get(['entityDefs', $config['entity'], 'links', $config['name'], 'entity']);
         }
 
         return $res;
