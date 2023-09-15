@@ -79,7 +79,9 @@ class Link extends Varchar
                         ->findOne();
 
                     if (empty($entity) && empty($config['createIfNotExist'])) {
-                        throw new BadRequest(sprintf($this->translate('noRecordsFoundFor', 'exceptions', 'ImportFeed'), $this->translate($entityName, 'scopeNames'), json_encode($where)));
+                        throw new BadRequest(
+                            sprintf($this->translate('noRecordsFoundFor', 'exceptions', 'ImportFeed'), $this->translate($entityName, 'scopeNames'), json_encode($where))
+                        );
                     }
                 }
 
@@ -210,7 +212,7 @@ class Link extends Varchar
         $entity->set('defaultId', null);
         $entity->set('defaultName', null);
         if (!empty($entity->get('default'))) {
-            $relEntityName = $this->getForeignEntityName($entity->get('entity'), $entity->get('name'));
+            $relEntityName = $this->getForeignEntityName(['entity' => $entity->get('entity'), 'name' => $entity->get('name')]);
             if (!empty($relEntityName)) {
                 $entity->set('defaultId', $entity->get('default'));
                 $relEntity = $this->getEntityManager()->getEntity($relEntityName, $entity->get('defaultId'));
