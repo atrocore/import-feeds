@@ -37,7 +37,7 @@ class LinkMultiple extends Varchar
         }
 
 
-        $this->relationEntityName = $config['relEntityName'] ?? $this->getForeignEntityName($config['entity'], $config['name']);
+        $this->relationEntityName = $config['relEntityName'] ?? $this->getForeignEntityName($config);
 
         $searchData = $this->prepareItem($config, $config['column'], $row);
         $insertData = $this->prepareItem($config, empty($config['foreignColumn']) ? $config['column'] : $config['foreignColumn'], $row);
@@ -119,7 +119,7 @@ class LinkMultiple extends Varchar
         $entity->set('defaultIds', null);
         $entity->set('defaultNames', null);
         if (!empty($entity->get('default'))) {
-            $relEntityName = $this->getForeignEntityName($entity->get('entity'), $entity->get('name'));
+            $relEntityName = $this->getForeignEntityName(['entity' => $entity->get('entity'), 'name' => $entity->get('name')]);
             if (!empty($relEntityName)) {
                 $entity->set('defaultIds', Json::decode($entity->get('default'), true));
                 $names = [];
