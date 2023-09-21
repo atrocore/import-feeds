@@ -244,71 +244,21 @@ class ImportFeed extends Base
         return true;
     }
 
-    public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, \stdClass $payload = null, ?string $priority = null): void
+    public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, ?\stdClass $payload = null, ?string $priority = null): void
     {
-        $serviceName = $this->getImportTypeService($importFeed);
-        $service = $this->getServiceFactory()->create($serviceName);
-        $attachmentRepo = $this->getEntityManager()->getRepository('Attachment');
-
-        $maxPerJob = (int)$importFeed->get('maxPerJob');
-        $fileFormat = $importFeed->getFeedField('format');
-
-        if ($maxPerJob > 0 && in_array($fileFormat, ['CSV', 'Excel'])) {
-            $isFileHeaderRow = !empty($importFeed->getFeedField('isFileHeaderRow'));
-            $attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId);
-            $fileParser = $this->getFileParser($fileFormat);
-            $fileParser->setData([
-                'isFileHeaderRow' => $isFileHeaderRow,
-                'delimiter'       => $importFeed->getDelimiter(),
-                'enclosure'       => $importFeed->getEnclosure(),
-                'sheet'           => $importFeed->get('sheet') ?? 0,
-            ]);
-
-            $fileParser->convertAttachmentToUTF8($attachment);
-
-            $offset = 0;
-
-            $header = [];
-            if ($isFileHeaderRow) {
-                $header = $fileParser->getFileData($attachment, 0, 1);
-                $offset = 1;
-            }
-
-            $partNumber = 1;
-            while (!empty($fileData = $fileParser->getFileData($attachment, $offset, $maxPerJob))) {
-                $part = array_merge($header, $fileData);
-                $fileExt = $fileFormat === 'CSV' ? 'csv' : 'xlsx';
-                $jobAttachment = $attachmentRepo->get();
-                $jobAttachment->set('name', date('Y-m-d H:i:s') . ' (' . $partNumber . ')' . '.' . $fileExt);
-                $jobAttachment->set('role', 'Attachment');
-                $jobAttachment->set('relatedType', 'ImportFeed');
-                $jobAttachment->set('relatedId', $importFeed->get('id'));
-                $jobAttachment->set('storage', 'UploadDir');
-                $jobAttachment->set('storageFilePath', $this->getInjection('filePathBuilder')->createPath(FilePathBuilder::UPLOAD));
-
-                $fileName = $attachmentRepo->getFilePath($jobAttachment);
-                $fileParser->createFile($fileName, $part);
-
-                $jobAttachment->set('md5', \md5_file($fileName));
-                $jobAttachment->set('type', \mime_content_type($fileName));
-                $jobAttachment->set('size', \filesize($fileName));
-                $this->getEntityManager()->saveEntity($jobAttachment);
-
-                $data = $service->prepareJobData($importFeed, $jobAttachment->get('id'));
-                if (!empty($priority)) {
-                    $data['data']['priority'] = $priority;
-                }
-                $data['sheet'] = 0;
-                $data['data']['importJobId'] = $this
-                    ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, $payload, $jobAttachment->get('id'))
-                    ->get('id');
-                $this->push($this->getName($importFeed) . ' (' . $partNumber . ')', $serviceName, $data);
-
-                $offset = $offset + $maxPerJob;
-                $partNumber++;
-            }
+        if ((int)$importFeed->get('maxPerJob') > 0 && in_array($importFeed->getFeedField('format'), ['CSV', 'Excel'])) {
+            $name = $this->getInjection('language')->translate('createImportJobs', 'labels', 'ImportFeed');
+            $name = sprintf($name, $importFeed->get('name'));
+            $qmJobData = [
+                'importFeedId' => $importFeed->get('id'),
+                'attachmentId' => $attachmentId,
+                'payload'      => $payload,
+                'priority'     => $priority
+            ];
+            $this->getInjection('queueManager')->push($name, 'ImportJobCreator', $qmJobData);
         } else {
-            $data = $service->prepareJobData($importFeed, $attachmentId);
+            $serviceName = $this->getImportTypeService($importFeed);
+            $data = $this->getServiceFactory()->create($serviceName)->prepareJobData($importFeed, $attachmentId);
             if (!empty($priority)) {
                 $data['data']['priority'] = $priority;
             }
@@ -475,7 +425,7 @@ class ImportFeed extends Base
      *
      * @return string
      */
-    protected function getImportTypeService(ImportFeedEntity $feed): string
+    public function getImportTypeService(ImportFeedEntity $feed): string
     {
         return 'ImportType' . ucfirst($feed->get('type'));
     }

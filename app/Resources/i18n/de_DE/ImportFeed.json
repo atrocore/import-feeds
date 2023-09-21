@@ -70,9 +70,6 @@
     "Failed": "Fehlgeschlagen",
     "Canceled": "Abgebrochen"
   },
-  "additionalTranslates": {
-    "importName": "Importieren von Daten nach Feed '%s'"
-  },
   "messages": {
     "importNow": "Möchten Sie wirklich die Daten aus der ausgewählten Quelle importieren?"
   },

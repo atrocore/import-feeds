@@ -72,9 +72,6 @@
     "Failed": "Не виконано",
     "Canceled": "Скасовано"
   },
-  "additionalTranslates": {
-    "importName": "Імпорт даних за фідом '%s'"
-  },
   "messages": {
     "importNow": "Ви впевнені, що хочете імпортувати дані з обраного джерела?"
   },

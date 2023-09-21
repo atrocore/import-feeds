@@ -71,10 +71,8 @@
     "Success": "Success",
     "Running": "Running",
     "Failed": "Failed",
-    "Canceled": "Canceled"
-  },
-  "additionalTranslates": {
-    "importName": "Importing data by feed '%s'"
+    "Canceled": "Canceled",
+    "createImportJobs": "Create Import Jobs for %s"
   },
   "messages": {
     "importNow": "Are you sure you want to import data from the selected source?"
