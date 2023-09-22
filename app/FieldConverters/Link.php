@@ -95,23 +95,7 @@ class Link extends Varchar
                     $input->assignedUserName = $userId;
 
                     if (!empty($config['foreignImportBy']) && !empty($config['foreignColumn'])) {
-                        $foreignValues = [];
-                        $foreignColumn = $config['foreignColumn'];
-                        $foreignImportBy = $config['foreignImportBy'];
-
-                        if (count($foreignColumn) === 1) {
-                            $foreignValues = explode($config['fieldDelimiterForRelation'], (string)$row[$foreignColumn[0]]);
-                        } else {
-                            foreach ($foreignColumn as $column) {
-                                $foreignValues[] = $row[$column];
-                            }
-                        }
-
-                        foreach ($foreignImportBy as $key => $field) {
-                            if (isset($foreignValues[$key])) {
-                                $input->{$field} = $foreignValues[$key];
-                            }
-                        }
+                        $this->prepareInputForCreateIfNotExist($input, $config, $row);
                     }
 
                     try {
@@ -267,6 +251,27 @@ class Link extends Varchar
     {
         if ($entityName === 'Asset' && in_array('url', $config['importBy'])) {
             $where = [];
+        }
+    }
+
+    protected function prepareInputForCreateIfNotExist($input, array $config, array $row): void
+    {
+        $foreignValues = [];
+        $foreignColumn = $config['foreignColumn'];
+        $foreignImportBy = $config['foreignImportBy'];
+
+        if (count($foreignColumn) === 1) {
+            $foreignValues = explode($config['fieldDelimiterForRelation'], (string)$row[$foreignColumn[0]]);
+        } else {
+            foreach ($foreignColumn as $column) {
+                $foreignValues[] = $row[$column];
+            }
+        }
+
+        foreach ($foreignImportBy as $key => $field) {
+            if (isset($foreignValues[$key])) {
+                $input->{$field} = $foreignValues[$key];
+            }
         }
     }
 }

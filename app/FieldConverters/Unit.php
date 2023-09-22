@@ -38,15 +38,29 @@ class Unit extends Link
     {
         parent::prepareWhere($config, $entityName, $where);
 
-        $where['measureId'] = 'no-such-measure';
+        $where['measureId'] = $this->getMeasureId($config);
+    }
+
+    protected function prepareInputForCreateIfNotExist($input, array $config, $row): void
+    {
+        parent::prepareInputForCreateIfNotExist($input, $config, $row);
+
+        $input->measureId = $this->getMeasureId($config);
+    }
+
+    protected function getMeasureId(array $config): string
+    {
+        $measureId = 'no-such-measure';
 
         if (!empty($config['attributeId'])) {
             $attribute = $this->configuratorItem->getAttributeById($config['attributeId']);
             if (!empty($attribute) && !empty($attribute->get('measureId'))) {
-                $where['measureId'] = $attribute->get('measureId');
+                $measureId = $attribute->get('measureId');
             }
         } else {
-            $where['measureId'] = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'measureId']);
+            $measureId = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'measureId']);
         }
+
+        return $measureId;
     }
 }
