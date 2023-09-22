@@ -73,9 +73,6 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                         translated.push(this.translate(field, 'fields', entityName));
                     });
                     extraInfo = `<span class="text-muted small">${this.translate('importBy', 'fields', 'ImportConfiguratorItem')}: ${translated.join(', ')}</span>`;
-                    if (this.model.get('createIfNotExist')) {
-                        extraInfo += `<br><span class="text-muted small">${this.translate('createIfNotExist', 'fields', 'ImportConfiguratorItem')}</span>`;
-                    }
                     if ((type === 'extensibleMultiEnum' || type === 'linkMultiple' || type === 'array' || type === 'multiEnum') && this.model.get('replaceArray')) {
                         extraInfo += `<br><span class="text-muted small">${this.translate('replaceArray', 'fields', 'ImportConfiguratorItem')}</span>`;
                     }
@@ -95,6 +92,10 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                 extraInfo += `<span class="text-muted small">${this.translate('code', 'fields', 'Attribute')}: ${this.model.get('attributeData').code}</span>`;
                 extraInfo += `<br><span class="text-muted small">${this.translate('attributeValue', 'fields', 'ImportConfiguratorItem')}: ${this.getLanguage().translateOption(this.model.get('attributeValue'), 'attributeValue', 'ImportConfiguratorItem')}</span>`;
                 extraInfo += `<br><span class="text-muted small">${this.translate('scope', 'fields')}: ${this.model.get('scope')}</span>`;
+            }
+
+            if (this.model.get('createIfNotExist')) {
+                extraInfo += `<br><span class="text-muted small">${this.translate('createIfNotExist', 'fields', 'ImportConfiguratorItem')}</span>`;
             }
 
             return extraInfo;
