@@ -66,11 +66,17 @@ class ImportConfiguratorItem extends Base
             ->find();
 
         if (!empty($attributesIds)) {
-            $attributes = $this
-                ->getEntityManager()
-                ->getRepository('Attribute')
-                ->where(['id' => $attributesIds])
-                ->find();
+            $params = [
+                'disableCount' => true,
+                'where'        => [
+                    [
+                        'type'      => 'in',
+                        'attribute' => 'id',
+                        'value'     => $attributesIds
+                    ]
+                ]
+            ];
+            $attributes = $this->getServiceFactory()->create('Attribute')->findEntities($params)['collection'];
         }
 
         foreach ($collection as $entity) {
@@ -87,9 +93,7 @@ class ImportConfiguratorItem extends Base
                 foreach ($attributes as $attribute) {
                     if ($attribute->get('id') === $entity->get('attributeId')) {
                         $entity->set('name', $attribute->get('name'));
-                        $entity->set('attributeCode', $attribute->get('code'));
-                        $entity->set('attributeType', $attribute->get('type'));
-                        $entity->set('attributeIsMultilang', $attribute->get('isMultilang'));
+                        $entity->set('attributeData', $attribute->toArray());
                         $fieldType = $attribute->get('type');
                         break 1;
                     }
@@ -116,13 +120,12 @@ class ImportConfiguratorItem extends Base
         $entity->set('sourceFields', $importFeed->get('sourceFields'));
 
         if ($entity->get('type') === 'Attribute') {
-            if (empty($attribute = $this->getEntityManager()->getEntity('Attribute', $entity->get('attributeId')))) {
+            $attribute = $this->getServiceFactory()->create('Attribute')->getEntity($entity->get('attributeId'));
+            if (empty($attribute)) {
                 throw new BadRequest('No such Attribute.');
             }
             $entity->set('name', $attribute->get('name'));
-            $entity->set('attributeCode', $attribute->get('code'));
-            $entity->set('attributeType', $attribute->get('type'));
-            $entity->set('attributeIsMultilang', $attribute->get('isMultilang'));
+            $entity->set('attributeData', $attribute->toArray());
             $fieldType = $attribute->get('type');
         } else {
             $fieldType = $this->getMetadata()->get(['entityDefs', $entity->get('entity'), 'fields', $entity->get('name'), 'type'], 'varchar');

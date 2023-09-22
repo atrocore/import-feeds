@@ -22,8 +22,7 @@ Espo.define('import:views/import-configurator-item/fields/locale', 'views/fields
 
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'change:attributeId', () => {
-                this.model.set('attributeIsMultilang', false);
+            this.listenTo(this.model, 'change:attributeData', () => {
                 this.reRender();
             });
         },
@@ -32,15 +31,9 @@ Espo.define('import:views/import-configurator-item/fields/locale', 'views/fields
             Dep.prototype.afterRender.call(this);
 
             this.hide();
-            if (this.model.get('type') === 'Attribute' && this.model.get('attributeId')) {
-                if (this.model.get('attributeIsMultilang')) {
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeData')) {
+                if (this.model.get('attributeData').isMultilang) {
                     this.show();
-                } else {
-                    this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`).then(attribute => {
-                        if (attribute.isMultilang) {
-                            this.show();
-                        }
-                    });
                 }
             }
         },

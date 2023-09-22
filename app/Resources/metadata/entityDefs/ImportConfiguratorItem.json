@@ -60,19 +60,21 @@
       "tooltip": true
     },
     "attribute": {
-      "type": "link"
+      "type": "link",
+      "view": "import:views/import-configurator-item/fields/attribute"
     },
-    "attributeType": {
-      "type": "varchar",
-      "notStorable": true
-    },
-    "attributeCode": {
-      "type": "varchar",
-      "notStorable": true
-    },
-    "attributeIsMultilang": {
-      "type": "bool",
-      "notStorable": true
+    "attributeData": {
+      "type": "jsonObject",
+      "notStorable": true,
+      "layoutListDisabled": true,
+      "layoutListSmallDisabled": true,
+      "layoutDetailDisabled": true,
+      "layoutDetailSmallDisabled": true,
+      "massUpdateDisabled": true,
+      "filterDisabled": true,
+      "exportDisabled": true,
+      "importDisabled": true,
+      "emHidden": true
     },
     "scope": {
       "type": "enum",

@@ -42,15 +42,28 @@ class ExtensibleEnum extends Link
             return;
         }
 
-        $where['extensibleEnumId'] = 'no-such-extensible-enum';
+        $where['extensibleEnumId'] = $this->getExtensibleEnumId($config);
+    }
 
+    protected function prepareInputForCreateIfNotExist($input, array $config, $row): void
+    {
+        parent::prepareInputForCreateIfNotExist($input, $config, $row);
+
+        $input->extensibleEnumId = $this->getExtensibleEnumId($config);
+    }
+
+    protected function getExtensibleEnumId(array $config): string
+    {
+        $extensibleEnumId = 'no-such-extensible-enum';
         if (!empty($config['attributeId'])) {
             $attribute = $this->configuratorItem->getAttributeById($config['attributeId']);
             if (!empty($attribute) && !empty($attribute->get('extensibleEnumId'))) {
-                $where['extensibleEnumId'] = $attribute->get('extensibleEnumId');
+                $extensibleEnumId = $attribute->get('extensibleEnumId');
             }
         } else {
-            $where['extensibleEnumId'] = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'extensibleEnumId']);
+            $extensibleEnumId = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'extensibleEnumId']);
         }
+
+        return $extensibleEnumId;
     }
 }

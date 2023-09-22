@@ -8,17 +8,13 @@
  * @license    GPLv3 (https://www.gnu.org/licenses/)
  */
 
-Espo.define('import:views/import-configurator-item/fields/create-if-not-exist', 'views/fields/bool',
-    Dep => Dep.extend({
+Espo.define('import:views/import-configurator-item/fields/create-if-not-exist', ['views/fields/bool', 'import:views/import-configurator-item/fields/import-by'],
+    (Dep, ImportBy) => Dep.extend({
 
         setup() {
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'change:name', () => {
-                this.reRender();
-            });
-
-            this.listenTo(this.model, 'change:importBy', () => {
+            this.listenTo(this.model, 'change:name change:attributeData', () => {
                 this.reRender();
             });
         },
@@ -26,21 +22,17 @@ Espo.define('import:views/import-configurator-item/fields/create-if-not-exist', 
         afterRender() {
             Dep.prototype.afterRender.call(this);
 
-            let type = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`);
-            if (['image', 'asset', 'link', 'linkMultiple'].includes(type)) {
+            let type = null;
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeData')) {
+                type = this.model.get('attributeData').type;
+            } else if (this.model.get('entity') && this.model.get('name')) {
+                type = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`);
+            }
+
+            if (type && ['image', 'asset', 'link', 'linkMultiple', 'extensibleEnum', 'extensibleMultiEnum'].includes(type)) {
                 const $input = this.$el.find('input');
 
-                let foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
-                if (type === 'asset'){
-                    foreignEntity = 'Asset';
-                }
-
-                /**
-                 * For Main Image
-                 */
-                if (this.model.get('name') === 'mainImage' || ['Product', 'Category'].includes(this.model.get('entity')) && this.model.get('name') === 'image') {
-                    foreignEntity = 'Asset';
-                }
+                let foreignEntity = ImportBy.prototype.getForeignEntity.call(this);
 
                 if (['Asset', 'Attachment'].includes(foreignEntity)) {
                     $input.attr('disabled', 'disabled');

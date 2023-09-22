@@ -13,7 +13,7 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
     setup() {
         Dep.prototype.setup.call(this);
 
-        this.listenTo(this.model, 'change:name change:type change:attributeId', () => {
+        this.listenTo(this.model, 'change:name change:type change:attributeData', () => {
             this.setupOptions();
             this.model.set('attributeValue', this.params.options[0] ?? null);
             this.reRender();
@@ -61,38 +61,19 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
     },
 
     isRequired() {
-        return this.model.get('type') === 'Attribute' && this.model.get('attributeId');
+        return this.model.get('type') === 'Attribute' && this.model.get('attributeData');
     },
 
     getType() {
-        if (this.model.get('attributeId')) {
-            return this.getAttribute(this.model.get('attributeId')).type;
+        if (this.model.get('attributeData')) {
+            return this.model.get('attributeData').type;
         }
 
         return 'varchar';
     },
 
     hasUnit() {
-        if (this.model.get('attributeId')) {
-            const attribute = this.getAttribute(this.model.get('attributeId'));
-            if (attribute.measureId) {
-                return true
-            }
-        }
-
-        return false
-    },
-
-    getAttribute(attributeId) {
-        let key = `attribute_${attributeId}`;
-        if (!Espo[key]) {
-            Espo[key] = null;
-            this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).success(attr => {
-                Espo[key] = attr;
-            });
-        }
-
-        return Espo[key];
+        return this.model.get('attributeData') && this.model.get('attributeData').measureId
     },
 
 }));
