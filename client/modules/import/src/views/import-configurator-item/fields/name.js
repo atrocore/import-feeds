@@ -54,7 +54,7 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                 name = this.translate(name, 'fields', this.model.get('entity'));
             }
 
-            if (this.model.get('type') === 'Attribute' && this.model.get('attributeIsMultilang') && this.model.get('locale') !== 'main') {
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeData') && this.model.get('attributeData').isMultilang && this.model.get('locale') !== 'main') {
                 name += ' / ' + this.model.get('locale');
             }
 
@@ -84,7 +84,7 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
 
             if (this.model.get('type') === 'Attribute') {
                 extraInfo = '';
-                if (['extensibleEnum', 'extensibleMultiEnum'].includes(this.model.get('attributeType'))) {
+                if (['extensibleEnum', 'extensibleMultiEnum'].includes(this.model.get('attributeData').type)) {
                     let translated = [];
                     this.model.get('importBy').forEach(field => {
                         translated.push(this.translate(field, 'fields', 'ExtensibleEnumOption'));
@@ -92,7 +92,7 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                     extraInfo = `<span class="text-muted small">${this.translate('importBy', 'fields', 'ImportConfiguratorItem')}: ${translated.join(', ')}</span><br>`;
                 }
 
-                extraInfo += `<span class="text-muted small">${this.translate('code', 'fields', 'Attribute')}: ${this.model.get('attributeCode')}</span>`;
+                extraInfo += `<span class="text-muted small">${this.translate('code', 'fields', 'Attribute')}: ${this.model.get('attributeData').code}</span>`;
                 extraInfo += `<br><span class="text-muted small">${this.translate('attributeValue', 'fields', 'ImportConfiguratorItem')}: ${this.getLanguage().translateOption(this.model.get('attributeValue'), 'attributeValue', 'ImportConfiguratorItem')}</span>`;
                 extraInfo += `<br><span class="text-muted small">${this.translate('scope', 'fields')}: ${this.model.get('scope')}</span>`;
             }

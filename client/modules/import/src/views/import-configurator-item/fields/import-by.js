@@ -20,7 +20,7 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             }
 
             this.prepareImportByOptions();
-            this.listenTo(this.model, 'change:name change:type change:attributeId change:attributeValue', () => {
+            this.listenTo(this.model, 'change:name change:type change:attributeData change:attributeValue', () => {
                 this.model.set('importBy', null);
                 this.prepareImportByOptions(() => {
                     this.reRender();
@@ -35,44 +35,40 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             return this.params.options.length > 0 && !this.model.get('defaultId') && !this.model.get('defaultIds');
         },
 
-        prepareImportByOptions(callback) {
-            this.params.options = [];
-            this.translatedOptions = {};
+        getForeignEntity() {
+            let type = null;
+            let attribute = null;
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeData')) {
+                attribute = this.model.get('attributeData');
+                type = attribute.type;
+            } else if (this.model.get('entity') && this.model.get('name')) {
+                type = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`);
+            }
 
-            let foreignEntity;
-            if (this.model.get('type') === 'Field') {
-                foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
-                if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`)) {
-                    foreignEntity = 'ExtensibleEnumOption';
-                } else if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset') {
-                    foreignEntity = 'Asset';
+            let foreignEntity = null;
+            if (type === 'asset') {
+                foreignEntity = 'Asset';
+            } else if (type && ['extensibleEnum', 'extensibleMultiEnum'].includes(type)) {
+                foreignEntity = 'ExtensibleEnumOption';
+            } else if (this.model.get('name') === 'mainImage' || ['Product', 'Category'].includes(this.model.get('entity')) && this.model.get('name') === 'image') {
+                foreignEntity = 'Asset';
+            } else if (attribute) {
+                foreignEntity = attribute.entityType;
+                if (attribute.measureId && this.model.get('attributeValue') === 'valueUnitId') {
+                    foreignEntity = 'Unit';
                 }
             } else {
-                if (this.model.get('attributeId')) {
-                    let attribute = this.getAttribute(this.model.get('attributeId'));
-                    if (['extensibleEnum', 'extensibleMultiEnum'].includes(attribute.type)) {
-                        foreignEntity = 'ExtensibleEnumOption';
-                    }
-                    if (attribute.measureId && this.model.get('attributeValue') === 'valueUnitId') {
-                        foreignEntity = 'Unit';
-                    }
-                    if (attribute.type === 'link') {
-                        foreignEntity = attribute.entityType;
-                    }
-                }
+                foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
             }
 
-            /**
-             * For Main Image
-             */
-            if (this.model.get('name') === 'mainImage' || ['Product', 'Category'].includes(this.model.get('entity')) && this.model.get('name') === 'image') {
-                foreignEntity = 'Asset';
-            }
+            return foreignEntity;
+        },
 
+        getImportByOptions() {
+            let translatedOptions = {};
+            let foreignEntity = this.getForeignEntity();
             if (foreignEntity) {
-                this.params.options.push('id');
-                this.translatedOptions['id'] = this.translate('id', 'fields', 'Global');
-
+                translatedOptions['id'] = this.translate('id', 'fields', 'Global');
                 $.each(this.getMetadata().get(`entityDefs.${foreignEntity}.fields`) || {}, (name, data) => {
                     if (
                         data.type
@@ -80,11 +76,22 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                         && !data.disabled
                         && !data.importDisabled
                     ) {
-                        this.params.options.push(name);
-                        this.translatedOptions[name] = this.translate(name, 'fields', foreignEntity);
+                        translatedOptions[name] = this.translate(name, 'fields', foreignEntity);
                     }
                 });
             }
+
+            return translatedOptions;
+        },
+
+        prepareImportByOptions(callback) {
+            this.params.options = [];
+            this.translatedOptions = {};
+
+            $.each(this.getImportByOptions(), (name, label) => {
+                this.params.options.push(name);
+                this.translatedOptions[name] = label;
+            });
 
             if (callback) {
                 callback();
@@ -113,18 +120,6 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             }
 
             return validate;
-        },
-
-        getAttribute(attributeId) {
-            let key = `attribute_${attributeId}`;
-            if (!Espo[key]) {
-                Espo[key] = null;
-                this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`, null, {async: false}).success(attr => {
-                    Espo[key] = attr;
-                });
-            }
-
-            return Espo[key];
         },
 
     })

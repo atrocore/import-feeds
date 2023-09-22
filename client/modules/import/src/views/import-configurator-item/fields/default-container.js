@@ -25,14 +25,10 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             this.createDefaultField();
 
             if (this.mode === 'edit') {
-                this.listenTo(this.model, 'change:attributeId', () => {
-                    if (this.model.get('attributeId')) {
-                        this.ajaxGetRequest(`Attribute/${this.model.get('attributeId')}`).then(attribute => {
-                            this.model.set('attributeType', attribute.type);
-
-                            this.clearDefaultField();
-                            this.createDefaultField();
-                        });
+                this.listenTo(this.model, 'change:attributeData', () => {
+                    if (this.model.get('attributeData')) {
+                        this.clearDefaultField();
+                        this.createDefaultField();
                     }
                 });
 
@@ -140,8 +136,8 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
                 options = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.options`) || [];
             }
 
-            if (this.model.get('type') === 'Attribute' && this.model.get('attributeId') && this.model.get('attributeType')) {
-                type = this.model.get('attributeType');
+            if (this.model.get('type') === 'Attribute' && this.model.get('attributeId') && this.model.get('attributeData')) {
+                type = this.model.get('attributeData').type;
                 if (type === 'rangeInt') {
                     type = 'int'
                 } else if (type === 'rangeFloat') {

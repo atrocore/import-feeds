@@ -8,8 +8,8 @@
  * @license    GPLv3 (https://www.gnu.org/licenses/)
  */
 
-Espo.define('import:views/import-configurator-item/fields/foreign-import-by', 'views/fields/multi-enum',
-    Dep => Dep.extend({
+Espo.define('import:views/import-configurator-item/fields/foreign-import-by', ['views/fields/multi-enum', 'import:views/import-configurator-item/fields/import-by'],
+    (Dep, ImportBy) => Dep.extend({
 
         allowedTypes: ['bool', 'enum', 'varchar', 'email', 'float', 'int', 'text', 'wysiwyg'],
 
@@ -22,12 +22,15 @@ Espo.define('import:views/import-configurator-item/fields/foreign-import-by', 'v
             }
 
             this.prepareOptions();
-            this.listenTo(this.model, 'change:name', () => {
+            this.listenTo(this.model, 'change:name change:attributeData', () => {
                 this.prepareOptions();
             });
 
             this.listenTo(this.model, 'change:createIfNotExist', () => {
-                this.model.set(this.name, null);
+                if (!this.model.get('createIfNotExist')) {
+                    this.model.set(this.name, null);
+                }
+                this.prepareOptions();
             });
 
             this.listenTo(this.model, 'change:importBy', () => {
@@ -43,34 +46,24 @@ Espo.define('import:views/import-configurator-item/fields/foreign-import-by', 'v
         },
 
         prepareOptions() {
-            if (this.model.get('name')) {
-                this.params.options = [];
-                this.translatedOptions = {};
+            this.params.options = [];
+            this.translatedOptions = {};
 
-                let foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
-                if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset'){
-                    foreignEntity = 'Asset';
-                }
+            $.each(ImportBy.prototype.getImportByOptions.call(this), (name, label) => {
+                this.params.options.push(name);
+                this.translatedOptions[name] = label;
+            });
+        },
 
-                if (foreignEntity) {
-                    $.each(this.getMetadata().get(`entityDefs.${foreignEntity}.fields`) || {}, (name, data) => {
-                        if (data.type
-                            && this.allowedTypes.includes(data.type)
-                            && !data.disabled
-                            && !data.importDisabled) {
-                            this.params.options.push(name);
-                            this.translatedOptions[name] = this.translate(name, 'fields', foreignEntity);
-                        }
-                    });
-                }
-            }
+        getForeignEntity() {
+            return ImportBy.prototype.getForeignEntity.call(this);
         },
 
         validateColumns() {
             let validate = false;
 
             const columns = (this.model.get('foreignColumn') || []).length,
-                  fields = (this.model.get(this.name) || []).length;
+                fields = (this.model.get(this.name) || []).length;
 
             if ((columns > 1 && fields !== columns) || (columns === 1 && fields < 1)) {
                 this.showValidationMessage(this.translate('wrongForeignFieldsNumber', 'exceptions', 'ImportConfiguratorItem'), this.$el);
