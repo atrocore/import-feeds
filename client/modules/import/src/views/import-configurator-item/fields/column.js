@@ -27,8 +27,7 @@ Espo.define('import:views/import-configurator-item/fields/column', 'views/fields
                 }
 
                 let type = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) || 'varchar';
-
-                if (this.model.get('type') === 'Attribute') {
+                if (this.model.get('type') === 'Attribute' && this.model.get('attributeData')) {
                     type = this.model.get('attributeData').type;
                 }
 
