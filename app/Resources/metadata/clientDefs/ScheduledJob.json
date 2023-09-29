@@ -31,17 +31,6 @@
             }
           ]
         }
-      },
-      "maximumHoursToLookBack": {
-        "visible": {
-          "conditionGroup": [
-            {
-              "type": "in",
-              "attribute": "job",
-              "value": ["TrialImport", "TrialExport"]
-            }
-          ]
-        }
       }
     }
   }
