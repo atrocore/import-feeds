@@ -455,6 +455,10 @@ class ImportTypeSimple extends QueueManagerBase
 
     protected function createImportPavJobs(array $productImportData): void
     {
+        if (empty($productImportData['data']['entity']) || $productImportData['data']['entity'] !== 'Product') {
+            return;
+        }
+
         $commonFields = ['delimiter', 'emptyValue', 'nullValue', 'decimalMark', 'thousandSeparator', 'markForNoRelation', 'fieldDelimiterForRelation'];
 
         /**
@@ -478,9 +482,23 @@ class ImportTypeSimple extends QueueManagerBase
             return;
         }
 
+        $importJob = $this->getEntityById('ImportJob', $productImportData['data']['importJobId']);
+        if (empty($importJob)) {
+            return;
+        }
+
+        /** @var \Import\Entities\ImportFeed $importFeed */
+        $importFeed = $this->getEntityById('ImportFeed', $importJob->get('importFeedId'));
+        if (empty($importFeed)) {
+            return;
+        }
+
+        /** @var \Import\Services\ImportFeed $importService */
+        $importService = $this->getService('ImportFeed');
+
         foreach ($productImportData['data']['configuration'] as $item) {
             if ($item['type'] === 'Attribute') {
-                $common = [];
+                $common = ['entity' => 'ProductAttributeValue'];
                 foreach ($commonFields as $commonField) {
                     $common[$commonField] = $item[$commonField];
                 }
@@ -525,23 +543,33 @@ class ImportTypeSimple extends QueueManagerBase
                     'importBy'         => $item['importBy'],
                 ]);
 
-
                 $pavData = $productImportData;
-                $pavData['name'] = $pavData['name'] . ' (1)';
+                $pavData['offset'] = $importFeed->isFileHeaderRow() ? 1 : 0;
                 $pavData['action'] = 'create_update';
                 $pavData['data']['entity'] = 'ProductAttributeValue';
+                $pavData['data']['idField'] = [
+                    "language",
+                    "scope",
+                    "product",
+                    "attribute"
+                ];
+
+                if (isset($pavData['sourceFields'])) {
+                    unset($pavData['sourceFields']);
+                }
+
                 $pavData['data']['configuration'] = $configurator;
 
-                echo '<pre>';
-                print_r($pavData);
-                die();
+                $payload = new \stdClass();
+                $payload->parentJobId = $importJob->get('id');
 
+                $pavJob = $importService->createImportJob($importFeed, 'ProductAttributeValue', $pavData['attachmentId'], $payload);
+
+                $pavData['data']['importJobId'] = $pavJob->get('id');
+
+                $importService->push($importService->getName($importFeed), 'ImportTypeSimple', $pavData);
             }
         }
-
-        echo '<pre>';
-        print_r('q1');
-        die();
     }
 
     protected function sortConfigurator(array &$data): void

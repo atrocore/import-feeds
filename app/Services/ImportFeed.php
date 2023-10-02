@@ -432,8 +432,10 @@ class ImportFeed extends Base
 
     public function createImportJob(ImportFeedEntity $feed, string $entityType, string $uploadedFileId, \stdClass $payload = null, string $attachmentId = null): ImportJob
     {
+        $entityLabel = $this->getInjection('language')->translate($entityType, 'scopeNames');
+
         $entity = $this->getEntityManager()->getEntity('ImportJob');
-        $entity->set('name', date('Y-m-d H:i:s'));
+        $entity->set('name', "{$entityLabel}: {$feed->get('name')}");
         $entity->set('importFeedId', $feed->get('id'));
         $entity->set('entityName', $entityType);
         $entity->set('uploadedFileId', $uploadedFileId);
