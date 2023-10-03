@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Import\Listeners;
 
 use Espo\Core\Exceptions\BadRequest;
-use Espo\Listeners\AbstractListener;
-use Espo\Core\EventManager\Event;
+use Atro\Listeners\AbstractListener;
+use Atro\Core\EventManager\Event;
 
 class AttachmentController extends AbstractListener
 {

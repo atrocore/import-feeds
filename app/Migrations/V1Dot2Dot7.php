@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Import\Migrations;
 
-class V1Dot2Dot7 extends \Treo\Core\Migration\Base
+class V1Dot2Dot7 extends \Atro\Core\Migration\Base
 {
     public function up(): void
     {
-        $em = (new \Treo\Core\Application())->getContainer()->get('entityManager');
+        $em = (new \Atro\Core\Application())->getContainer()->get('entityManager');
         foreach ($em->getRepository('ImportFeed')->where(['type' => 'simple'])->find() as $feed) {
             try {
                 $feed->setFeedField('format', 'CSV');

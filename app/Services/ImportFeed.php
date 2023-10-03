@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
-use Espo\Core\EventManager\Event;
+use Atro\Core\EventManager\Event;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;

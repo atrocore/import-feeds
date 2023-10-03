@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Migrations;
 
-class V1Dot2Dot4 extends \Treo\Core\Migration\Base
+class V1Dot2Dot4 extends \Atro\Core\Migration\Base
 {
     public function up(): void
     {
@@ -31,7 +31,7 @@ class V1Dot2Dot4 extends \Treo\Core\Migration\Base
             // ignore
         }
 
-        $container = (new \Treo\Core\Application())->getContainer();
+        $container = (new \Atro\Core\Application())->getContainer();
         $em = $container->get('entityManager');
 
         $auth = new \Espo\Core\Utils\Auth($container);

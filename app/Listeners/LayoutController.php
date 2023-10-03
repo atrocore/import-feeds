@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace Import\Listeners;
 
 use Espo\Core\Utils\Json;
-use Espo\Core\EventManager\Event;
+use Atro\Core\EventManager\Event;
 
-class LayoutController extends \Espo\Listeners\AbstractListener
+class LayoutController extends \Atro\Listeners\AbstractListener
 {
     public function afterActionRead(Event $event): void
     {

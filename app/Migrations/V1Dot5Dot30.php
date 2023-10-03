@@ -15,24 +15,13 @@ namespace Import\Migrations;
 
 use Atro\Core\Migration\Base;
 
-class V1Dot4Dot36 extends Base
+class V1Dot5Dot30 extends Base
 {
     public function up(): void
     {
-        $this->execute("ALTER TABLE `import_feed` ADD sheet INT DEFAULT 0 COLLATE utf8mb4_unicode_ci");
-
     }
 
     public function down(): void
     {
-        $this->execute("ALTER TABLE `import_feed` DROP sheet");
-    }
-
-    protected function execute(string $sql)
-    {
-        try {
-            $this->getPDO()->exec($sql);
-        } catch (\Throwable $e) {
-        }
     }
 }

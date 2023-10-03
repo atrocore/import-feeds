@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Migrations;
 
-class V1Dot2Dot6 extends \Treo\Core\Migration\Base
+class V1Dot2Dot6 extends \Atro\Core\Migration\Base
 {
     public function up(): void
     {

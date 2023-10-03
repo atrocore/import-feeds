@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import;
 
 use Espo\Core\OpenApiGenerator;
-use Treo\Core\ModuleManager\AbstractModule;
+use Atro\Core\ModuleManager\AbstractModule;
 
 /**
  * Class Module

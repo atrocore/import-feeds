@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Migrations;
 
-use Treo\Core\Migration\Base;
+use Atro\Core\Migration\Base;
 
 /**
  * Migration class for version 1.3.49
