@@ -457,7 +457,15 @@ class ImportTypeSimple extends QueueManagerBase
             return;
         }
 
-        $commonFields = ['delimiter', 'emptyValue', 'nullValue', 'decimalMark', 'thousandSeparator', 'markForNoRelation', 'fieldDelimiterForRelation'];
+        $commonFields = [
+            'delimiter',
+            'emptyValue',
+            'nullValue',
+            'decimalMark',
+            'thousandSeparator',
+            'markForNoRelation',
+            'fieldDelimiterForRelation'
+        ];
 
         /**
          * Prepare Product configurator item
@@ -539,7 +547,7 @@ class ImportTypeSimple extends QueueManagerBase
                     'foreignColumn'    => $item['foreignColumn'],
                     'foreignImportBy'  => $item['foreignImportBy'],
                     'importBy'         => $item['importBy'],
-                    'attributeId'        => $item['attributeId']
+                    'attributeId'      => $item['attributeId']
                 ]);
 
                 $pavData = $productImportData;
