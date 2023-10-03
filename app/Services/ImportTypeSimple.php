@@ -15,6 +15,7 @@ namespace Import\Services;
 
 use Atro\Core\Exceptions\NotModified;
 use Atro\Core\EventManager\Event;
+use Atro\DTO\QueueItemDTO;
 use Espo\Core\EventManager\Manager;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\NotFound;
@@ -23,8 +24,6 @@ use Espo\Core\Utils\Metadata;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
 use Import\Entities\ImportFeed;
-use Import\Exceptions\IgnoreAttribute;
-use Import\Repositories\ImportConfiguratorItem as ImportConfiguratorItemRepository;
 
 class ImportTypeSimple extends QueueManagerBase
 {
@@ -493,6 +492,11 @@ class ImportTypeSimple extends QueueManagerBase
             return;
         }
 
+        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
+        if (empty($qmJob)) {
+            return;
+        }
+
         /** @var \Import\Entities\ImportFeed $importFeed */
         $importFeed = $this->getEntityById('ImportFeed', $importJob->get('importFeedId'));
         if (empty($importFeed)) {
@@ -574,7 +578,10 @@ class ImportTypeSimple extends QueueManagerBase
 
                 $pavData['data']['importJobId'] = $pavJob->get('id');
 
-                $importService->push($importService->getName($importFeed), 'ImportTypeSimple', $pavData);
+                $dto = new QueueItemDTO($importService->getName($importFeed), 'ImportTypeSimple', $pavData);
+                $dto->setParentId($qmJob->get('id'));
+
+                $importService->push($dto);
             }
         }
     }

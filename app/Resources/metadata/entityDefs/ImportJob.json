@@ -14,26 +14,9 @@
       "type": "link",
       "readOnly": true
     },
-    "position": {
-      "type": "autoincrement",
-      "readOnly": true,
-      "layoutDetailDisabled": true,
-      "layoutDetailSmallDisabled": true,
-      "layoutListDisabled": true,
-      "layoutListSmallDisabled": true,
-      "layoutMassUpdateDisabled": true,
-      "filterDisabled": true,
-      "exportDisabled": true,
-      "importDisabled": true,
-      "textFilterDisabled": true,
-      "emHidden": true
-    },
     "sortOrder": {
       "type": "float",
       "readOnly": true
-    },
-    "parent": {
-      "type": "link"
     },
     "entityName": {
       "type": "varchar",
@@ -183,10 +166,6 @@
       "type": "belongsTo",
       "foreign": "importJobs",
       "entity": "ImportFeed"
-    },
-    "parent": {
-      "type": "belongsTo",
-      "entity": "ImportJob"
     },
     "attachment": {
       "type": "belongsTo",
