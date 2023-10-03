@@ -186,7 +186,7 @@
     },
     "parent": {
       "type": "belongsTo",
-      "entity": "ImportFeedJob"
+      "entity": "ImportJob"
     },
     "attachment": {
       "type": "belongsTo",

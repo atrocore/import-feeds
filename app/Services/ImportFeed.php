@@ -440,7 +440,13 @@ class ImportFeed extends Base
         $entity->set('entityName', $entityType);
         $entity->set('uploadedFileId', $uploadedFileId);
         $entity->set('attachmentId', empty($attachmentId) ? $uploadedFileId : $attachmentId);
-        $entity->set('payload', $payload);
+
+        if (!empty($payload)) {
+            $entity->set('payload', $payload);
+            if (property_exists($payload, 'parentJobId')) {
+                $entity->set('parentId', $payload->parentJobId);
+            }
+        }
 
         $this->getEntityManager()->saveEntity($entity);
 

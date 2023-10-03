@@ -57,9 +57,34 @@ class ImportJob extends Base
         parent::beforeSave($entity, $options);
     }
 
+    public function updateSortOrder(string $id): void
+    {
+        $entity = $this->get($id);
+        if (empty($entity)) {
+            return;
+        }
+
+        $sortOrder = $entity->get('position');
+        if (!empty($parent = $entity->get('parent'))) {
+            $sortOrder = $parent->get('position') . '.' . $sortOrder;
+        }
+
+        $this->getConnection()->createQueryBuilder()
+            ->update('import_job')
+            ->set('sort_order', (float)$sortOrder)
+            ->where('id = :id')
+            ->setParameter('id', $entity->get('id'))
+            ->executeQuery();
+    }
+
     protected function afterSave(Entity $entity, array $options = [])
     {
-        if ($entity->isAttributeChanged('state') &&  in_array($entity->get('state'),['Canceled','Pending'])) {
+        // update sort order
+        if ($entity->isNew()) {
+            $this->updateSortOrder($entity->get('id'));
+        }
+
+        if ($entity->isAttributeChanged('state') && in_array($entity->get('state'), ['Canceled', 'Pending'])) {
             $qmJob = $this->getQmJob($entity->get('id'));
             if (!empty($qmJob)) {
                 if ($entity->get('state') === 'Pending' && in_array($qmJob->get('status'), ['Success', 'Failed', 'Canceled'])) {
