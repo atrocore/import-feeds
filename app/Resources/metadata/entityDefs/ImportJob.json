@@ -32,6 +32,9 @@
       "type": "float",
       "readOnly": true
     },
+    "parent": {
+      "type": "link"
+    },
     "entityName": {
       "type": "varchar",
       "readOnly": true,
@@ -181,6 +184,10 @@
       "foreign": "importJobs",
       "entity": "ImportFeed"
     },
+    "parent": {
+      "type": "belongsTo",
+      "entity": "ImportFeedJob"
+    },
     "attachment": {
       "type": "belongsTo",
       "entity": "Attachment",
@@ -212,7 +219,7 @@
   },
   "collection": {
     "sortBy": "sortOrder",
-    "asc": true
+    "asc": false
   },
   "indexes": {
     "name": {
