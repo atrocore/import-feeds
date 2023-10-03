@@ -22,6 +22,8 @@ use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
 
 class ImportJob extends Base
 {
+    protected array  $qmJobs = [];
+
     public function getImportJobsViaScope(string $scope): array
     {
         return $this->getConnection()->createQueryBuilder()
@@ -171,7 +173,11 @@ class ImportJob extends Base
 
     public function getQmJob(string $id): ?Entity
     {
-        return $this->getEntityManager()->getRepository('QueueItem')->where(['data*' => '%"importJobId":"' . $id . '"%'])->findOne();
+        if (!isset($this->qmJobs[$id])) {
+            $this->qmJobs[$id] = $this->getEntityManager()->getRepository('QueueItem')->where(['data*' => '%"importJobId":"' . $id . '"%'])->findOne();
+        }
+
+        return $this->qmJobs[$id];
     }
 
     protected function toPendingQmJob(Entity $qmJob): void
