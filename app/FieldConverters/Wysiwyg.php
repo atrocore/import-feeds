@@ -111,6 +111,11 @@ class Wysiwyg
         return $this->services[$name];
     }
 
+    protected function getEntityById(string $scope, string $id): Entity
+    {
+        return $this->getService('ImportTypeSimple')->getEntityById($scope, $id);
+    }
+
     protected function ignoreAttribute($value, array $config): void
     {
         if (!isset($config['attributeId'])) {

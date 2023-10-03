@@ -36,7 +36,6 @@ class LinkMultiple extends Varchar
             }
         }
 
-
         $this->relationEntityName = $config['relEntityName'] ?? $this->getForeignEntityName($config);
 
         $searchData = $this->prepareItem($config, $config['column'], $row);
@@ -66,15 +65,10 @@ class LinkMultiple extends Varchar
 
         $ids = array_values($ids);
 
-
         if (!empty($inputRow->$fieldName)) {
             $inputRow->$fieldName = array_merge($inputRow->$fieldName, $ids);
         } else {
             $inputRow->$fieldName = $ids;
-        }
-
-        if ($config['type'] === 'Attribute') {
-            $inputRow->{$config['name']} = $inputRow->$fieldName;
         }
 
         if (empty($config['replaceArray'])) {

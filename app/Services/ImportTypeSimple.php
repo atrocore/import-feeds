@@ -29,8 +29,6 @@ use Import\Repositories\ImportConfiguratorItem as ImportConfiguratorItemReposito
 class ImportTypeSimple extends QueueManagerBase
 {
     private array $restore = [];
-    private array $updatedPav = [];
-    private array $deletedPav = [];
     private bool $lastIteration = false;
 
     protected array $entities = [];
@@ -541,6 +539,7 @@ class ImportTypeSimple extends QueueManagerBase
                     'foreignColumn'    => $item['foreignColumn'],
                     'foreignImportBy'  => $item['foreignImportBy'],
                     'importBy'         => $item['importBy'],
+                    'attributeId'        => $item['attributeId']
                 ]);
 
                 $pavData = $productImportData;

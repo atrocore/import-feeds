@@ -110,7 +110,7 @@ class Link extends Varchar
                     }
 
                     // for attribute
-                    if ($config['type'] === 'Attribute' && !empty($config['relEntityName']) && !empty($entity)) {
+                    if (isset($config['attributeId']) && !empty($config['relEntityName']) && !empty($entity)) {
                         $entity = $entity->get('file');
                     }
                 }
@@ -143,10 +143,6 @@ class Link extends Varchar
 
         if ($config['entity'] === 'ProductAttributeValue' && !empty($entity) && $entity->getEntityType() === 'Attribute') {
             $inputRow->attributeType = $entity->get('type');
-        }
-
-        if ($config['type'] === 'Attribute') {
-            $inputRow->{$config['name']} = $inputRow->$fieldName;
         }
     }
 
@@ -230,8 +226,8 @@ class Link extends Varchar
 
     protected function getForeignEntityName(array $config): string
     {
-        if ($config['type'] === 'Attribute') {
-            return $config['attribute']->get('entityType');
+        if (isset($config['attributeId'])) {
+            return $this->getEntityById('Attribute', $config['attributeId'])->get('entityType');
         }
 
         $res = $this->getMetadata()->get(['entityDefs', $config['entity'], 'fields', $config['name'], 'entity']);
