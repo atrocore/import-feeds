@@ -18,7 +18,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\FilePathBuilder;
 
-class ImportFeed extends \Espo\Core\Templates\Controllers\Base
+class ImportFeed extends \Atro\Core\Templates\Controllers\Base
 {
     public function actionParseFileColumns($params, $data, $request): array
     {

@@ -14,7 +14,8 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Atro\Core\Exceptions\NotModified;
-use Espo\Core\EventManager\Event;
+use Atro\Core\EventManager\Event;
+use Atro\DTO\QueueItemDTO;
 use Espo\Core\EventManager\Manager;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\NotFound;
@@ -23,14 +24,10 @@ use Espo\Core\Utils\Metadata;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
 use Import\Entities\ImportFeed;
-use Import\Exceptions\IgnoreAttribute;
-use Import\Repositories\ImportConfiguratorItem as ImportConfiguratorItemRepository;
 
 class ImportTypeSimple extends QueueManagerBase
 {
     private array $restore = [];
-    private array $updatedPav = [];
-    private array $deletedPav = [];
     private bool $lastIteration = false;
 
     protected array $entities = [];
@@ -156,12 +153,9 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $this->sortConfigurator($data);
 
-                    $attributes = [];
                     foreach ($data['data']['configuration'] as $item) {
-                        if ($item['type'] == 'Attribute' && !empty($item['attributeId'])) {
-                            $key = self::preparePavKey($item);
-                            $attributes[$key]['row'] = $row;
-                            $attributes[$key]['configuration'][] = $item;
+                        // skip if for attribute
+                        if ($item['type'] === 'Attribute') {
                             continue 1;
                         }
 
@@ -194,7 +188,6 @@ class ImportTypeSimple extends QueueManagerBase
                             $ids[] = $updatedEntity->get('id');
                         }
 
-                        $this->importAttributes($attributes, $updatedEntity);
                         $this->saveRestoreRow('created', $scope, $updatedEntity->get('id'));
                     } elseif ($data['action'] == 'delete_found') {
                         $entityService->deleteEntity($id);
@@ -208,11 +201,6 @@ class ImportTypeSimple extends QueueManagerBase
                             $this->saveRestoreRow('updated', $scope, [$id => $restore]);
                             $notModified = false;
                         } catch (NotModified $e) {
-                        }
-
-                        if ($this->importAttributes($attributes, $entity)) {
-                            $notModified = false;
-                            $updatedEntity = $entity;
                         }
 
                         if ($notModified) {
@@ -241,6 +229,9 @@ class ImportTypeSimple extends QueueManagerBase
                 $this->log($scope, $importJob->get('id'), $action, (string)$fileRow, $updatedEntity->get('id'));
             }
         }
+
+        // create jobs for importing ProductAttributeValues
+        $this->createImportPavJobs($data);
 
         if (self::isDeleteAction($data['action'])) {
             $toDeleteRecords = $this
@@ -459,128 +450,140 @@ class ImportTypeSimple extends QueueManagerBase
         return 'HTTP Code: ' . $code;
     }
 
-    protected function importAttributes(array $attributes, Entity $entity): bool
+    protected function createImportPavJobs(array $productImportData): void
     {
-        if ($entity->getEntityType() !== 'Product') {
-            return false;
+        if (empty($productImportData['data']['entity']) || $productImportData['data']['entity'] !== 'Product') {
+            return;
         }
 
-        $this->updatedPav = [];
-        $this->deletedPav = [];
-
-        $result = false;
-        foreach ($attributes as $attribute) {
-            if ($this->importAttribute($entity, $attribute)) {
-                $result = true;
-            }
-        }
-
-        return $result;
-    }
-
-    protected function importAttribute(Entity $product, array $data): bool
-    {
-        $entityType = 'ProductAttributeValue';
-
-        /** @var \Pim\Services\ProductAttributeValue $service */
-        $service = $this->getService($entityType);
-
-        $inputRow = new \stdClass();
-        $restoreRow = new \stdClass();
-
-        $row = $data['row'];
-        $configuration = $data['configuration'];
-
-        $attribute = $this->getEntityById('Attribute', $configuration[0]['attributeId']);
-        $pavWhere = [
-            'productId'   => $product->get('id'),
-            'attributeId' => $attribute->get('id'),
-            'scope'       => $configuration[0]['scope'],
-            'language'    => $configuration[0]['locale'],
+        $commonFields = [
+            'delimiter',
+            'emptyValue',
+            'nullValue',
+            'decimalMark',
+            'thousandSeparator',
+            'markForNoRelation',
+            'fieldDelimiterForRelation'
         ];
 
-        if ($pavWhere['scope'] === 'Channel') {
-            $pavWhere['channelId'] = $configuration[0]['channelId'];
-        }
-
-        $pav = $this->getEntityManager()->getRepository($entityType)->where($pavWhere)->findOne();
-
-        foreach ($configuration as $conf) {
-            $type = ImportConfiguratorItemRepository::prepareConverterType($attribute->get('type'), $conf['attributeValue']);
-            $conf['name'] = $conf['attributeValue'] ?? 'value';
-            $conf['attribute'] = $attribute;
-
-            $converter = $this->getService('ImportConfiguratorItem')->getFieldConverter($type);
-
-            if (!empty($pav)) {
-                $inputRow->id = $pav->get('id');
-                $converter->prepareValue($restoreRow, $pav, $conf);
-            }
-
-            try {
-                $converter->convert($inputRow, $conf, $row);
-            } catch (IgnoreAttribute $e) {
-                if (in_array(implode('_', $pavWhere), $this->updatedPav)) {
-                    throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
+        /**
+         * Prepare Product configurator item
+         */
+        foreach ($productImportData['data']['configuration'] as $item) {
+            if ($item['type'] !== 'Attribute' && in_array($item['name'], $productImportData['data']['idField'])) {
+                $product['type'] = 'Field';
+                $product['name'] = 'product';
+                $product['default'] = null;
+                $product['entity'] = 'ProductAttributeValue';
+                $product['column'][] = $item['column'][0];
+                $product['importBy'][] = $item['name'];
+                foreach ($commonFields as $commonField) {
+                    $product[$commonField] = $item[$commonField];
                 }
-
-                $this->deletedPav[] = implode('_', $pavWhere);
-
-                if (property_exists($inputRow, 'id')) {
-                    $this->saveRestoreRow('deleted', $entityType, $pav->toArray());
-                    $service->deleteEntity($inputRow->id);
-                    return true;
-                } else {
-                    return false;
-                }
-            } catch (BadRequest $e) {
-                $message = '';
-                if (array_key_exists('column', $conf)) {
-                    $message = $this->translate('convertValidationPrefix', 'exceptions', 'ImportFeed');
-                    $values = [];
-                    foreach ($conf['column'] as $column) {
-                        $values[] = array_key_exists($column, $row) ? $row[$column] : '';
-                    }
-                    $message = str_replace(['{{value}}', '{{column}}'], [implode(', ', $values), implode(', ', $conf['column'])], $message);
-                }
-                throw new BadRequest($message . lcfirst($e->getMessage()));
             }
         }
 
-        if (in_array(implode('_', $pavWhere), $this->deletedPav)) {
-            throw new BadRequest(sprintf($this->translate('unlinkAndLinkInOneRow', 'exceptions', 'ImportFeed'), implode(', ', $conf['column'])));
+        if (empty($product)) {
+            return;
         }
 
-        $this->updatedPav[] = implode('_', $pavWhere);
+        $importJob = $this->getEntityById('ImportJob', $productImportData['data']['importJobId']);
+        if (empty($importJob)) {
+            return;
+        }
 
-        if (!property_exists($inputRow, 'id')) {
-            foreach ($pavWhere as $name => $value) {
-                $inputRow->$name = $value;
-            }
+        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
+        if (empty($qmJob)) {
+            return;
+        }
 
-            if (property_exists($inputRow, 'channelId')) {
-                $channel = $this->getEntityManager()->getEntity('Channel', $inputRow->channelId);
-                if (empty($channel)) {
-                    throw new BadRequest("No such channel '$inputRow->channelId'.");
+        /** @var \Import\Entities\ImportFeed $importFeed */
+        $importFeed = $this->getEntityById('ImportFeed', $importJob->get('importFeedId'));
+        if (empty($importFeed)) {
+            return;
+        }
+
+        /** @var \Import\Services\ImportFeed $importService */
+        $importService = $this->getService('ImportFeed');
+
+        foreach ($productImportData['data']['configuration'] as $item) {
+            if ($item['type'] === 'Attribute') {
+                $common = ['entity' => 'ProductAttributeValue'];
+                foreach ($commonFields as $commonField) {
+                    $common[$commonField] = $item[$commonField];
                 }
-                $inputRow->channelName = $channel->get('name');
-            }
 
-            $pavEntity = $service->createEntity($inputRow);
-            $this->saveRestoreRow('created', $entityType, $pavEntity->get('id'));
-        } else {
-            $id = $inputRow->id;
-            unset($inputRow->id);
+                $configurator = [$product];
+                $configurator[] = array_merge($common, [
+                    'type'    => 'Field',
+                    'name'    => 'attribute',
+                    'column'  => [],
+                    'default' => $item['attributeId']
+                ]);
+                $configurator[] = array_merge($common, [
+                    'type'    => 'Field',
+                    'name'    => 'language',
+                    'column'  => [],
+                    'default' => $item['locale']
+                ]);
+                $configurator[] = array_merge($common, [
+                        'type'    => 'Field',
+                        'name'    => 'scope',
+                        'column'  => [],
+                        'default' => $item['scope']
+                    ]
+                );
+                if ($item['scope'] === 'Channel') {
+                    $configurator[] = array_merge($common, [
+                            'type'    => 'Field',
+                            'name'    => 'channelId',
+                            'column'  => [],
+                            'default' => $item['channelId']
+                        ]
+                    );
+                }
+                $configurator[] = array_merge($common, [
+                    'type'             => 'Field',
+                    'name'             => $conf['attributeValue'] ?? 'value',
+                    'column'           => $item['column'],
+                    'default'          => $item['default'],
+                    'createIfNotExist' => $item['createIfNotExist'],
+                    'foreignColumn'    => $item['foreignColumn'],
+                    'foreignImportBy'  => $item['foreignImportBy'],
+                    'importBy'         => $item['importBy'],
+                    'attributeId'      => $item['attributeId']
+                ]);
 
-            try {
-                $service->updateEntity($id, $inputRow);
-                $this->saveRestoreRow('updated', $entityType, [$id => $restoreRow]);
-            } catch (NotModified $e) {
-                return false;
+                $pavData = $productImportData;
+                $pavData['offset'] = $importFeed->isFileHeaderRow() ? 1 : 0;
+                $pavData['action'] = 'create_update';
+                $pavData['data']['entity'] = 'ProductAttributeValue';
+                $pavData['data']['idField'] = [
+                    "language",
+                    "scope",
+                    "product",
+                    "attribute"
+                ];
+
+                if (isset($pavData['sourceFields'])) {
+                    unset($pavData['sourceFields']);
+                }
+
+                $pavData['data']['configuration'] = $configurator;
+
+                $payload = new \stdClass();
+                $payload->parentJobId = $importJob->get('id');
+
+                $pavJob = $importService->createImportJob($importFeed, 'ProductAttributeValue', $pavData['attachmentId'], $payload);
+
+                $pavData['data']['importJobId'] = $pavJob->get('id');
+
+                $dto = new QueueItemDTO($importService->getName($importFeed), 'ImportTypeSimple', $pavData);
+                $dto->setParentId($qmJob->get('id'));
+
+                $importService->push($dto);
             }
         }
-
-        return true;
     }
 
     protected function sortConfigurator(array &$data): void
@@ -665,19 +668,5 @@ class ImportTypeSimple extends QueueManagerBase
         }
 
         return $type;
-    }
-
-    public static function preparePavKey(array $item): string
-    {
-        $arr = ['attributeId', 'scope', 'channelId', 'locale'];
-
-        $res = [];
-        foreach ($arr as $v) {
-            if (!array_key_exists($v, $item)) {
-                throw new \Error("'$v' is required for configurator item.");
-            }
-            $res[] = $item[$v];
-        }
-        return implode("_", $res);
     }
 }

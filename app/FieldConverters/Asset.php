@@ -21,7 +21,7 @@ class Asset extends Link
     {
         $config['relEntityName'] = 'Asset';
 
-        if ($config['type'] === 'Attribute') {
+        if (isset($config['attributeId'])) {
             $config['importBy'] = ['url'];
         }
 

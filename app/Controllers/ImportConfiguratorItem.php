@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Controllers;
 
 use Espo\Core\Exceptions\Forbidden;
-use Espo\Core\Templates\Controllers\Base;
+use Atro\Core\Templates\Controllers\Base;
 
 class ImportConfiguratorItem extends Base
 {

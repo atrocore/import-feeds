@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Import\FileParsers;
 
-use Espo\Core\EventManager\Event;
+use Atro\Core\EventManager\Event;
 use Espo\Core\Injectable;
 use Espo\Entities\Attachment;
 

@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
-use Espo\Core\EventManager\Event;
+use Atro\Core\EventManager\Event;
+use Atro\DTO\QueueItemDTO;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\FilePathBuilder;
-use Espo\Core\Templates\Services\Base;
+use Atro\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Import\Entities\ImportFeed as ImportFeedEntity;
 use Import\Entities\ImportJob;
@@ -370,11 +371,37 @@ class ImportFeed extends Base
         return $this->getInjection('language')->translate($key, 'labels', 'ImportFeed');
     }
 
-    public function push(string $name, string $serviceName, array $data = []): bool
+    /**
+     * @param QueueItemDTO $dto
+     *
+     * @return bool
+     */
+    public function push(...$input): bool
     {
-        $priority = empty($data['data']['priority']) ? 'Normal' : (string)$data['data']['priority'];
+        $dto = $input[0];
+        if (!$input[0] instanceof QueueItemDTO) {
+            $dto = new QueueItemDTO($input[0], $input[1], $input[2] ?? []);
+        }
 
-        return $this->getInjection('queueManager')->push($name, $serviceName, $data, $priority);
+        $data = $dto->getData();
+
+        if (isset($data['data']['priority'])) {
+            $dto->setPriority($data['data']['priority']);
+        }
+
+        $id = $this->getInjection('queueManager')->createQueueItem($dto);
+
+        $queueItem = $this->getEntityManager()->getRepository('QueueItem')->get($id);
+
+        // update sort order
+        $this->getInjection('container')->get('connection')->createQueryBuilder()
+            ->update('import_job')
+            ->set('sort_order', $queueItem->get('sortOrder'))
+            ->where('id = :id')
+            ->setParameter('id', $data['data']['importJobId'])
+            ->executeQuery();
+
+        return !empty($id);
     }
 
     /**
@@ -432,13 +459,21 @@ class ImportFeed extends Base
 
     public function createImportJob(ImportFeedEntity $feed, string $entityType, string $uploadedFileId, \stdClass $payload = null, string $attachmentId = null): ImportJob
     {
+        $entityLabel = $this->getInjection('language')->translate($entityType, 'scopeNames');
+
         $entity = $this->getEntityManager()->getEntity('ImportJob');
-        $entity->set('name', date('Y-m-d H:i:s'));
+        $entity->set('name', "{$entityLabel}: {$feed->get('name')}");
         $entity->set('importFeedId', $feed->get('id'));
         $entity->set('entityName', $entityType);
         $entity->set('uploadedFileId', $uploadedFileId);
         $entity->set('attachmentId', empty($attachmentId) ? $uploadedFileId : $attachmentId);
-        $entity->set('payload', $payload);
+
+        if (!empty($payload)) {
+            $entity->set('payload', $payload);
+            if (property_exists($payload, 'parentJobId')) {
+                $entity->set('parentId', $payload->parentJobId);
+            }
+        }
 
         $this->getEntityManager()->saveEntity($entity);
 

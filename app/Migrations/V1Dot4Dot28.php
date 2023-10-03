@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Migrations;
 
 use Espo\Core\Exceptions\BadRequest;
-use Treo\Core\Migration\Base;
+use Atro\Core\Migration\Base;
 
 class V1Dot4Dot28 extends Base
 {

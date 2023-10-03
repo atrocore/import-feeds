@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Repositories;
 
 use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Templates\Repositories\Base;
+use Atro\Core\Templates\Repositories\Base;
 use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\Services\Attachment;
@@ -22,6 +22,8 @@ use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
 
 class ImportJob extends Base
 {
+    protected array  $qmJobs = [];
+
     public function getImportJobsViaScope(string $scope): array
     {
         return $this->getConnection()->createQueryBuilder()
@@ -59,7 +61,7 @@ class ImportJob extends Base
 
     protected function afterSave(Entity $entity, array $options = [])
     {
-        if ($entity->isAttributeChanged('state') &&  in_array($entity->get('state'),['Canceled','Pending'])) {
+        if ($entity->isAttributeChanged('state') && in_array($entity->get('state'), ['Canceled', 'Pending'])) {
             $qmJob = $this->getQmJob($entity->get('id'));
             if (!empty($qmJob)) {
                 if ($entity->get('state') === 'Pending' && in_array($qmJob->get('status'), ['Success', 'Failed', 'Canceled'])) {
@@ -146,7 +148,11 @@ class ImportJob extends Base
 
     public function getQmJob(string $id): ?Entity
     {
-        return $this->getEntityManager()->getRepository('QueueItem')->where(['data*' => '%"importJobId":"' . $id . '"%'])->findOne();
+        if (!isset($this->qmJobs[$id])) {
+            $this->qmJobs[$id] = $this->getEntityManager()->getRepository('QueueItem')->where(['data*' => '%"importJobId":"' . $id . '"%'])->findOne();
+        }
+
+        return $this->qmJobs[$id];
     }
 
     protected function toPendingQmJob(Entity $qmJob): void

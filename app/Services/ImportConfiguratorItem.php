@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Templates\Services\Base;
+use Atro\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
 use Import\FieldConverters\Varchar;
