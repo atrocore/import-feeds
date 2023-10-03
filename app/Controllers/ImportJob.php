@@ -16,7 +16,7 @@ namespace Import\Controllers;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\Exceptions\Forbidden;
-use Espo\Core\Templates\Controllers\Base;
+use Atro\Core\Templates\Controllers\Base;
 
 class ImportJob extends Base
 {

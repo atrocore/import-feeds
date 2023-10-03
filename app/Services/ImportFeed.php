@@ -18,7 +18,7 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\FilePathBuilder;
-use Espo\Core\Templates\Services\Base;
+use Atro\Core\Templates\Services\Base;
 use Espo\ORM\Entity;
 use Import\Entities\ImportFeed as ImportFeedEntity;
 use Import\Entities\ImportJob;

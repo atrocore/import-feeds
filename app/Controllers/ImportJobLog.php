@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Controllers;
 
 use Espo\Core\Exceptions\NotFound;
-use Espo\Core\Templates\Controllers\Base;
+use Atro\Core\Templates\Controllers\Base;
 
 class ImportJobLog extends Base
 {

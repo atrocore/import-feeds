@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Repositories;
 
 use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Templates\Repositories\Base;
+use Atro\Core\Templates\Repositories\Base;
 use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\Services\Attachment;

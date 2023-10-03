@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Import\Entities;
 
 use Espo\Core\Exceptions\BadRequest;
-use Espo\Core\Templates\Entities\Base;
+use Atro\Core\Templates\Entities\Base;
 use Espo\Core\Utils\Json;
 
 class ImportFeed extends Base

@@ -15,7 +15,7 @@ namespace Import\Services;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\FilePathBuilder;
-use Espo\Core\Templates\Services\Base;
+use Atro\Core\Templates\Services\Base;
 use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
