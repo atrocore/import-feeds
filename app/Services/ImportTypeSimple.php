@@ -508,6 +508,11 @@ class ImportTypeSimple extends QueueManagerBase
 
         foreach ($productImportData['data']['configuration'] as $item) {
             if ($item['type'] === 'Attribute') {
+                $attribute = $this->getEntityById('Attribute', $item['attributeId']);
+                if (empty($attribute)) {
+                    continue;
+                }
+
                 $common = ['entity' => 'ProductAttributeValue'];
                 foreach ($commonFields as $commonField) {
                     $common[$commonField] = $item[$commonField];
@@ -515,10 +520,11 @@ class ImportTypeSimple extends QueueManagerBase
 
                 $configurator = [$product];
                 $configurator[] = array_merge($common, [
-                    'type'    => 'Field',
-                    'name'    => 'attribute',
-                    'column'  => [],
-                    'default' => $item['attributeId']
+                    'type'     => 'Field',
+                    'name'     => 'attribute',
+                    'column'   => [],
+                    'importBy' => [],
+                    'default'  => $attribute->get('id')
                 ]);
                 $configurator[] = array_merge($common, [
                     'type'    => 'Field',
@@ -551,7 +557,8 @@ class ImportTypeSimple extends QueueManagerBase
                     'foreignColumn'    => $item['foreignColumn'],
                     'foreignImportBy'  => $item['foreignImportBy'],
                     'importBy'         => $item['importBy'],
-                    'attributeId'      => $item['attributeId']
+                    'attributeId'      => $attribute->get('id'),
+                    'attributeType'    => $attribute->get('type')
                 ]);
 
                 $pavData = $productImportData;
@@ -647,18 +654,12 @@ class ImportTypeSimple extends QueueManagerBase
 
         if ($item['entity'] === 'ProductAttributeValue') {
             if (in_array($fieldName, ['value', 'valueFrom', 'valueTo'])) {
-                if (property_exists($input, 'attributeType')) {
+                if (isset($item['attributeType'])) {
+                    $type = $item['attributeType'];
+                } elseif (property_exists($input, 'attributeType')) {
                     $type = $input->attributeType;
                 } elseif (!empty($entity) && !empty($attribute = $this->getEntityById('Attribute', $entity->get('attributeId')))) {
                     $type = $attribute->get('type');
-                }
-                switch ($type) {
-                    case 'extensibleEnum':
-                        $type = 'varchar';
-                        break;
-                    case 'extensibleMultiEnum':
-                        $type = 'array';
-                        break;
                 }
             }
 
