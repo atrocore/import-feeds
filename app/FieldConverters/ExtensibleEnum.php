@@ -17,6 +17,15 @@ use Espo\ORM\Entity;
 
 class ExtensibleEnum extends Link
 {
+    public function convert(\stdClass $inputRow, array $config, array $row): void
+    {
+        if (empty($config['importBy'])) {
+            $config['importBy'] = ['name'];
+        }
+
+        parent::convert($inputRow, $config, $row);
+    }
+
     public function prepareValue(\stdClass $restore, Entity $entity, array $item): void
     {
         $fieldName = $this->getFieldName($item);

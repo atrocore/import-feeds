@@ -20,6 +20,10 @@ class ExtensibleMultiEnum extends LinkMultiple
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $config['replaceArray'] = true;
+        if (empty($config['importBy'])) {
+            $config['importBy'] = ['name'];
+        }
+
         parent::convert($inputRow, $config, $row);
     }
 
