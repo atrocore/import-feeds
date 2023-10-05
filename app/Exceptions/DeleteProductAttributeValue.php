@@ -15,6 +15,6 @@ namespace Import\Exceptions;
 
 use Espo\Core\Exceptions\BadRequest;
 
-class IgnoreAttribute extends BadRequest
+class DeleteProductAttributeValue extends BadRequest
 {
 }

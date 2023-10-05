@@ -19,7 +19,7 @@ use Espo\Core\Container;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Metadata;
 use Espo\ORM\EntityManager;
-use Import\Exceptions\IgnoreAttribute;
+use Import\Exceptions\DeleteProductAttributeValue;
 use Import\Services\ImportConfiguratorItem;
 
 class Wysiwyg
@@ -43,7 +43,7 @@ class Wysiwyg
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
-            $this->ignoreAttribute($value, $config);
+            $this->deletePAV($value, $config);
             if (strtolower((string)$value) === strtolower($emptyValue) || $value === '') {
                 $value = $default;
             }
@@ -116,14 +116,14 @@ class Wysiwyg
         return $this->getService('ImportTypeSimple')->getEntityById($scope, $id);
     }
 
-    protected function ignoreAttribute($value, array $config): void
+    protected function deletePAV($value, array $config): void
     {
-        if (!isset($config['attributeId'])) {
+        if (!isset($config['attributeType'])) {
             return;
         }
 
         if ($value === $config['markForNoRelation']) {
-            throw new IgnoreAttribute();
+            throw new DeleteProductAttributeValue();
         }
     }
 }

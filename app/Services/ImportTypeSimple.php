@@ -24,6 +24,7 @@ use Espo\Core\Utils\Metadata;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
 use Import\Entities\ImportFeed;
+use Import\Exceptions\DeleteProductAttributeValue;
 
 class ImportTypeSimple extends QueueManagerBase
 {
@@ -140,6 +141,8 @@ class ImportTypeSimple extends QueueManagerBase
                     continue 1;
                 }
 
+                $action = $data['action'];
+
                 if (!$this->getEntityManager()->getPDO()->inTransaction()) {
                     $this->getEntityManager()->getPDO()->beginTransaction();
                 }
@@ -163,6 +166,9 @@ class ImportTypeSimple extends QueueManagerBase
 
                         try {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->convert($input, $item, $row);
+                        } catch (DeleteProductAttributeValue $e) {
+                            $action = 'delete_found';
+                            break;
                         } catch (BadRequest $e) {
                             $message = '';
                             if (array_key_exists('column', $item)) {
@@ -184,12 +190,12 @@ class ImportTypeSimple extends QueueManagerBase
                         $updatedEntity = $entityService->createEntity($input);
                         $processedIds[] = $updatedEntity->get('id');
 
-                        if (self::isDeleteAction($data['action'])) {
+                        if (self::isDeleteAction($action)) {
                             $ids[] = $updatedEntity->get('id');
                         }
 
                         $this->saveRestoreRow('created', $scope, $updatedEntity->get('id'));
-                    } elseif ($data['action'] == 'delete_found') {
+                    } elseif ($action === 'delete_found') {
                         $entityService->deleteEntity($id);
                         $updatedEntity = $entity;
                         $processedIds[] = $id;
@@ -225,8 +231,12 @@ class ImportTypeSimple extends QueueManagerBase
                     continue 1;
                 }
 
-                $action = empty($id) ? 'create' : ($data['action'] == 'delete_found' ? 'delete' : 'update');
-                $this->log($scope, $importJob->get('id'), $action, (string)$fileRow, $updatedEntity->get('id'));
+                $logAction = empty($id) ? 'create' : 'update';
+                if ($action === 'delete_found') {
+                    $logAction = 'delete';
+                }
+
+                $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $updatedEntity->get('id'));
             }
         }
 

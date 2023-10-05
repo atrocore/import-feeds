@@ -201,19 +201,10 @@ class Link extends Varchar
         }
     }
 
-    /**
-     * @param mixed $column
-     * @param array $config
-     * @param array $row
-     *
-     * @return mixed|null
-     *
-     * @throws \Import\Exceptions\IgnoreAttribute
-     */
     protected function getSearchValue($column, array $config, array $row)
     {
         $value = $row[$column] ?? null;
-        $this->ignoreAttribute($value, $config);
+        $this->deletePAV($value, $config);
         if (strtolower((string)$value) === strtolower((string)$config['emptyValue'])) {
             $value = (string)$config['emptyValue'];
         }

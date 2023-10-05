@@ -25,7 +25,7 @@ class Text extends Wysiwyg
 
         $value = (string)$inputRow->{$config['name']};
 
-        $this->ignoreAttribute($value, $config);
+        $this->deletePAV($value, $config);
 
 //        $value = str_replace(['<br>', '<br/>', '<br />', '\n'], ["\n", "\n", "\n", "\n"], $value);
 //        $inputRow->{$config['name']} = trim(html_entity_decode(strip_tags($value)));

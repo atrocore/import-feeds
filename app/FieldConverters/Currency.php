@@ -37,7 +37,7 @@ class Currency extends FloatValue
         if ($isSingleColumn) {
             if (!empty($config['column'][0]) && isset($row[$config['column'][0]])) {
                 $cell = trim((string)$row[$config['column'][0]]);
-                $this->ignoreAttribute($cell, $config);
+                $this->deletePAV($cell, $config);
 
                 if (strtolower($cell) === strtolower((string)$config['emptyValue']) || $cell === '' || strtolower($cell) === strtolower((string)$config['nullValue'])) {
                     $value = null;
@@ -63,7 +63,7 @@ class Currency extends FloatValue
         } else {
             if (!empty($config['column'][0]) && isset($row[$config['column'][0]])) {
                 $cellValue = trim((string)$row[$config['column'][0]]);
-                $this->ignoreAttribute($cellValue, $config);
+                $this->deletePAV($cellValue, $config);
 
                 if (strtolower((string)$cellValue) === strtolower((string)$config['emptyValue']) || $cellValue === ''
                     || strtolower((string)$cellValue) === strtolower(
@@ -83,7 +83,7 @@ class Currency extends FloatValue
 
             if (!empty($config['column'][1]) && isset($row[$config['column'][1]])) {
                 $cellCurrency = trim((string)$row[$config['column'][1]]);
-                $this->ignoreAttribute($cellCurrency, $config);
+                $this->deletePAV($cellCurrency, $config);
                 if (strtolower((string)$cellCurrency) === strtolower((string)$config['emptyValue']) || $cellCurrency === ''
                     || strtolower((string)$cellCurrency) === strtolower(
                         (string)$config['nullValue']
