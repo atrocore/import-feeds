@@ -162,6 +162,11 @@ class ImportTypeSimple extends QueueManagerBase
                             continue 1;
                         }
 
+                        if ($item['entity'] === 'ProductAttributeValue' && in_array($item['name'], ['value', 'valueFrom', 'valueTo', 'valueUnitId'])) {
+                            $item = json_decode(json_encode($item), true);
+                            $item['attributeId'] = $row['attributeId'];
+                        }
+
                         $type = $this->prepareFieldType($item, $input, $entity ?? null);
 
                         try {
