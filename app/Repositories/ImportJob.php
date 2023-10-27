@@ -16,15 +16,10 @@ namespace Import\Repositories;
 use Doctrine\DBAL\ParameterType;
 use Espo\Core\Exceptions\BadRequest;
 use Atro\Core\Templates\Repositories\Base;
-use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
-use Espo\Services\Attachment;
-use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheet;
 
 class ImportJob extends Base
 {
-    protected array  $qmJobs = [];
-
     public function getImportJobsViaScope(string $scope): array
     {
         return $this->getConnection()->createQueryBuilder()
@@ -65,7 +60,7 @@ class ImportJob extends Base
     protected function afterSave(Entity $entity, array $options = [])
     {
         if ($entity->isAttributeChanged('state') && in_array($entity->get('state'), ['Canceled', 'Pending'])) {
-            $qmJob = $this->getQmJob($entity->get('id'));
+            $qmJob = $this->getQmJob($entity);
             if (!empty($qmJob)) {
                 if ($entity->get('state') === 'Pending' && in_array($qmJob->get('status'), ['Success', 'Failed', 'Canceled'])) {
                     $this->toPendingQmJob($qmJob);
@@ -100,7 +95,7 @@ class ImportJob extends Base
 
     protected function afterRemove(Entity $entity, array $options = [])
     {
-        $qmJob = $this->getQmJob($entity->get('id'));
+        $qmJob = $this->getQmJob($entity);
         if (!empty($qmJob)) {
             $this->cancelQmJob($qmJob);
             $this->getEntityManager()->removeEntity($qmJob);
@@ -151,13 +146,12 @@ class ImportJob extends Base
         return $res;
     }
 
-    public function getQmJob(string $id): ?Entity
+    public function getQmJob(Entity $importJob): ?Entity
     {
-        if (!isset($this->qmJobs[$id])) {
-            $this->qmJobs[$id] = $this->getEntityManager()->getRepository('QueueItem')->where(['data*' => '%"importJobId":"' . $id . '"%'])->findOne();
+        if (!empty($importJob->get('queueItemId'))) {
+            return $this->getEntityManager()->getRepository('QueueItem')->get($importJob->get('queueItemId'));
         }
-
-        return $this->qmJobs[$id];
+        return null;
     }
 
     protected function toPendingQmJob(Entity $qmJob): void

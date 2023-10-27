@@ -393,11 +393,15 @@ class ImportFeed extends Base
 
         $queueItem = $this->getEntityManager()->getRepository('QueueItem')->get($id);
 
-        // update sort order
-        $this->getInjection('container')->get('connection')->createQueryBuilder()
+        $connection = $this->getEntityManager()->getConnection();
+
+        $connection->createQueryBuilder()
             ->update('import_job')
-            ->set('sort_order', $queueItem->get('sortOrder'))
+            ->set('sort_order', ':sortOrder')
+            ->set('queue_item_id', ':queueItemId')
             ->where('id = :id')
+            ->setParameter('sortOrder', $queueItem->get('sortOrder'))
+            ->setParameter('queueItemId', $queueItem->get('id'))
             ->setParameter('id', $data['data']['importJobId'])
             ->executeQuery();
 

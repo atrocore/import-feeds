@@ -14,6 +14,10 @@
       "type": "link",
       "readOnly": true
     },
+    "queueItem": {
+      "type": "link",
+      "readOnly": true
+    },
     "sortOrder": {
       "type": "float",
       "readOnly": true
@@ -166,6 +170,10 @@
       "type": "belongsTo",
       "foreign": "importJobs",
       "entity": "ImportFeed"
+    },
+    "queueItem": {
+      "type": "belongsTo",
+      "entity": "QueueItem"
     },
     "attachment": {
       "type": "belongsTo",

@@ -166,7 +166,7 @@ class ImportJob extends Base
             throw new BadRequest("ImportJob '$jobId' does not exist.");
         }
 
-        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
+        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob);
         if (empty($qmJob)) {
             throw new BadRequest("QueueItem for ImportJob '{$importJob->get('id')}' does not exist.");
         }

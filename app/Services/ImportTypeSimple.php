@@ -507,7 +507,7 @@ class ImportTypeSimple extends QueueManagerBase
             return;
         }
 
-        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob->get('id'));
+        $qmJob = $this->getEntityManager()->getRepository('ImportJob')->getQmJob($importJob);
         if (empty($qmJob)) {
             return;
         }
