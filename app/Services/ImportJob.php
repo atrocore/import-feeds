@@ -256,16 +256,16 @@ class ImportJob extends Base
     {
         parent::prepareEntityForOutput($entity);
 
-        if (!$entity->has('createdCount')) {
+        if ($entity->get('createdCount') === null) {
             $entity->set('createdCount', $this->getLogCount('create', (string)$entity->get('id')));
         }
-        if (!$entity->has('updatedCount')) {
+        if ($entity->get('updatedCount') === null) {
             $entity->set('updatedCount', $this->getLogCount('update', (string)$entity->get('id')));
         }
-        if (!$entity->has('deletedCount')) {
+        if ($entity->get('deletedCount') === null) {
             $entity->set('deletedCount', $this->getLogCount('delete', (string)$entity->get('id')));
         }
-        if (!$entity->has('errorsCount')) {
+        if ($entity->get('errorsCount') === null) {
             $entity->set('errorsCount', $this->getLogCount('error', (string)$entity->get('id')));
         }
     }
