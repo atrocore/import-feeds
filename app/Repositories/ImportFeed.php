@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Repositories;
 
+use Doctrine\DBAL\ParameterType;
 use Espo\Core\Exceptions\BadRequest;
 use Atro\Core\Templates\Repositories\Base;
 use Espo\Core\Utils\Json;
@@ -32,9 +33,15 @@ class ImportFeed extends Base
         $feedId = $feed->get('id');
 
         // delete attribute items
-        $this
-            ->getPDO()
-            ->exec("DELETE FROM import_configurator_item WHERE import_feed_id='$feedId' AND type='Attribute' AND attribute_id NOT IN (SELECT id FROM attribute WHERE deleted=0)");
+        $this->getConnection()->createQueryBuilder()
+            ->delete('import_configurator_item', 't3')
+            ->where('t3.import_feed_id = :id')
+            ->andWhere('t3.type = :type')
+            ->andWhere("t3.attribute_id NOT IN (SELECT a55.id FROM {$this->getConnection()->quoteIdentifier('attribute')} a55 WHERE a55.deleted=:false)")
+            ->setParameter('id', $feed->get('id'))
+            ->setParameter('type', 'Attribute')
+            ->setParameter('false', false, ParameterType::BOOLEAN)
+            ->executeQuery();
     }
 
     protected function beforeSave(Entity $entity, array $options = [])

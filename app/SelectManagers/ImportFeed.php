@@ -41,15 +41,18 @@ class ImportFeed extends \Espo\Core\SelectManagers\Base
 
     protected function getImportFeedFilteredIds(int $interval): array
     {
-        $query = "SELECT imp.id
-            FROM `import_feed` imp
-            JOIN import_job imj ON imj.import_feed_id = imp.id
-            WHERE imj.state = 'Failed'
-            AND imj.start >= DATE_SUB(NOW(), INTERVAL $interval DAY)";
+        $connection = $this->getEntityManager()->getConnection();
 
-        return array_column(
-            $this->getEntityManager()->getPDO()->query($query)->fetchAll(\PDO::FETCH_ASSOC),
-            'id'
-        );
+        $res = $connection->createQueryBuilder()
+            ->select('imp.id')
+            ->from($connection->quoteIdentifier('import_feed'), 'imp')
+            ->innerJoin('imp', $connection->quoteIdentifier('import_job'), 'imj', 'imj.import_feed_id = imp.id')
+            ->where('imj.state = :state')
+            ->andWhere('imj.start >= :start')
+            ->setParameter('state', 'Failed')
+            ->setParameter('start', (new \DateTime())->modify("-{$interval} days")->format('Y-m-d H:i:s'))
+            ->fetchAllAssociative();
+
+        return array_column($res, 'id');
     }
 }

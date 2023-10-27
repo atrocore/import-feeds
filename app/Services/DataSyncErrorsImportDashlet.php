@@ -48,8 +48,8 @@ class DataSyncErrorsImportDashlet extends AbstractDashletService
             $list[] = [
                 'id'        => $this->getInjection('language')->translate($type['name']),
                 'name'        => $this->getInjection('language')->translate($type['name']),
-                'feeds'      => $data[0]['feeds'],
-                'jobs'      => $data[0]['jobs'],
+                'feeds'      => $data['feeds'],
+                'jobs'      => $data['jobs'],
                 'interval'     => $type['interval']
             ];
         }
@@ -59,12 +59,18 @@ class DataSyncErrorsImportDashlet extends AbstractDashletService
 
     protected function getImportData(int $interval): array
     {
-        $query = "SELECT COUNT(*) AS jobs, COUNT(DISTINCT imp.id) as feeds
-            FROM `import_feed` imp
-            JOIN import_job imj ON imj.import_feed_id = imp.id
-            WHERE imj.state = 'Failed'
-            AND imj.start >= DATE_SUB(NOW(), INTERVAL $interval DAY)";
+        $connection = $this->getEntityManager()->getConnection();
 
-        return $this->getPDO()->query($query)->fetchAll(\PDO::FETCH_ASSOC);
+        $res = $connection->createQueryBuilder()
+            ->select('COUNT(imj.id) AS jobs, COUNT(DISTINCT imp.id) as feeds')
+            ->from($connection->quoteIdentifier('import_feed'), 'imp')
+            ->innerJoin('imp', $connection->quoteIdentifier('import_job'), 'imj', 'imj.import_feed_id = imp.id')
+            ->where('imj.state = :state')
+            ->andWhere('imj.start >= :start')
+            ->setParameter('state', 'Failed')
+            ->setParameter('start', (new \DateTime())->modify("-{$interval} days")->format('Y-m-d H:i:s'))
+            ->fetchAssociative();
+
+        return empty($res) ? ['jobs' => 0, 'feeds' => 0] : $res;
     }
 }

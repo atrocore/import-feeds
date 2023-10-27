@@ -49,14 +49,17 @@ class ImportJob extends Base
 
     protected function getFailedImportJobFilteredIds(int $interval): array
     {
-        $query = "SELECT id
-            FROM `import_job`
-            WHERE state = 'Failed'
-            AND start >= DATE_SUB(NOW(), INTERVAL $interval DAY)";
+        $connection = $this->getEntityManager()->getConnection();
 
-        return array_column(
-            $this->getEntityManager()->getPDO()->query($query)->fetchAll(\PDO::FETCH_ASSOC),
-            'id'
-        );
+        $res = $connection->createQueryBuilder()
+            ->select('t.id')
+            ->from($connection->quoteIdentifier('import_job'), 't')
+            ->where('t.state = :state')
+            ->andWhere('t.start >= :start')
+            ->setParameter('state', 'Failed')
+            ->setParameter('start', (new \DateTime())->modify("-{$interval} days")->format('Y-m-d H:i:s'))
+            ->fetchAllAssociative();
+
+        return array_column($res, 'id');
     }
 }
