@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Repositories;
 
+use Doctrine\DBAL\ParameterType;
 use Espo\Core\Exceptions\BadRequest;
 use Atro\Core\Templates\Repositories\Base;
 use Espo\Core\Utils\Util;
@@ -30,10 +31,12 @@ class ImportJob extends Base
             ->distinct()
             ->select('ij.id, ij.name')
             ->from('import_job_log', 'ijl')
-            ->leftJoin('ijl', 'import_job', 'ij', 'ij.id=ijl.import_job_id AND ij.deleted=0')
-            ->where('ijl.entity_name=:entityName')->setParameter('entityName', $scope)
-            ->andWhere('ijl.deleted=0')
+            ->leftJoin('ijl', 'import_job', 'ij', 'ij.id=ijl.import_job_id AND ij.deleted=:false')
+            ->where('ijl.entity_name=:entityName')
+            ->andWhere('ijl.deleted=:false')
             ->andWhere('ij.id IS NOT NULL')
+            ->setParameter('entityName', $scope)
+            ->setParameter('false', false, ParameterType::BOOLEAN)
             ->fetchAllAssociative();
     }
 
@@ -129,13 +132,15 @@ class ImportJob extends Base
     {
         $data = $this->getConnection()->createQueryBuilder()
             ->select('id')
-            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='create' AND import_job_id=import_job.id) createdCount")
-            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='update' AND import_job_id=import_job.id) updatedCount")
-            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='delete' AND import_job_id=import_job.id) deletedCount")
-            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=0 AND type='error' AND import_job_id=import_job.id) errorsCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='create' AND import_job_id=import_job.id) createdCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='update' AND import_job_id=import_job.id) updatedCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='delete' AND import_job_id=import_job.id) deletedCount")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='error' AND import_job_id=import_job.id) errorsCount")
             ->from('import_job')
-            ->where('id IN (:ids)')->setParameter('ids', $ids, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
-            ->andWhere('deleted=0')
+            ->where('id IN (:ids)')
+            ->andWhere('deleted=:false')
+            ->setParameter('ids', $ids, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+            ->setParameter('false', false, ParameterType::BOOLEAN)
             ->fetchAllAssociative();
 
         $res = [];

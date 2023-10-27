@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Repositories;
 
+use Doctrine\DBAL\ParameterType;
 use Espo\Core\Exceptions\BadRequest;
 use Atro\Core\Templates\Repositories\Base;
 use Espo\ORM\Entity;
@@ -47,8 +48,10 @@ class ImportConfiguratorItem extends Base
             ->createQueryBuilder()
             ->select('id')
             ->from('import_configurator_item')
-            ->where('deleted=0')
-            ->andWhere('import_feed_id=:importFeedId')->setParameter('importFeedId', $this->get($itemId)->get('importFeedId'))
+            ->where('deleted=:false')
+            ->andWhere('import_feed_id=:importFeedId')
+            ->setParameter('importFeedId', $this->get($itemId)->get('importFeedId'))
+            ->setParameter('false', false, ParameterType::BOOLEAN)
             ->orderBy('sort_order', 'ASC')
             ->fetchFirstColumn();
 
@@ -71,7 +74,8 @@ class ImportConfiguratorItem extends Base
                 ->getConnection()
                 ->createQueryBuilder()
                 ->update('import_configurator_item')
-                ->set('sort_order', ':sortOrder')->setParameter('sortOrder', $k * 10)
+                ->set('sort_order', ':sortOrder')
+                ->setParameter('sortOrder', $k * 10)
                 ->where('id=:id')->setParameter('id', $id)
                 ->executeQuery();
         }
