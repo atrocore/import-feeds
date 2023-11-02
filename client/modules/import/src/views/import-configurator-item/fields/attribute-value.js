@@ -48,7 +48,7 @@ Espo.define('import:views/import-configurator-item/fields/attribute-value', 'vie
                 if (this.hasUnit()) {
                     this.params.options.push('valueUnitId')
                 }
-            } else if (['float', 'int'].includes(type)) {
+            } else if (['float', 'int', 'varchar'].includes(type)) {
                 if (this.hasUnit()) {
                     this.params.options.push('valueUnitId')
                 }
