@@ -20,6 +20,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\FilePathBuilder;
 use Atro\Core\Templates\Services\Base;
+use Espo\Core\Utils\Util;
 use Espo\ORM\Entity;
 use Import\Entities\ImportFeed as ImportFeedEntity;
 use Import\Entities\ImportJob;
@@ -509,6 +510,8 @@ class ImportFeed extends Base
     {
         $exportFeed = $this->getEntityManager()->getEntity('ExportFeed', $exportFeedId);
 
+        $language = $exportFeed->get('language');
+
         if (empty($exportFeed)) {
             throw new NotFound();
         }
@@ -542,13 +545,17 @@ class ImportFeed extends Base
                 continue;
             }
 
+            if (!empty($language) && $configuratorItem->language != $language) {
+                continue;
+            }
+
             $attachment = new \stdClass();
             $attachment->importFeedId = $importFeed->id;
             $attachment->name = $configuratorItem->name;
             $attachment->column = [$configuratorItem->column];
             $attachment->type = $configuratorItem->type;
             $attachment->scope = $configuratorItem->scope;
-            $attachment->locale = $configuratorItem->locale;
+            $attachment->locale = $configuratorItem->language;
             $attachment->attributeId = $configuratorItem->attributeId;
             $attachment->channelId = $configuratorItem->channelId;
             $attachment->sortOrder = $configuratorItem->sortOrder;
@@ -559,6 +566,8 @@ class ImportFeed extends Base
                     $value = 'value';
                 }
                 $attachment->attributeValue = $value;
+            } elseif ($configuratorItem->language != 'main') {
+                $attachment->name .= ucfirst(Util::toCamelCase(strtolower($configuratorItem->language)));
             }
 
             if ($configuratorItem->name === 'id') {
