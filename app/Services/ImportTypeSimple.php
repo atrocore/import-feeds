@@ -19,10 +19,10 @@ use Atro\DTO\QueueItemDTO;
 use Espo\Core\EventManager\Manager;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\NotFound;
-use Espo\Core\Services\Base;
 use Espo\Core\Utils\Metadata;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
+use Espo\Services\Record;
 use Import\Entities\ImportFeed;
 use Import\Exceptions\DeleteProductAttributeValue;
 
@@ -77,6 +77,7 @@ class ImportTypeSimple extends QueueManagerBase
 
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
+        $entityService->isImport = true;
 
         $ids = [];
 
@@ -195,23 +196,23 @@ class ImportTypeSimple extends QueueManagerBase
                     }
 
                     if (empty($id)) {
-                        $updatedEntity = $entityService->createEntity($input);
-                        $processedIds[] = $updatedEntity->get('id');
-
+                        $logAction = 'create';
+                        $id = $entityService->createEntity($input)->get('id');
+                        $processedIds[] = $id;
                         if (self::isDeleteAction($action)) {
-                            $ids[] = $updatedEntity->get('id');
+                            $ids[] = $id;
                         }
-
-                        $this->saveRestoreRow('created', $scope, $updatedEntity->get('id'));
+                        $this->saveRestoreRow('created', $scope, $id);
                     } elseif ($action === 'delete_found') {
+                        $logAction = 'delete';
                         $entityService->deleteEntity($id);
-                        $updatedEntity = $entity;
                         $processedIds[] = $id;
                     } else {
+                        $logAction = 'update';
                         $notModified = true;
                         try {
-                            $updatedEntity = $entityService->updateEntity($id, $input);
-                            $processedIds[] = $updatedEntity->get('id');
+                            $entityService->updateEntity($id, $input);
+                            $processedIds[] = $id;
                             $this->saveRestoreRow('updated', $scope, [$id => $restore]);
                             $notModified = false;
                         } catch (NotModified $e) {
@@ -236,15 +237,10 @@ class ImportTypeSimple extends QueueManagerBase
                         $this->log($scope, $importJob->get('id'), 'error', (string)$fileRow, $message);
                     }
 
-                    continue 1;
+                    continue;
                 }
 
-                $logAction = empty($id) ? 'create' : 'update';
-                if ($action === 'delete_found') {
-                    $logAction = 'delete';
-                }
-
-                $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $updatedEntity->get('id'));
+                $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $id);
             }
         }
 
@@ -275,7 +271,7 @@ class ImportTypeSimple extends QueueManagerBase
         return true;
     }
 
-    public function log(string $entityName, string $importJobId, string $type, ?string $row, string $data): Entity
+    public function log(string $entityName, string $importJobId, string $type, ?string $row, ?string $data): Entity
     {
         $log = $this->getEntityManager()->getEntity('ImportJobLog');
         $log->set('name', $row);
@@ -628,7 +624,7 @@ class ImportTypeSimple extends QueueManagerBase
         }
     }
 
-    protected function getService(string $name): Base
+    protected function getService(string $name): Record
     {
         if (!isset($this->services[$name])) {
             $this->services[$name] = $this->getContainer()->get('serviceFactory')->create($name);
