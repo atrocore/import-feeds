@@ -435,11 +435,17 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        if ($this->getEntityManager()->getRepository($entityType)->where($where)->count() > 1) {
+        $collection = $this->getEntityManager()->getRepository($entityType)
+            ->select(['id'])
+            ->where($where)
+            ->limit(0, 2)
+            ->find();
+
+        if (!empty($collection[1])) {
             throw new BadRequest(sprintf($this->translate('moreThanOneFound', 'exceptions', 'ImportFeed'), implode(', ', $fields)));
         }
 
-        return $this->getEntityManager()->getRepository($entityType)->where($where)->findOne();
+        return $collection[0] ?? null;
     }
 
     protected function saveRestoreRow(string $action, string $entityType, $data): void
