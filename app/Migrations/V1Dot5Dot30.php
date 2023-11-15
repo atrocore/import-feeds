@@ -21,14 +21,14 @@ class V1Dot5Dot30 extends Base
     {
         $this->exec("ALTER TABLE import_job ADD sort_order DOUBLE PRECISION DEFAULT NULL COLLATE `utf8mb4_unicode_ci`");
 
-        $res = $this->getSchema()->getConnection()->createQueryBuilder()
+        $res = $this->getConnection()->createQueryBuilder()
             ->select('i.*')
             ->from('import_job', 'i')
             ->orderBy('i.created_at', 'ASC')
             ->fetchAllAssociative();
 
         foreach ($res as $k => $v) {
-            $this->getSchema()->getConnection()->createQueryBuilder()
+            $this->getConnection()->createQueryBuilder()
                 ->update('import_job', 'i')
                 ->set('i.sort_order', $k)
                 ->where('i.id = :id')
