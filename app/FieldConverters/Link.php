@@ -129,7 +129,7 @@ class Link extends Varchar
             return;
         }
 
-        if ($value === '' || (string)$config['emptyValue']) {
+        if ($value === '' || $value === (string)$config['emptyValue']) {
             $value = $default;
         }
 
