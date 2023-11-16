@@ -22,7 +22,7 @@ use Espo\Core\Exceptions\NotFound;
 use Espo\Core\Utils\Metadata;
 use Espo\ORM\Entity;
 use Espo\Services\QueueManagerBase;
-use Espo\Services\Record;
+use Espo\Core\Services\Base;
 use Import\Entities\ImportFeed;
 use Import\Exceptions\DeleteProductAttributeValue;
 
@@ -630,7 +630,7 @@ class ImportTypeSimple extends QueueManagerBase
         }
     }
 
-    protected function getService(string $name): Record
+    protected function getService(string $name): Base
     {
         if (!isset($this->services[$name])) {
             $this->services[$name] = $this->getContainer()->get('serviceFactory')->create($name);
