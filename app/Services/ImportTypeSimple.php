@@ -104,6 +104,7 @@ class ImportTypeSimple extends QueueManagerBase
                             $ids[] = $id;
                         }
                     }
+
                     /**
                      * Check if such row is already processed
                      */
@@ -221,7 +222,6 @@ class ImportTypeSimple extends QueueManagerBase
                             throw new NotModified();
                         }
                     }
-
 
                     if ($this->getEntityManager()->getPDO()->inTransaction()) {
                         $this->getEntityManager()->getPDO()->commit();
