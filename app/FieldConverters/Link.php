@@ -72,9 +72,14 @@ class Link extends Varchar
 
                 $entity = null;
                 if (!empty($where)) {
+                    $select = ['id'];
+                    if ($entityName === 'Attribute') {
+                        $select[] = 'type';
+                    }
                     $entity = $this
                         ->getEntityManager()
                         ->getRepository($entityName)
+                        ->select($select)
                         ->where($where)
                         ->findOne();
 
