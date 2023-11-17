@@ -31,7 +31,6 @@ class ImportTypeSimple extends QueueManagerBase
     private array $restore = [];
     private bool $lastIteration = false;
 
-    protected array $entities = [];
     protected array $services = [];
 
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
@@ -69,6 +68,8 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function run(array $data = []): bool
     {
+//        $GLOBALS['debugSQL'] = [];
+
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
 
         $GLOBALS['importJobId'] = $importJob->get('id');
@@ -267,6 +268,8 @@ class ImportTypeSimple extends QueueManagerBase
                 }
             }
         }
+
+//        $debugSQL = $GLOBALS['debugSQL'];
 
         return true;
     }
@@ -656,15 +659,12 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function getEntityById(string $scope, string $id): Entity
     {
-        if (!isset($this->entities[$scope][$id])) {
-            $entity = $this->getEntityManager()->getEntity($scope, $id);
-            if (empty($entity)) {
-                throw new BadRequest("No such $scope '$id'.");
-            }
-            $this->entities[$scope][$id] = $entity;
+        $entity = $this->getEntityManager()->getEntity($scope, $id);
+        if (empty($entity)) {
+            throw new BadRequest("No such $scope '$id'.");
         }
 
-        return $this->entities[$scope][$id];
+        return $entity;
     }
 
     protected function prepareFieldType(array $item, \stdClass $input, ?Entity $entity): string
