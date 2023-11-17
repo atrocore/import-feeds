@@ -406,6 +406,8 @@ class ImportFeed extends Base
             ->setParameter('id', $data['data']['importJobId'])
             ->executeQuery();
 
+        sleep(1);
+
         return !empty($id);
     }
 
