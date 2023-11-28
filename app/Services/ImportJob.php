@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Import\Services;
 
+use Doctrine\DBAL\ParameterType;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\FilePathBuilder;
 use Atro\Core\Templates\Services\Base;
@@ -245,10 +246,11 @@ class ImportJob extends Base
         $data = $this->getRepository()->getJobsCounts(array_column($collection->toArray(), 'id'));
 
         foreach ($collection as $entity) {
-            $entity->set('createdCount', $data[$entity->get('id')]['createdCount']);
-            $entity->set('updatedCount', $data[$entity->get('id')]['updatedCount']);
-            $entity->set('deletedCount', $data[$entity->get('id')]['deletedCount']);
-            $entity->set('errorsCount', $data[$entity->get('id')]['errorsCount']);
+            $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
+            $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
+            $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
+            $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
+            $entity->_withCount = true;
         }
     }
 
@@ -256,27 +258,15 @@ class ImportJob extends Base
     {
         parent::prepareEntityForOutput($entity);
 
-        if ($entity->get('createdCount') === null) {
-            $entity->set('createdCount', $this->getLogCount('create', (string)$entity->get('id')));
-        }
-        if ($entity->get('updatedCount') === null) {
-            $entity->set('updatedCount', $this->getLogCount('update', (string)$entity->get('id')));
-        }
-        if ($entity->get('deletedCount') === null) {
-            $entity->set('deletedCount', $this->getLogCount('delete', (string)$entity->get('id')));
-        }
-        if ($entity->get('errorsCount') === null) {
-            $entity->set('errorsCount', $this->getLogCount('error', (string)$entity->get('id')));
-        }
-    }
+        if (empty($entity->_withCount)){
+            $data = $this->getRepository()->getJobsCounts([$entity->get('id')]);
 
-    protected function getLogCount(string $type, string $importJobId): int
-    {
-        return $this
-            ->getEntityManager()
-            ->getRepository('ImportJobLog')
-            ->where(['importJobId' => $importJobId, 'type' => $type])
-            ->count();
+            $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
+            $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
+            $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
+            $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
+            $entity->_withCount = true;
+        }
     }
 
     protected function init()
