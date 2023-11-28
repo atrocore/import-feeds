@@ -11,25 +11,17 @@
 Espo.define('import:views/import-feed/record/panels/import-jobs', 'views/record/panels/relationship',
     Dep => Dep.extend({
 
-        refreshIntervalGap: 5000,
-
-        refreshInterval: null,
-
         setup() {
             Dep.prototype.setup.call(this);
 
-            this.listenToOnce(this, 'after:render', () => {
-                if (this.collection) {
-                    this.refreshInterval = window.setInterval(() => {
-                        this.actionRefresh();
-                    }, this.refreshIntervalGap);
+            let timeout = null;
+            this.listenTo(this.collection, 'sync', () => {
+                if (timeout !== null) {
+                    clearTimeout(timeout);
                 }
-            });
-
-            this.listenToOnce(this, 'remove', () => {
-                if (this.refreshInterval) {
-                    window.clearInterval(this.refreshInterval);
-                }
+                timeout = setTimeout(() => {
+                    this.collection.fetch();
+                }, 5000);
             });
 
             this.listenTo(this.model, 'importRun', () => {
