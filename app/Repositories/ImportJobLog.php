@@ -19,6 +19,8 @@ use Espo\ORM\Entity;
 
 class ImportJobLog extends Base
 {
+    protected bool $cacheable = false;
+
     protected function beforeSave(Entity $entity, array $options = [])
     {
         if ($entity->get('entityName') === null) {

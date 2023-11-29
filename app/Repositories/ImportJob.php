@@ -20,6 +20,8 @@ use Espo\ORM\Entity;
 
 class ImportJob extends Base
 {
+    protected bool $cacheable = false;
+
     public function getImportJobsViaScope(string $scope): array
     {
         return $this->getConnection()->createQueryBuilder()
