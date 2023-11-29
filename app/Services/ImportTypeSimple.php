@@ -197,13 +197,17 @@ class ImportTypeSimple extends QueueManagerBase
                     }
 
                     if (empty($id)) {
-                        $logAction = 'create';
-                        $id = $entityService->createEntity($input)->get('id');
-                        $processedIds[] = $id;
-                        if (self::isDeleteAction($action)) {
-                            $ids[] = $id;
+                        if ($action == 'delete_found') {
+                            $logAction = 'delete';
+                        } else {
+                            $logAction = 'create';
+                            $id = $entityService->createEntity($input)->get('id');
+                            $processedIds[] = $id;
+                            if (self::isDeleteAction($action)) {
+                                $ids[] = $id;
+                            }
+                            $this->saveRestoreRow('created', $scope, $id);
                         }
-                        $this->saveRestoreRow('created', $scope, $id);
                     } elseif ($action === 'delete_found') {
                         $logAction = 'delete';
                         $entityService->deleteEntity($id);
