@@ -68,10 +68,9 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function run(array $data = []): bool
     {
-        $GLOBALS['debugSQL'] = [];
+//        $GLOBALS['debugSQL'] = [];
 
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
-
 
         $GLOBALS['importJobId'] = $importJob->get('id');
         $GLOBALS['skipAssignmentNotifications'] = true;
