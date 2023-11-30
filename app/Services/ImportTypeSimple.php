@@ -236,7 +236,7 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $message = empty($e->getMessage()) ? $this->getCodeMessage($e->getCode()) : $e->getMessage();
 
-                    if (!empty($id)){
+                    if (!empty($id)) {
                         $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
                     }
 
@@ -247,9 +247,10 @@ class ImportTypeSimple extends QueueManagerBase
                     continue;
                 }
 
-                $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
-
-                $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $id);
+                if (!empty($id)) {
+                    $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
+                    $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $id);
+                }
             }
         }
 
