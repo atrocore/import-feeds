@@ -68,9 +68,10 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function run(array $data = []): bool
     {
-//        $GLOBALS['debugSQL'] = [];
+        $GLOBALS['debugSQL'] = [];
 
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
+
 
         $GLOBALS['importJobId'] = $importJob->get('id');
         $GLOBALS['skipAssignmentNotifications'] = true;
@@ -238,12 +239,18 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $message = empty($e->getMessage()) ? $this->getCodeMessage($e->getCode()) : $e->getMessage();
 
+                    if (!empty($id)){
+                        $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
+                    }
+
                     if (!$e instanceof NotModified) {
                         $this->log($scope, $importJob->get('id'), 'error', (string)$fileRow, $message);
                     }
 
                     continue;
                 }
+
+                $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
 
                 $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $id);
             }
@@ -276,6 +283,12 @@ class ImportTypeSimple extends QueueManagerBase
 //        $debugSQL = $GLOBALS['debugSQL'];
 
         return true;
+    }
+
+    public function deleteEntityFromMemory(string $entityType, string $entityId): void
+    {
+        $key = $this->getEntityManager()->getRepository($entityType)->getCacheKey($entityId);
+        $this->getEntityManager()->getMemoryStorage()->delete($key);
     }
 
     public function log(string $entityName, string $importJobId, string $type, ?string $row, ?string $data): Entity
