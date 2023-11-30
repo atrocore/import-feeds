@@ -31,8 +31,6 @@ class ImportTypeSimple extends QueueManagerBase
     private array $restore = [];
     private bool $lastIteration = false;
 
-    protected array $services = [];
-
     public function prepareJobData(ImportFeed $feed, string $attachmentId): array
     {
         if (empty($attachmentId) || empty($file = $this->getEntityById('Attachment', $attachmentId))) {
@@ -658,11 +656,13 @@ class ImportTypeSimple extends QueueManagerBase
 
     protected function getService(string $name): Base
     {
-        if (!isset($this->services[$name])) {
-            $this->services[$name] = $this->getContainer()->get('serviceFactory')->create($name);
+        $key = "service_{$name}";
+
+        if (!$this->getMemoryStorage()->has($key)) {
+            $this->getMemoryStorage()->set($key, $this->getContainer()->get('serviceFactory')->create($name));
         }
 
-        return $this->services[$name];
+        return $this->getMemoryStorage()->get($key);
     }
 
     protected function getMetadata(): Metadata
