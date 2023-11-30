@@ -287,7 +287,7 @@ class ImportTypeSimple extends QueueManagerBase
     public function deleteEntityFromMemory(string $entityType, string $entityId): void
     {
         $key = $this->getEntityManager()->getRepository($entityType)->getCacheKey($entityId);
-        $this->getEntityManager()->getMemoryStorage()->delete($key);
+        $this->getMemoryStorage()->delete($key);
     }
 
     public function log(string $entityName, string $importJobId, string $type, ?string $row, ?string $data): Entity
