@@ -33,6 +33,10 @@
     "notSortable": true
   },
   {
+    "name": "skippedCount",
+    "notSortable": true
+  },
+  {
     "name": "errorsCount",
     "notSortable": true
   }
