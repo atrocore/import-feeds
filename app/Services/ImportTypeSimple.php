@@ -68,6 +68,8 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function run(array $data = []): bool
     {
+        $GLOBALS['debugSQL'] = [];
+
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
 
         $this->getMemoryStorage()->set('importJobId', $importJob->get('id'));
@@ -290,6 +292,9 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function afterRowProceed(array $row, string $entityType, ?string $id): void
     {
+        $debugSQL = $GLOBALS['debugSQL'];
+        $foo = $this->getMemoryStorage()->getKeys();
+
         if (!empty($id)) {
             $keys = $this->getMemoryStorage()->get($this->keysName);
             $keys[] = $this->createMemoryKey($entityType, $id);
