@@ -139,10 +139,10 @@ class Currency extends FloatValue
         $this->convert($inputRow, $configuration, $row);
 
         if ($configuration['entity'] !== 'ProductPrice') {
-            $where[$configuration['name']] = $inputRow->{$configuration['name']};
+            $where[$configuration['name']][] = $inputRow->{$configuration['name']};
         }
 
-        $where["{$configuration['name']}Currency"] = $inputRow->{"{$configuration['name']}Currency"};
+        $where["{$configuration['name']}Currency"][] = $inputRow->{"{$configuration['name']}Currency"};
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
