@@ -177,7 +177,7 @@ class Link extends Varchar
             throw new BadRequest("System cannot find value for '$fieldName'. Please, check configuration.");
         }
 
-        $where[$fieldName] = $inputRow->$fieldName;
+        $where[$fieldName][] = $inputRow->$fieldName;
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void

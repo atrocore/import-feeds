@@ -28,6 +28,7 @@ use Import\Exceptions\DeleteProductAttributeValue;
 
 class ImportTypeSimple extends QueueManagerBase
 {
+    private string $keysName = 'loaded_exists_entities_keys';
     private array $restore = [];
     private bool $lastIteration = false;
 
@@ -45,7 +46,7 @@ class ImportTypeSimple extends QueueManagerBase
         $result = [
             "name"             => $feed->get('name'),
             "offset"           => $feed->isFileHeaderRow() ? 1 : 0,
-            "limit"            => 5000,
+            "limit"            => $this->getConfig()->get('importLimit', 5000),
             "fileFormat"       => $feed->getFeedField('format'),
             "delimiter"        => $feed->getDelimiter(),
             "enclosure"        => $feed->getEnclosure(),
@@ -70,13 +71,12 @@ class ImportTypeSimple extends QueueManagerBase
 
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
 
-        $GLOBALS['importJobId'] = $importJob->get('id');
-        $GLOBALS['skipAssignmentNotifications'] = true;
-        $GLOBALS['skipHooks'] = true;
+        $this->getMemoryStorage()->set('importJobId', $importJob->get('id'));
+        $this->getMemoryStorage()->set('skipAssignmentNotifications', true);
+        $this->getMemoryStorage()->set('skipHooks', true);
 
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
-        $entityService->isImport = true;
 
         $ids = [];
 
@@ -86,6 +86,7 @@ class ImportTypeSimple extends QueueManagerBase
         $fileRow = empty($data['offset']) ? 0 : (int)$data['offset'];
 
         while (!empty($inputData = $this->getInputData($data))) {
+            $this->loadExistsEntities($entityService->getEntityType(), $data['data'], $inputData);
             while (!empty($inputData)) {
                 $row = array_shift($inputData);
 
@@ -93,8 +94,7 @@ class ImportTypeSimple extends QueueManagerBase
                 $fileRow++;
 
                 try {
-                    // prepare where for finding existed entity
-                    $where = $this->prepareWhere($entityService->getEntityType(), $data['data'], $row);
+                    $where = $this->prepareWhere($entityService->getEntityType(), $data['data'], [$row]);
 
                     $id = null;
                     if (!empty($entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $where))) {
@@ -236,22 +236,22 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $message = empty($e->getMessage()) ? $this->getCodeMessage($e->getCode()) : $e->getMessage();
 
-                    if (!empty($id)) {
-                        $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
-                    }
-
                     if (!$e instanceof NotModified) {
                         $this->log($scope, $importJob->get('id'), 'error', (string)$fileRow, $message);
                     }
+
+                    $this->afterRowProceed($row, $entityService->getEntityType(), $id);
 
                     continue;
                 }
 
                 if (!empty($id)) {
-                    $this->deleteEntityFromMemory($entityService->getEntityType(), $id);
                     $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $id);
                 }
+
+                $this->afterRowProceed($row, $entityService->getEntityType(), $id);
             }
+            $this->clearMemoryOfLoadedEntities();
         }
 
         // create jobs for importing ProductAttributeValues
@@ -283,10 +283,51 @@ class ImportTypeSimple extends QueueManagerBase
         return true;
     }
 
-    public function deleteEntityFromMemory(string $entityType, string $entityId): void
+    public function afterRowProceed(array $row, string $entityType, ?string $id): void
     {
-        $key = $this->getEntityManager()->getRepository($entityType)->getCacheKey($entityId);
-        $this->getMemoryStorage()->delete($key);
+//        $debugSQL = $GLOBALS['debugSQL'];
+//        $allKeys = $this->getMemoryStorage()->getKeys();
+
+        if (!empty($id)) {
+            $keys = $this->getMemoryStorage()->get($this->keysName);
+            $keys[] = $this->createMemoryKey($entityType, $id);
+            $this->getMemoryStorage()->set($this->keysName, $keys);
+        }
+    }
+
+    public function loadExistsEntities(string $entityType, array $configuration, array $rows): void
+    {
+        $where = $this->prepareWhere($entityType, $configuration, $rows);
+        if (empty($where)) {
+            return;
+        }
+
+        $existsEntities = $this->getEntityManager()->getRepository($entityType)
+            ->where($where)
+            ->find();
+
+        $keys = [];
+        foreach ($existsEntities as $existsEntity) {
+            $key = $this->createMemoryKey($existsEntity->getEntityType(), $existsEntity->get('id'));
+            $this->getMemoryStorage()->set($key, $existsEntity);
+            $keys[] = $key;
+        }
+
+        $this->getMemoryStorage()->set($this->keysName, $keys);
+    }
+
+    public function clearMemoryOfLoadedEntities(): void
+    {
+        $keys = $this->getMemoryStorage()->get($this->keysName) ?? [];
+        foreach ($keys as $key) {
+            $this->getMemoryStorage()->delete($key);
+        }
+        $this->getMemoryStorage()->delete($this->keysName);
+    }
+
+    public function createMemoryKey(string $entityType, string $entityId): string
+    {
+        return $this->getEntityManager()->getRepository($entityType)->getCacheKey($entityId);
     }
 
     public function log(string $entityName, string $importJobId, string $type, ?string $row, ?string $data): Entity
@@ -424,16 +465,18 @@ class ImportTypeSimple extends QueueManagerBase
         return $prepared;
     }
 
-    protected function prepareWhere(string $entityType, array $configuration, array $row): array
+    protected function prepareWhere(string $entityType, array $configuration, array $rows): array
     {
         $where = [];
         foreach ($configuration['configuration'] as $item) {
             if (in_array($item['name'], $configuration['idField'])) {
                 $type = $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar');
-                $this
-                    ->getService('ImportConfiguratorItem')
-                    ->getFieldConverter($type)
-                    ->prepareFindExistEntityWhere($where, $item, $row);
+                foreach ($rows as $row) {
+                    $this
+                        ->getService('ImportConfiguratorItem')
+                        ->getFieldConverter($type)
+                        ->prepareFindExistEntityWhere($where, $item, $row);
+                }
             }
         }
 
@@ -453,24 +496,28 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-        $repo = $this->getEntityManager()->getRepository($entityType);
+        $result = null;
 
-        $collection = $repo
-            ->where($where)
-            ->limit(0, 2)
-            ->find();
+        $keys = $this->getMemoryStorage()->get($this->keysName) ?? [];
+        foreach ($keys as $key) {
+            $entity = $this->getMemoryStorage()->get($key);
+            if (empty($entity)) {
+                continue;
+            }
+            foreach ($where as $field => $val) {
+                if (!in_array($entity->get($field), $val)) {
+                    continue 2;
+                }
+            }
 
-        if (!empty($collection[1])) {
-            throw new BadRequest(sprintf($this->translate('moreThanOneFound', 'exceptions', 'ImportFeed'), implode(', ', $fields)));
+            if ($result !== null) {
+                throw new BadRequest(sprintf($this->translate('moreThanOneFound', 'exceptions', 'ImportFeed'), implode(', ', $fields)));
+            }
+
+            $result = $entity;
         }
 
-        if (empty($entity = $collection[0])) {
-            return null;
-        }
-
-        $repo->putToCache($entity->get('id'), $entity);
-
-        return $collection[0];
+        return $result;
     }
 
     protected function saveRestoreRow(string $action, string $entityType, $data): void

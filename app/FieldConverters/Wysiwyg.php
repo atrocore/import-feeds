@@ -71,7 +71,7 @@ class Wysiwyg
         $inputRow = new \stdClass();
         $this->convert($inputRow, $configuration, $row);
 
-        $where[$configuration['name']] = $inputRow->{$configuration['name']};
+        $where[$configuration['name']][] = $inputRow->{$configuration['name']};
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
