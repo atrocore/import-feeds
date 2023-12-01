@@ -16,12 +16,14 @@
         "create",
         "update",
         "delete",
+        "skip",
         "error"
       ],
       "options": [
         "create",
         "update",
         "delete",
+        "skip",
         "error"
       ],
       "default": "create",

@@ -249,6 +249,7 @@ class ImportJob extends Base
             $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
             $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
             $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
+            $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
             $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
             $entity->_withCount = true;
         }
@@ -264,6 +265,7 @@ class ImportJob extends Base
             $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
             $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
             $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
+            $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
             $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
             $entity->_withCount = true;
         }

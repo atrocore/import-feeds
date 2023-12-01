@@ -114,6 +114,7 @@ class ImportJob extends Base
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='update' AND import_job_id=import_job.id) updated_count")
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='delete' AND import_job_id=import_job.id) deleted_count")
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='error' AND import_job_id=import_job.id) errors_count")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='skip' AND import_job_id=import_job.id) skipped_count")
             ->from('import_job')
             ->where('id IN (:ids)')
             ->andWhere('deleted=:false')

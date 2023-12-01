@@ -8,6 +8,7 @@
     "createdCount": "Створено",
     "updatedCount": "Оновлено",
     "deletedCount": "Видалено",
+    "skippedCount": "Пропущено",
     "errorsCount": "Помилка",
     "attachment": "Файл імпорту",
     "uploadedFile": "Файл що був завантажений",

@@ -96,6 +96,11 @@
       "notStorable": true,
       "readOnly": true
     },
+    "skippedCount": {
+      "type": "int",
+      "notStorable": true,
+      "readOnly": true
+    },
     "errorsCount": {
       "type": "int",
       "notStorable": true,

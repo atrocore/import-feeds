@@ -67,8 +67,6 @@ class ImportTypeSimple extends QueueManagerBase
 
     public function run(array $data = []): bool
     {
-//        $GLOBALS['debugSQL'] = [];
-
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
 
         $this->getMemoryStorage()->set('importJobId', $importJob->get('id'));
@@ -238,6 +236,8 @@ class ImportTypeSimple extends QueueManagerBase
 
                     if (!$e instanceof NotModified) {
                         $this->log($scope, $importJob->get('id'), 'error', (string)$fileRow, $message);
+                    } else {
+                        $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                     }
 
                     $this->afterRowProceed($row, $entityService->getEntityType(), $id);
@@ -247,6 +247,8 @@ class ImportTypeSimple extends QueueManagerBase
 
                 if (!empty($id)) {
                     $this->log($scope, $importJob->get('id'), $logAction, (string)$fileRow, $id);
+                } else {
+                    $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                 }
 
                 $this->afterRowProceed($row, $entityService->getEntityType(), $id);
@@ -278,16 +280,11 @@ class ImportTypeSimple extends QueueManagerBase
             }
         }
 
-//        $debugSQL = $GLOBALS['debugSQL'];
-
         return true;
     }
 
     public function afterRowProceed(array $row, string $entityType, ?string $id): void
     {
-//        $debugSQL = $GLOBALS['debugSQL'];
-//        $allKeys = $this->getMemoryStorage()->getKeys();
-
         if (!empty($id)) {
             $keys = $this->getMemoryStorage()->get($this->keysName);
             $keys[] = $this->createMemoryKey($entityType, $id);
@@ -349,6 +346,9 @@ class ImportTypeSimple extends QueueManagerBase
                 break;
             case 'delete':
                 $log->set('entityId', $data);
+                break;
+            case 'skip':
+                $log->set('rowNumber', (int)$row);
                 break;
             case 'error':
                 $log->set('rowNumber', (int)$row);

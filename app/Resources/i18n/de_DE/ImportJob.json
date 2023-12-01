@@ -8,6 +8,7 @@
     "createdCount": "Erstellt",
     "updatedCount": "Aktualisiert",
     "deletedCount": "Gelöscht",
+    "skippedCount": "Übersprungen",
     "errorsCount": "Fehler",
     "attachment": "Importierte Datei",
     "uploadedFile": "Hochgeladene Datei",
