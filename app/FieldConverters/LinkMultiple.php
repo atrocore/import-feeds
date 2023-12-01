@@ -98,7 +98,7 @@ class LinkMultiple extends Varchar
         $restore->{$item['name'] . 'Names'} = $names;
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
     {
     }
 

@@ -159,25 +159,31 @@ class Link extends Varchar
         $restore->$fieldName = $value;
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
     {
-        $inputRow = new \stdClass();
-        $this->convert($inputRow, $configuration, $row);
+        $entityName = $this->getForeignEntityName($configuration);
 
-        $fieldName = $this->getFieldName($configuration);
-
-        if (!property_exists($inputRow, $fieldName)) {
-            /**
-             * Hack for product attribute scoping
-             */
-            if ($fieldName === 'channelId' && $configuration['entity'] === 'ProductAttributeValue') {
-                return;
-            }
-
-            throw new BadRequest("System cannot find value for '$fieldName'. Please, check configuration.");
+        if (!empty($config['createIfNotExist'])) {
+            throw new BadRequest("Wrong configuration. System cannot create Identifier. $entityName entity must already exist.");
         }
 
-        $where[$fieldName][] = $inputRow->$fieldName;
+        $ids = !empty($configuration['default']) ? [$configuration['default']] : [];
+        if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
+            $res = [];
+            foreach ($configuration['importBy'] as $k => $field) {
+                $res[$field] = array_column($rows, $configuration['column'][$k]);
+            }
+            $entityName = $this->getForeignEntityName($configuration);
+            $collection = $this->getEntityManager()->getRepository($entityName)->select(['id'])->where($res)->find();
+            $ids = array_column($collection->toArray(), 'id');
+        }
+
+        if (empty($ids)) {
+            throw new BadRequest("Wrong configuration. No $entityName records found.");
+        }
+
+        $fieldName = $this->getFieldName($configuration);
+        $where[$fieldName] = $ids;
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void

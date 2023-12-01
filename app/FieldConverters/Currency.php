@@ -133,16 +133,21 @@ class Currency extends FloatValue
         parent::prepareValue($restore, $entity, $item);
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
     {
-        $inputRow = new \stdClass();
-        $this->convert($inputRow, $configuration, $row);
+        foreach ($rows as $row) {
+            $inputRow = new \stdClass();
+            $this->convert($inputRow, $configuration, $row);
 
-        if ($configuration['entity'] !== 'ProductPrice') {
-            $where[$configuration['name']][] = $inputRow->{$configuration['name']};
+            if ($configuration['entity'] !== 'ProductPrice') {
+                if (!isset($where[$configuration['name']]) || !in_array($inputRow->{$configuration['name']}, $where[$configuration['name']])) {
+                    $where[$configuration['name']][] = $inputRow->{$configuration['name']};
+                }
+            }
+            if (!isset($where["{$configuration['name']}Currency"]) || !in_array($inputRow->{"{$configuration['name']}Currency"}, $where["{$configuration['name']}Currency"])) {
+                $where[$configuration['name']][] = $inputRow->{"{$configuration['name']}Currency"};
+            }
         }
-
-        $where["{$configuration['name']}Currency"][] = $inputRow->{"{$configuration['name']}Currency"};
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void

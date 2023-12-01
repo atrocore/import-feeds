@@ -14,7 +14,10 @@ Espo.define('import:views/import-configurator-item/fields/create-if-not-exist', 
         setup() {
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'change:name change:attributeData', () => {
+            this.listenTo(this.model, 'change:name change:attributeData change:entityIdentifier', () => {
+                if (this.model.get('entityIdentifier')){
+                    this.model.set(this.name, false);
+                }
                 this.reRender();
             });
         },
@@ -29,7 +32,7 @@ Espo.define('import:views/import-configurator-item/fields/create-if-not-exist', 
                 type = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`);
             }
 
-            if (type && ['image', 'asset', 'link', 'linkMultiple', 'extensibleEnum', 'extensibleMultiEnum'].includes(type)) {
+            if (type && ['image', 'asset', 'link', 'linkMultiple', 'extensibleEnum', 'extensibleMultiEnum'].includes(type) && !this.model.get('entityIdentifier')) {
                 const $input = this.$el.find('input');
 
                 let foreignEntity = ImportBy.prototype.getForeignEntity.call(this);
