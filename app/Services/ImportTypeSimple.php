@@ -28,7 +28,8 @@ use Import\Exceptions\DeleteProductAttributeValue;
 
 class ImportTypeSimple extends QueueManagerBase
 {
-    private string $keysName = 'loaded_exists_entities_keys';
+    public string $keysName = 'loaded_exists_entities_keys';
+    public string $foreignKeysName = 'loaded_exists_foreign_entities_keys';
     private array $restore = [];
     private bool $lastIteration = false;
 
@@ -112,6 +113,7 @@ class ImportTypeSimple extends QueueManagerBase
                                 $processedIds = [];
                                 break;
                             case 'skip':
+                                $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                                 continue 2;
                                 break;
                             default:
@@ -128,14 +130,17 @@ class ImportTypeSimple extends QueueManagerBase
                 }
 
                 if (in_array($data['action'], ['create', 'create_delete']) && !empty($entity)) {
+                    $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                     continue 1;
                 }
 
                 if (in_array($data['action'], ['delete_found', 'update', 'update_delete']) && empty($entity)) {
+                    $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                     continue 1;
                 }
 
                 if ($data['action'] == 'delete_not_found') {
+                    $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                     continue 1;
                 }
 
@@ -320,6 +325,14 @@ class ImportTypeSimple extends QueueManagerBase
             $this->getMemoryStorage()->delete($key);
         }
         $this->getMemoryStorage()->delete($this->keysName);
+
+        $foreignKeys = $this->getMemoryStorage()->get($this->foreignKeysName) ?? [];
+        foreach ($foreignKeys as $entityType => $keys) {
+            foreach ($keys as $key){
+                $this->getMemoryStorage()->delete($key);
+            }
+        }
+        $this->getMemoryStorage()->delete($this->foreignKeysName);
     }
 
     public function createMemoryKey(string $entityType, string $entityId): string

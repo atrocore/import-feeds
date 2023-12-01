@@ -15,6 +15,7 @@ namespace Import\FieldConverters;
 
 use Espo\Core\Exceptions\BadRequest;
 use Espo\ORM\Entity;
+use Import\Services\ImportTypeSimple;
 
 class Link extends Varchar
 {
@@ -163,19 +164,48 @@ class Link extends Varchar
     {
         $entityName = $this->getForeignEntityName($configuration);
 
+        /** @var ImportTypeSimple $service */
+        $service = $this->getService('ImportTypeSimple');
+
         if (!empty($config['createIfNotExist'])) {
             throw new BadRequest("Wrong configuration. System cannot create Identifier. $entityName entity must already exist.");
         }
 
         $ids = !empty($configuration['default']) ? [$configuration['default']] : [];
-        if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
-            $res = [];
-            foreach ($configuration['importBy'] as $k => $field) {
-                $res[$field] = array_column($rows, $configuration['column'][$k]);
+
+        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
+
+        $res = [];
+        foreach ($configuration['importBy'] as $k => $field) {
+            $res[$field] = array_column($rows, $configuration['column'][$k]);
+        }
+
+        // load to memory
+        if (!isset($foreignKeys[$entityName])) {
+            if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
+                $collection = $this->getEntityManager()->getRepository($entityName)->where($res)->find();
+                foreach ($collection as $entity) {
+                    $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
+                    $this->getMemoryStorage()->set($itemKey, $entity);
+                    $foreignKeys[$entity->getEntityType()][] = $itemKey;
+                }
+                $this->getMemoryStorage()->set($service->foreignKeysName, $foreignKeys);
             }
-            $entityName = $this->getForeignEntityName($configuration);
-            $collection = $this->getEntityManager()->getRepository($entityName)->select(['id'])->where($res)->find();
-            $ids = array_column($collection->toArray(), 'id');
+        }
+
+        if (isset($foreignKeys[$entityName])) {
+            $ids = [];
+            foreach ($foreignKeys[$entityName] as $fk) {
+                $entity = $this->getMemoryStorage()->get($fk);
+                if (!empty($entity)) {
+                    foreach ($res as $f => $val) {
+                        if (!in_array($entity->get($f), $val)) {
+                            continue 2;
+                        }
+                    }
+                    $ids[] = $entity->get('id');
+                }
+            }
         }
 
         if (empty($ids)) {
