@@ -71,13 +71,12 @@ class ImportTypeSimple extends QueueManagerBase
 
         $importJob = $this->getEntityById('ImportJob', $data['data']['importJobId']);
 
-        $GLOBALS['importJobId'] = $importJob->get('id');
-        $GLOBALS['skipAssignmentNotifications'] = true;
-        $GLOBALS['skipHooks'] = true;
+        $this->getMemoryStorage()->set('importJobId', $importJob->get('id'));
+        $this->getMemoryStorage()->set('skipAssignmentNotifications', true);
+        $this->getMemoryStorage()->set('skipHooks', true);
 
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
-        $entityService->isImport = true;
 
         $ids = [];
 
