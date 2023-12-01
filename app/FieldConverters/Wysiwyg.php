@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Import\FieldConverters;
 
+use Atro\Core\KeyValueStorages\StorageInterface;
 use Espo\Core\Services\Base;
 use Espo\ORM\Entity;
 use Espo\Core\Container;
@@ -26,8 +27,6 @@ class Wysiwyg
 {
     protected Container $container;
     protected ImportConfiguratorItem $configuratorItem;
-
-    protected array $services = [];
 
     public function __construct(Container $container, ImportConfiguratorItem $configuratorItem)
     {
@@ -109,16 +108,23 @@ class Wysiwyg
 
     protected function getService(string $name): Base
     {
-        if (!isset($this->services[$name])) {
-            $this->services[$name] = $this->container->get('serviceFactory')->create($name);
+        $key = "service_{$name}";
+
+        if (!$this->getMemoryStorage()->has($key)) {
+            $this->getMemoryStorage()->set($key, $this->container->get('serviceFactory')->create($name));
         }
 
-        return $this->services[$name];
+        return $this->getMemoryStorage()->get($key);
     }
 
     protected function getEntityById(string $scope, string $id): Entity
     {
         return $this->getService('ImportTypeSimple')->getEntityById($scope, $id);
+    }
+
+    protected function getMemoryStorage(): StorageInterface
+    {
+        return $this->container->get('memoryStorage');
     }
 
     protected function deletePAV($value, array $config): void
