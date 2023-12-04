@@ -74,27 +74,13 @@ class Link extends Varchar
 
                 $entity = null;
                 if (!empty($where)) {
-                    /** @var ImportTypeSimple $service */
-                    $service = $this->getService('ImportTypeSimple');
+                    // load to memory
+                    $this->loadToMemory($config, $this->getMemoryStorage()->get('importRowsPart'));
 
                     // find in memory
-                    $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
-                    if (isset($foreignKeys[$entityName])) {
-                        foreach ($this->findEntitiesInMemory($entityName, $where) as $fe) {
-                            $entity = $fe;
-                            break;
-                        }
-                    }
-
-                    if (empty($entity)) {
-                        $entity = $this
-                            ->getEntityManager()
-                            ->getRepository($entityName)
-                            ->where($where)
-                            ->findOne();
-                        if (!empty($entity)) {
-                            $this->setCollectionToMemory(new EntityCollection([$entity], $entityName));
-                        }
+                    foreach ($this->findEntitiesInMemory($entityName, $where) as $fe) {
+                        $entity = $fe;
+                        break;
                     }
 
                     if (empty($entity) && empty($config['createIfNotExist'])) {
@@ -182,34 +168,21 @@ class Link extends Varchar
     {
         $entityName = $this->getForeignEntityName($configuration);
 
-        /** @var ImportTypeSimple $service */
-        $service = $this->getService('ImportTypeSimple');
-
         if (!empty($config['createIfNotExist'])) {
             throw new BadRequest("Wrong configuration. System cannot create Identifier. $entityName entity must already exist.");
         }
 
         $ids = !empty($configuration['default']) ? [$configuration['default']] : [];
 
-        $res = [];
-        foreach ($configuration['importBy'] as $k => $field) {
-            $res[$field] = array_column($rows, $configuration['column'][$k]);
-        }
-
         // load to memory
-        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
-        if (!isset($foreignKeys[$entityName])) {
-            if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
-                $collection = $this->getEntityManager()->getRepository($entityName)->where($res)->find();
-                $this->setCollectionToMemory($collection);
-            }
-        }
+        $this->loadToMemory($configuration, $rows);
 
         // find in memory
-        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
+        $foreignKeys = $this->getMemoryStorage()->get($this->getImportTypeSimpleService()->foreignKeysName);
         if (isset($foreignKeys[$entityName])) {
+            $whereForCollection = $this->prepareWhereForCollection($configuration, $rows);
             $ids = [];
-            foreach ($this->findEntitiesInMemory($entityName, $res) as $fe) {
+            foreach ($this->findEntitiesInMemory($entityName, $whereForCollection) as $fe) {
                 $ids[] = $fe->get('id');
             }
         }
@@ -304,10 +277,35 @@ class Link extends Varchar
         }
     }
 
+    protected function loadToMemory(array $configuration, array $rows): void
+    {
+        $entityName = $this->getForeignEntityName($configuration);
+
+        $foreignKeys = $this->getMemoryStorage()->get($this->getImportTypeSimpleService()->foreignKeysName);
+        if (isset($foreignKeys[$entityName])) {
+            return;
+        }
+
+        if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
+            $where = $this->prepareWhereForCollection($configuration, $rows);
+            $collection = $this->getEntityManager()->getRepository($entityName)->where($where)->find();
+            $this->setCollectionToMemory($collection);
+        }
+    }
+
+    protected function prepareWhereForCollection(array $configuration, array $rows): array
+    {
+        $res = [];
+        foreach ($configuration['importBy'] as $k => $field) {
+            $res[$field] = array_column($rows, $configuration['column'][$k]);
+        }
+
+        return $res;
+    }
+
     protected function setCollectionToMemory(EntityCollection $collection): void
     {
-        /** @var ImportTypeSimple $service */
-        $service = $this->getService('ImportTypeSimple');
+        $service = $this->getImportTypeSimpleService();
 
         $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
 
@@ -321,10 +319,7 @@ class Link extends Varchar
 
     protected function findEntitiesInMemory(string $entityName, array $where): EntityCollection
     {
-        /** @var ImportTypeSimple $service */
-        $service = $this->getService('ImportTypeSimple');
-
-        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
+        $foreignKeys = $this->getMemoryStorage()->get($this->getImportTypeSimpleService()->foreignKeysName);
 
         $collection = new EntityCollection([], $entityName);
 
@@ -349,5 +344,10 @@ class Link extends Varchar
         }
 
         return $collection;
+    }
+
+    protected function getImportTypeSimpleService(): ImportTypeSimple
+    {
+        return $this->getService('ImportTypeSimple');
     }
 }

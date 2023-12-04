@@ -85,6 +85,7 @@ class ImportTypeSimple extends QueueManagerBase
         $fileRow = empty($data['offset']) ? 0 : (int)$data['offset'];
 
         while (!empty($inputData = $this->getInputData($data))) {
+            $this->getMemoryStorage()->set('importRowsPart', $inputData);
             $this->loadExistsEntities($entityService->getEntityType(), $data['data'], $inputData);
             while (!empty($inputData)) {
                 $row = array_shift($inputData);
