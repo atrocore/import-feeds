@@ -295,9 +295,12 @@ class Link extends Varchar
 
     protected function prepareWhereForCollection(array $configuration, array $rows): array
     {
+        $keys = !empty($rows[0]) ? array_keys($rows[0]) : [];
+
         $res = [];
         foreach ($configuration['importBy'] as $k => $field) {
-            $res[$field] = array_column($rows, $configuration['column'][$k]);
+            $fieldName = empty($configuration['foreignColumn']) ? $configuration['column'][$k] : $keys[$configuration['foreignColumn'][$k]];
+            $res[$field] = array_column($rows, $fieldName);
         }
 
         return $res;
