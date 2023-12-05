@@ -53,7 +53,7 @@ class LinkMultiple extends Varchar
                 }
             }
 
-            $id = $this->convertItem($config, ['column' => array_keys($item), 'foreignColumn' => array_keys($foreignColumn)], array_merge($item, $foreignColumn));
+            $id = $this->convertItem($config, ['column' => array_keys($item), 'mainConfig' => $config, 'foreignColumn' => array_keys($foreignColumn)], array_merge($item, $foreignColumn));
             if ($id !== null) {
                 $ids[$id] = $id;
             }
