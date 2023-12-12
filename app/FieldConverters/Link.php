@@ -26,7 +26,7 @@ class Link extends Varchar
     {
         $default = empty($config['default']) ? null : $config['default'];
 
-        if (isset($config['column'])) {
+        if (!empty($config['column'])) {
             if (count($config['column']) === 1) {
                 $value = $this->getSearchValue($config['column'][0], $config, $row);
             } else {
