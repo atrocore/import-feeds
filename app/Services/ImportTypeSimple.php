@@ -315,8 +315,8 @@ class ImportTypeSimple extends QueueManagerBase
             ->where($where)
             ->find();
 
-        $keys = [];
-        $whereKeys = [];
+        $keys = $this->getMemoryStorage()->get($this->keysName) ?? [];
+        $whereKeys = $this->getMemoryStorage()->get($this->whereKeysName) ?? [];
         foreach ($existsEntities as $existsEntity) {
             $key = $this->createMemoryKey($existsEntity->getEntityType(), $existsEntity->get('id'));
             $this->getMemoryStorage()->set($key, $existsEntity);

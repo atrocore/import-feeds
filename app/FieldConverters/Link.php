@@ -177,13 +177,19 @@ class Link extends Varchar
         // load to memory
         $this->loadToMemory($configuration, $rows);
 
+        $service = $this->getImportTypeSimpleService();
+
         // find in memory
-        $foreignKeys = $this->getMemoryStorage()->get($this->getImportTypeSimpleService()->foreignKeysName);
+        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
         if (isset($foreignKeys[$entityName])) {
-            $whereForCollection = $this->prepareWhereForCollection($configuration, $rows);
+            $whereKeys = $service->getMemoryStorage()->get($service->whereKeysName) ?? [];
             $ids = [];
-            foreach ($this->findEntitiesInMemory($entityName, $whereForCollection) as $fe) {
-                $ids[] = $fe->get('id');
+            foreach ($rows as $row) {
+                $whereForRow = $this->prepareWhereForCollection($configuration, [$row]);
+                $whereKey = $service->createMemoryKeyByWhere($entityName, $whereForRow);
+                if (isset($whereKeys[$whereKey])) {
+                    $ids[] = $service->getMemoryStorage()->get($whereKeys[$whereKey])->get('id');
+                }
             }
         }
 
@@ -289,7 +295,7 @@ class Link extends Varchar
         if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
             $where = $this->prepareWhereForCollection($configuration, $rows);
             $collection = $this->getEntityManager()->getRepository($entityName)->where($where)->find();
-            $this->setCollectionToMemory($collection);
+            $this->setCollectionToMemory($collection, $where);
         }
     }
 
@@ -319,43 +325,43 @@ class Link extends Varchar
         return $res;
     }
 
-    protected function setCollectionToMemory(EntityCollection $collection): void
+    protected function setCollectionToMemory(EntityCollection $collection, array $where): void
     {
         $service = $this->getImportTypeSimpleService();
 
         $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
+        $whereKeys = $this->getMemoryStorage()->get($service->whereKeysName) ?? [];
 
         foreach ($collection as $entity) {
             $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
             $this->getMemoryStorage()->set($itemKey, $entity);
             $foreignKeys[$entity->getEntityType()][] = $itemKey;
+
+            $whereData = [];
+            foreach ($where as $field => $val) {
+                $whereData[$field] = $entity->get($field);
+            }
+            $itemWhereKey = $service->createMemoryKeyByWhere($entity->getEntityType(), $where, $whereData);
+            $service->pushWhereKey($itemWhereKey, $itemKey, $whereKeys);
         }
+        $this->getMemoryStorage()->set($service->whereKeysName, $whereKeys);
         $this->getMemoryStorage()->set($service->foreignKeysName, $foreignKeys);
     }
 
     protected function findEntitiesInMemory(string $entityName, array $where): EntityCollection
     {
-        $foreignKeys = $this->getMemoryStorage()->get($this->getImportTypeSimpleService()->foreignKeysName);
+        $service = $this->getImportTypeSimpleService();
+
+        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
 
         $collection = new EntityCollection([], $entityName);
 
         if (isset($foreignKeys[$entityName])) {
-            foreach ($foreignKeys[$entityName] as $fk) {
-                $entity = $this->getMemoryStorage()->get($fk);
-                if (!empty($entity)) {
-                    foreach ($where as $f => $val) {
-                        if (is_array($val)) {
-                            if (!in_array($entity->get($f), $val)) {
-                                continue 2;
-                            }
-                        } else {
-                            if ($entity->get($f) !== $val) {
-                                continue 2;
-                            }
-                        }
-                    }
-                    $collection->append($entity);
-                }
+            $whereKeys = $this->getMemoryStorage()->get($service->whereKeysName) ?? [];
+            $whereKey = $service->createMemoryKeyByWhere($entityName, $where, $where);
+            if (isset($whereKeys[$whereKey])) {
+                $entity = $this->getMemoryStorage()->get($whereKeys[$whereKey]);
+                $collection->append($entity);
             }
         }
 
