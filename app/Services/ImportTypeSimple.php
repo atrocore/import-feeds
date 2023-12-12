@@ -29,6 +29,7 @@ use Import\Exceptions\DeleteProductAttributeValue;
 class ImportTypeSimple extends QueueManagerBase
 {
     public string $keysName = 'loaded_exists_entities_keys';
+    public string $whereKeysName = 'loaded_exists_entities_where_keys';
     public string $foreignKeysName = 'loaded_exists_foreign_entities_keys';
     private array $restore = [];
     private bool $lastIteration = false;
@@ -246,7 +247,7 @@ class ImportTypeSimple extends QueueManagerBase
                         $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                     }
 
-                    $this->afterRowProceed($row, $entityService->getEntityType(), $id);
+                    $this->afterRowProceed($entityService->getEntityType(), $where, $id);
 
                     continue;
                 }
@@ -257,7 +258,7 @@ class ImportTypeSimple extends QueueManagerBase
                     $this->log($scope, $importJob->get('id'), 'skip', (string)$fileRow, null);
                 }
 
-                $this->afterRowProceed($row, $entityService->getEntityType(), $id);
+                $this->afterRowProceed($entityService->getEntityType(), $where, $id);
             }
             $this->clearMemoryOfLoadedEntities();
         }
@@ -289,12 +290,17 @@ class ImportTypeSimple extends QueueManagerBase
         return true;
     }
 
-    public function afterRowProceed(array $row, string $entityType, ?string $id): void
+    public function afterRowProceed(string $entityType, array $where, ?string $id): void
     {
         if (!empty($id)) {
             $keys = $this->getMemoryStorage()->get($this->keysName);
-            $keys[] = $this->createMemoryKey($entityType, $id);
+            $key = $this->createMemoryKey($entityType, $id);
+            $keys[] = $key;
             $this->getMemoryStorage()->set($this->keysName, $keys);
+
+            $whereKeys = $this->getMemoryStorage()->get($this->whereKeysName);
+            $this->pushWhereKey($this->createMemoryKeyByWhere($entityType, $where), $key, $whereKeys);
+            $this->getMemoryStorage()->set($this->whereKeysName, $whereKeys);
         }
     }
 
@@ -310,13 +316,18 @@ class ImportTypeSimple extends QueueManagerBase
             ->find();
 
         $keys = [];
+        $whereKeys = [];
         foreach ($existsEntities as $existsEntity) {
             $key = $this->createMemoryKey($existsEntity->getEntityType(), $existsEntity->get('id'));
             $this->getMemoryStorage()->set($key, $existsEntity);
             $keys[] = $key;
+
+            $whereKey = $this->createMemoryKeyByWhere($existsEntity->getEntityType(), $where, $existsEntity->toArray());
+            $this->pushWhereKey($whereKey, $key, $whereKeys);
         }
 
         $this->getMemoryStorage()->set($this->keysName, $keys);
+        $this->getMemoryStorage()->set($this->whereKeysName, $whereKeys);
     }
 
     public function clearMemoryOfLoadedEntities(): void
@@ -326,14 +337,48 @@ class ImportTypeSimple extends QueueManagerBase
             $this->getMemoryStorage()->delete($key);
         }
         $this->getMemoryStorage()->delete($this->keysName);
+        $this->getMemoryStorage()->delete($this->whereKeysName);
 
         $foreignKeys = $this->getMemoryStorage()->get($this->foreignKeysName) ?? [];
         foreach ($foreignKeys as $entityType => $keys) {
-            foreach ($keys as $key){
+            foreach ($keys as $key) {
                 $this->getMemoryStorage()->delete($key);
             }
         }
         $this->getMemoryStorage()->delete($this->foreignKeysName);
+    }
+
+    public function createMemoryKeyByWhere(string $entityType, array $where, array $entityData = null): string
+    {
+        if ($entityData === null) {
+            $entityData = [];
+            foreach ($where as $field => $values) {
+                $entityData[$field] = $values[0];
+            }
+        }
+
+        $fields = array_keys($where);
+        sort($fields);
+
+        $data = ['entityType' => $entityType];
+        foreach ($fields as $field) {
+            $data['where'][$field] = $entityData[$field];
+        }
+
+        return md5(json_encode($data));
+    }
+
+    public function pushWhereKey(string $whereKey, string $key, array &$whereKeys): void
+    {
+        if (isset($whereKeys[$whereKey])) {
+            if (is_array($whereKeys[$whereKey])) {
+                $whereKeys[$whereKey][] = $key;
+            } else {
+                $whereKeys[$whereKey] = [$whereKeys[$whereKey], $key];
+            }
+        } else {
+            $whereKeys[$whereKey] = $key;
+        }
     }
 
     public function createMemoryKey(string $entityType, string $entityId): string
@@ -501,35 +546,24 @@ class ImportTypeSimple extends QueueManagerBase
             return null;
         }
 
-        $fields = [];
-        foreach ($configuration['configuration'] as $item) {
-            if (in_array($item['name'], $configuration['idField'])) {
-                $fields[] = $this->translate($item['name'], 'fields', $entityType);
-            }
-        }
+        $whereKey = $this->createMemoryKeyByWhere($entityType, $where);
 
-        $result = null;
-
-        $keys = $this->getMemoryStorage()->get($this->keysName) ?? [];
-        foreach ($keys as $key) {
-            $entity = $this->getMemoryStorage()->get($key);
-            if (empty($entity)) {
-                continue;
-            }
-            foreach ($where as $field => $val) {
-                if (!in_array($entity->get($field), $val)) {
-                    continue 2;
+        $entity = null;
+        $whereKeys = $this->getMemoryStorage()->get($this->whereKeysName) ?? [];
+        if (isset($whereKeys[$whereKey])) {
+            $entity = $this->getMemoryStorage()->get($whereKeys[$whereKey]);
+            if (is_array($entity)) {
+                $fields = [];
+                foreach ($configuration['configuration'] as $item) {
+                    if (in_array($item['name'], $configuration['idField'])) {
+                        $fields[] = $this->translate($item['name'], 'fields', $entityType);
+                    }
                 }
-            }
-
-            if ($result !== null) {
                 throw new BadRequest(sprintf($this->translate('moreThanOneFound', 'exceptions', 'ImportFeed'), implode(', ', $fields)));
             }
-
-            $result = $entity;
         }
 
-        return $result;
+        return $entity;
     }
 
     protected function saveRestoreRow(string $action, string $entityType, $data): void
