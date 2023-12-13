@@ -27,6 +27,42 @@ class ImportJob extends Base
 {
     protected $mandatorySelectAttributeList = ['message', 'uploadedFileId', 'uploadedFileName', 'attachmentId', 'attachmentName'];
 
+    public function deleteOld(): bool
+    {
+        $days = $this->getConfig()->get('importJobsMaxDays', 21);
+        if ($days === 0) {
+            return true;
+        }
+
+        // delete
+        $toDelete = $this->getEntityManager()->getRepository('ImportJob')
+            ->where(['modifiedAt<' => (new \DateTime())->modify("-$days days")->format('Y-m-d H:i:s')])
+            ->limit(0, 2000)
+            ->order('modifiedAt')
+            ->find();
+        foreach ($toDelete as $entity) {
+            $this->getEntityManager()->removeEntity($entity);
+        }
+
+        // delete forever
+        $daysToDeleteForever = $days + 14;
+        $maxDate = (new \DateTime())->modify("-$daysToDeleteForever days");
+        $qb = $this->getEntityManager()->getConnection()->createQueryBuilder();
+        $qb
+            ->delete('import_job')
+            ->where('modified_at < :maxDate')
+            ->andWhere('deleted = :true')
+            ->setParameter('maxDate', $maxDate->format('Y-m-d H:i:s'))
+            ->setParameter('true', true, ParameterType::BOOLEAN)
+            ->executeStatement();
+
+        /** @var ImportJobLog $logService */
+        $logService = $this->getServiceFactory()->create('ImportJobLog');
+        $logService->deleteOlderThan($maxDate);
+
+        return true;
+    }
+
     public function generateErrorsAttachment(string $jobId): array
     {
         $importJob = $this->getEntityManager()->getEntity('ImportJob', $jobId);
