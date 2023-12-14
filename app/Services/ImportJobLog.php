@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Import\Services;
 
 use Atro\Core\Templates\Services\Base;
-use Doctrine\DBAL\ParameterType;
 
 class ImportJobLog extends Base
 {
