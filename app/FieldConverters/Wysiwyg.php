@@ -65,17 +65,12 @@ class Wysiwyg
         $restore->{$item['name']} = $entity->get($item['name']);
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
     {
-        foreach ($rows as $row) {
-            $inputRow = new \stdClass();
-            $this->convert($inputRow, $configuration, $row);
+        $inputRow = new \stdClass();
+        $this->convert($inputRow, $configuration, $row);
 
-            $val = $inputRow->{$configuration['name']};
-            if (!isset($where[$configuration['name']]) || !in_array($val, $where[$configuration['name']])) {
-                $where[$configuration['name']][] = $inputRow->{$configuration['name']};
-            }
-        }
+        $where[$configuration['name']] = $inputRow->{$configuration['name']};
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
