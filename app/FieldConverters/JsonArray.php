@@ -60,7 +60,7 @@ class JsonArray extends Varchar
         }
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
     {
     }
 
