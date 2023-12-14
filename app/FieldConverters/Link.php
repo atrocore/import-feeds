@@ -78,10 +78,7 @@ class Link extends Varchar
                     $this->loadToMemory($config, $this->getMemoryStorage()->get('importRowsPart'));
 
                     // find in memory
-                    foreach ($this->findEntitiesInMemory($entityName, $where) as $fe) {
-                        $entity = $fe;
-                        break;
-                    }
+                    $entity = $this->findEntityInMemory($entityName, $where, $config);
 
                     if (empty($entity) && empty($config['createIfNotExist'])) {
                         throw new BadRequest(
@@ -164,41 +161,25 @@ class Link extends Varchar
         $restore->$fieldName = $value;
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
     {
-        $entityName = $this->getForeignEntityName($configuration);
-
-        if (!empty($config['createIfNotExist'])) {
-            throw new BadRequest("Wrong configuration. System cannot create Identifier. $entityName entity must already exist.");
-        }
-
-        $ids = !empty($configuration['default']) ? [$configuration['default']] : [];
-
-        // load to memory
-        $this->loadToMemory($configuration, $rows);
-
-        $service = $this->getImportTypeSimpleService();
-
-        // find in memory
-        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
-        if (isset($foreignKeys[$entityName])) {
-            $whereKeys = $service->getMemoryStorage()->get($service->whereKeysName) ?? [];
-            $ids = [];
-            foreach ($rows as $row) {
-                $whereForRow = $this->prepareWhereForCollection($configuration, [$row]);
-                $whereKey = $service->createMemoryKeyByWhere($entityName, $whereForRow);
-                if (isset($whereKeys[$whereKey])) {
-                    $ids[] = $service->getMemoryStorage()->get($whereKeys[$whereKey])->get('id');
-                }
-            }
-        }
-
-        if (empty($ids)) {
-            throw new BadRequest("Wrong configuration. No $entityName records found.");
-        }
+        $inputRow = new \stdClass();
+        $this->convert($inputRow, $configuration, $row);
 
         $fieldName = $this->getFieldName($configuration);
-        $where[$fieldName] = $ids;
+
+        if (!property_exists($inputRow, $fieldName)) {
+            /**
+             * Hack for product attribute scoping
+             */
+            if ($fieldName === 'channelId' && $configuration['entity'] === 'ProductAttributeValue') {
+                return;
+            }
+
+            throw new BadRequest("System cannot find value for '$fieldName'. Please, check configuration.");
+        }
+
+        $where[$fieldName] = $inputRow->$fieldName;
     }
 
     public function prepareForSaveConfiguratorDefaultField(Entity $entity): void
@@ -285,17 +266,25 @@ class Link extends Varchar
 
     protected function loadToMemory(array $configuration, array $rows): void
     {
+        $service = $this->getImportTypeSimpleService();
+
         $entityName = $this->getForeignEntityName($configuration);
 
-        $foreignKeys = $this->getMemoryStorage()->get($this->getImportTypeSimpleService()->foreignKeysName);
-        if (isset($foreignKeys[$entityName])) {
+        $foreignKeys = $this->getMemoryStorage()->get(ImportTypeSimple::MEMORY_FOREIGN_KEYS);
+        if (isset($foreignKeys[$configuration['pos']])) {
             return;
         }
 
         if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
             $where = $this->prepareWhereForCollection($configuration, $rows);
             $collection = $this->getEntityManager()->getRepository($entityName)->where($where)->find();
-            $this->setCollectionToMemory($collection, $where);
+            foreach ($collection as $entity) {
+                $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
+                $this->getMemoryStorage()->set($itemKey, $entity);
+                $foreignKeys[$configuration['pos']][] = $itemKey;
+            }
+
+            $this->getMemoryStorage()->set(ImportTypeSimple::MEMORY_FOREIGN_KEYS, $foreignKeys);
         }
     }
 
@@ -325,47 +314,23 @@ class Link extends Varchar
         return $res;
     }
 
-    protected function setCollectionToMemory(EntityCollection $collection, array $where): void
+    protected function findEntityInMemory(string $entityName, array $where, array $config): ?Entity
     {
-        $service = $this->getImportTypeSimpleService();
+        $foreignKeys = $this->getMemoryStorage()->get(ImportTypeSimple::MEMORY_FOREIGN_KEYS);
 
-        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
-        $whereKeys = $this->getMemoryStorage()->get($service->whereKeysName) ?? [];
-
-        foreach ($collection as $entity) {
-            $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
-            $this->getMemoryStorage()->set($itemKey, $entity);
-            $foreignKeys[$entity->getEntityType()][] = $itemKey;
-
-            $whereData = [];
-            foreach ($where as $field => $val) {
-                $whereData[$field] = $entity->get($field);
-            }
-            $itemWhereKey = $service->createMemoryKeyByWhere($entity->getEntityType(), $where, $whereData);
-            $service->pushWhereKey($itemWhereKey, $itemKey, $whereKeys);
-        }
-        $this->getMemoryStorage()->set($service->whereKeysName, $whereKeys);
-        $this->getMemoryStorage()->set($service->foreignKeysName, $foreignKeys);
-    }
-
-    protected function findEntitiesInMemory(string $entityName, array $where): EntityCollection
-    {
-        $service = $this->getImportTypeSimpleService();
-
-        $foreignKeys = $this->getMemoryStorage()->get($service->foreignKeysName);
-
-        $collection = new EntityCollection([], $entityName);
-
-        if (isset($foreignKeys[$entityName])) {
-            $whereKeys = $this->getMemoryStorage()->get($service->whereKeysName) ?? [];
-            $whereKey = $service->createMemoryKeyByWhere($entityName, $where, $where);
-            if (isset($whereKeys[$whereKey])) {
-                $entity = $this->getMemoryStorage()->get($whereKeys[$whereKey]);
-                $collection->append($entity);
+        if (isset($foreignKeys[$config['pos']])) {
+            foreach ($foreignKeys[$config['pos']] as $key) {
+                $entity = $this->getMemoryStorage()->get($key);
+                foreach ($where as $f => $v) {
+                    if ($entity->get($f) !== $v) {
+                        continue 2;
+                    }
+                }
+                return $entity;
             }
         }
 
-        return $collection;
+        return null;
     }
 
     protected function getImportTypeSimpleService(): ImportTypeSimple
