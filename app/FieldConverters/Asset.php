@@ -53,7 +53,7 @@ class Asset extends Link
         $restore->{$item['name'] . 'Id'} = $value;
     }
 
-    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $rows): void
+    public function prepareFindExistEntityWhere(array &$where, array $configuration, array $row): void
     {
     }
 
