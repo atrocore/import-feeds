@@ -77,6 +77,11 @@ class ImportTypeSimple extends QueueManagerBase
         $scope = $data['data']['entity'];
         $entityService = $this->getService($scope);
 
+        // set configurator item position
+        foreach ($data['data']['configuration'] as $k => $v) {
+            $data['data']['configuration'][$k]['pos'] = $k;
+        }
+
         $ids = [];
 
         $processedIds = [];
@@ -96,7 +101,8 @@ class ImportTypeSimple extends QueueManagerBase
                     $where = $this->prepareWhere($entityService->getEntityType(), $data['data'], $row);
 
                     $id = null;
-                    if (!empty($entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $where))) {
+                    $entity = $this->findExistEntity($entityService->getEntityType(), $data['data'], $where);
+                    if (!empty($entity)) {
                         $id = $entity->get('id');
                         if (self::isDeleteAction($data['action'])) {
                             $ids[] = $id;
@@ -498,7 +504,6 @@ class ImportTypeSimple extends QueueManagerBase
     {
         $where = [];
         foreach ($configuration['configuration'] as $k => $item) {
-            $item['pos'] = $k;
             if (in_array($item['name'], $configuration['idField'])) {
                 $type = $this->getMetadata()->get(['entityDefs', $entityType, 'fields', $item['name'], 'type'], 'varchar');
                 $this
