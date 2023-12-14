@@ -298,15 +298,13 @@ class ImportTypeSimple extends QueueManagerBase
     public function afterRowProceed(string $entityType, array $where, ?string $id): void
     {
         if (!empty($id)) {
-            $keys = $this->getMemoryStorage()->get(self::MEMORY_KEYS);
+            $keys = $this->getMemoryStorage()->get(self::MEMORY_KEYS) ?? [];
             $key = $this->createMemoryKey($entityType, $id);
             $keys[] = $key;
             $this->getMemoryStorage()->set(self::MEMORY_KEYS, $keys);
 
-            $entity = $this->getMemoryStorage()->get($key);
-
-            $whereKeys = $this->getMemoryStorage()->get(self::MEMORY_WHERE_KEYS);
-            $whereKey = $this->createWhereKey(array_keys($where), $entity);
+            $whereKeys = $this->getMemoryStorage()->get(self::MEMORY_WHERE_KEYS) ?? [];
+            $whereKey = $this->createWhereKey(array_keys($where), $this->getMemoryStorage()->get($key));
             if (empty($whereKeys[$whereKey]) || !in_array($key, $whereKeys[$whereKey])) {
                 $whereKeys[$whereKey][] = $key;
             }
