@@ -289,11 +289,9 @@ class Link extends Varchar
                 $this->getMemoryStorage()->set($itemKey, $entity);
                 $foreignKeys[$configuration['pos']][] = $itemKey;
 
-                $whereKey = [];
-                foreach ($where as $field => $val) {
-                    $whereKey[$field] = $entity->get($field);
-                }
-                $foreignWhereKeys[$configuration['pos']][json_encode($whereKey)] = $itemKey;
+                $whereKey = $service->createWhereKey(array_keys($where), $entity);
+
+                $foreignWhereKeys[$configuration['pos']][$whereKey] = $itemKey;
             }
 
             $this->getMemoryStorage()->set(self::MEMORY_FOREIGN_KEYS, $foreignKeys);
@@ -331,6 +329,7 @@ class Link extends Varchar
     {
         $foreignWhereKeys = $this->getMemoryStorage()->get(self::MEMORY_WHERE_FOREIGN_KEYS) ?? [];
 
+        ksort($where);
         $jsonWhere = json_encode($where);
 
         if (isset($foreignWhereKeys[$config['pos']][$jsonWhere])) {

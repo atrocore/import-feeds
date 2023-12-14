@@ -302,6 +302,15 @@ class ImportTypeSimple extends QueueManagerBase
             $key = $this->createMemoryKey($entityType, $id);
             $keys[] = $key;
             $this->getMemoryStorage()->set(self::MEMORY_KEYS, $keys);
+
+            $entity = $this->getMemoryStorage()->get($key);
+
+            $whereKeys = $this->getMemoryStorage()->get(self::MEMORY_WHERE_KEYS);
+            $whereKey = $this->createWhereKey(array_keys($where), $entity);
+            if (empty($whereKeys[$whereKey]) || !in_array($key, $whereKeys[$whereKey])) {
+                $whereKeys[$whereKey][] = $key;
+            }
+            $this->getMemoryStorage()->set(self::MEMORY_WHERE_KEYS, $whereKeys);
         }
     }
 
@@ -339,16 +348,26 @@ class ImportTypeSimple extends QueueManagerBase
             $this->getMemoryStorage()->set($key, $existsEntity);
             $keys[] = $key;
 
-            $whereKey = [];
-            foreach ($where as $field => $val) {
-                $whereKey[$field] = $existsEntity->get($field);
+            $whereKey = $this->createWhereKey(array_keys($where), $existsEntity);
+            if (empty($whereKeys[$whereKey]) || !in_array($key, $whereKeys[$whereKey])) {
+                $whereKeys[$whereKey][] = $key;
             }
-
-            $whereKeys[json_encode($whereKey)][] = $key;
         }
 
         $this->getMemoryStorage()->set(self::MEMORY_KEYS, $keys);
         $this->getMemoryStorage()->set(self::MEMORY_WHERE_KEYS, $whereKeys);
+    }
+
+    public function createWhereKey(array $fields, Entity $entity): string
+    {
+        sort($fields);
+
+        $whereKey = [];
+        foreach ($fields as $field) {
+            $whereKey[$field] = $entity->get($field);
+        }
+
+        return json_encode($whereKey);
     }
 
     public function clearMemoryOfLoadedEntities(): void
@@ -537,7 +556,9 @@ class ImportTypeSimple extends QueueManagerBase
 
         $whereKeys = $this->getMemoryStorage()->get(self::MEMORY_WHERE_KEYS) ?? [];
 
+        ksort($where);
         $jsonWhere = json_encode($where);
+
         if (isset($whereKeys[$jsonWhere])) {
             if (isset($whereKeys[$jsonWhere][1])) {
                 $fields = [];
