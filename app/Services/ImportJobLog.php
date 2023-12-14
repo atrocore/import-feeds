@@ -18,15 +18,4 @@ use Doctrine\DBAL\ParameterType;
 
 class ImportJobLog extends Base
 {
-    public function deleteOlderThan(\DateTimeInterface $maxDate, bool $deleted = true): void
-    {
-        $qb = $this->getEntityManager()->getConnection()->createQueryBuilder();
-        $qb
-            ->delete('import_job_log')
-            ->where('deleted = :deleted')
-            ->andWhere('modified_at < :maxDate')
-            ->setParameter('deleted', $deleted, ParameterType::BOOLEAN)
-            ->setParameter('maxDate', $maxDate->format('Y-m-d H:i:s'))
-            ->executeStatement();
-    }
 }

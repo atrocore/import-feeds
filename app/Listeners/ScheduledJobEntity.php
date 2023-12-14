@@ -3,9 +3,8 @@
 namespace Import\Listeners;
 
 use Atro\Core\EventManager\Event;
-use Atro\Listeners\AbstractListener;
 
-class ScheduledJobEntity extends AbstractListener
+class ScheduledJobEntity extends \Atro\Listeners\ScheduledJobEntity
 {
     public function afterCreateJobsFromScheduledJobs(Event $event): void
     {

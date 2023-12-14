@@ -56,9 +56,15 @@ class ImportJob extends Base
             ->setParameter('true', true, ParameterType::BOOLEAN)
             ->executeStatement();
 
-        /** @var ImportJobLog $logService */
-        $logService = $this->getServiceFactory()->create('ImportJobLog');
-        $logService->deleteOlderThan($maxDate);
+        // delete forever logs
+        $qb = $this->getEntityManager()->getConnection()->createQueryBuilder();
+        $qb
+            ->delete('import_job_log')
+            ->where('deleted = :deleted')
+            ->andWhere('modified_at < :maxDate')
+            ->setParameter('deleted', true, ParameterType::BOOLEAN)
+            ->setParameter('maxDate', $maxDate->format('Y-m-d H:i:s'))
+            ->executeStatement();
 
         return true;
     }
