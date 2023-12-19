@@ -84,7 +84,21 @@ class ImportJob extends Base
             $this->getEntityManager()->removeEntity($qmJob);
         }
 
-        $this->getEntityManager()->getRepository('importJobLog')->where(['importJobId' => $entity->get('id')])->removeCollection();
+        // delete import logs
+        while (true) {
+            $logsToDelete = $this->getEntityManager()->getRepository('importJobLog')
+                ->where(['importJobId' => $entity->get('id')])
+                ->limit(0, 4000)
+                ->find();
+
+            if (empty($logsToDelete[0])) {
+                break;
+            }
+
+            foreach ($logsToDelete as $log) {
+                $log->removeEntity();
+            }
+        }
 
         if (!empty($attachment = $entity->get('attachment'))) {
             $jobWithSuchAttachment = $this->where(['id!=' => $entity->get('id'), 'attachmentId' => $attachment->get('id')])->findOne();
