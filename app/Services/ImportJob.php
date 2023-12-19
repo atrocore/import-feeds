@@ -35,13 +35,19 @@ class ImportJob extends Base
         }
 
         // delete
-        $toDelete = $this->getEntityManager()->getRepository('ImportJob')
-            ->where(['modifiedAt<' => (new \DateTime())->modify("-$days days")->format('Y-m-d H:i:s')])
-            ->limit(0, 2000)
-            ->order('modifiedAt')
-            ->find();
-        foreach ($toDelete as $entity) {
-            $this->getEntityManager()->removeEntity($entity);
+        while (true) {
+            $toDelete = $this->getEntityManager()->getRepository('ImportJob')
+                ->where(['modifiedAt<' => (new \DateTime())->modify("-$days days")->format('Y-m-d H:i:s')])
+                ->limit(0, 2000)
+                ->order('modifiedAt')
+                ->find();
+            if (empty($toDelete[0])) {
+                break;
+            }
+
+            foreach ($toDelete as $entity) {
+                $this->getEntityManager()->removeEntity($entity);
+            }
         }
 
         // delete forever
