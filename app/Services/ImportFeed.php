@@ -237,7 +237,14 @@ class ImportFeed extends Base
             return $service->runImport($feed, $attachmentId, $payload, $priority);
         }
 
-        $this->pushJobs($feed, !empty($attachmentId) ? $attachmentId : $feed->get('fileId'), $payload, $priority);
+        if (empty($attachmentId)) {
+            $attachmentId = $feed->get('fileId');
+            if (empty($attachmentId)) {
+                throw new BadRequest($this->getInjection('language')->translate('fileIdIsEmpty', 'exceptions', 'ImportFeed'));
+            }
+        }
+
+        $this->pushJobs($feed, $attachmentId, $payload, $priority);
 
         $this
             ->getInjection('eventManager')

@@ -38,11 +38,13 @@ class ImportTypeSimple extends QueueManagerBase
     {
         if (empty($attachmentId) || empty($file = $this->getEntityById('Attachment', $attachmentId))) {
             $attachmentId = $feed->get('fileId');
-            $file = $this->getEntityById('Attachment', $attachmentId);
+            if (!empty($attachmentId)) {
+                $file = $this->getEntityById('Attachment', $attachmentId);
+            }
         }
 
         if (empty($file)) {
-            throw new NotFound($this->translate('noSuchFile', 'exceptions', 'ImportFeed'));
+            throw new BadRequest($this->translate('noSuchFile', 'exceptions', 'ImportFeed'));
         }
 
         $result = [
