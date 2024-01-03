@@ -57,12 +57,10 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                 if (attribute.measureId && this.model.get('attributeValue') === 'valueUnitId') {
                     foreignEntity = 'Unit';
                 }
-            } else if (this.model.get('entity') === 'ProductAttributeValue') {
-                if (this.model.get('name') === 'value') {
-                    foreignEntity = 'ExtensibleEnumOption';
-                } else if (this.model.get('name') === 'valueUnitId') {
-                    foreignEntity = 'Unit';
-                }
+            } else if (this.model.get('entity') === 'ProductAttributeValue' && this.model.get('name') === 'value') {
+                foreignEntity = 'ExtensibleEnumOption';
+            } else if (this.model.get('entity') === 'ProductAttributeValue' && this.model.get('name') === 'valueUnitId') {
+                foreignEntity = 'Unit';
             } else {
                 foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
             }
