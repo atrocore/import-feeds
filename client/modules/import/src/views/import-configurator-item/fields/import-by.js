@@ -57,6 +57,12 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                 if (attribute.measureId && this.model.get('attributeValue') === 'valueUnitId') {
                     foreignEntity = 'Unit';
                 }
+            } else if (this.model.get('entity') === 'ProductAttributeValue') {
+                if (this.model.get('name') === 'value') {
+                    foreignEntity = 'ExtensibleEnumOption';
+                } else if (this.model.get('name') === 'valueUnitId') {
+                    foreignEntity = 'Unit';
+                }
             } else {
                 foreignEntity = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.entity`) || this.getMetadata().get(`entityDefs.${this.model.get('entity')}.links.${this.model.get('name')}.entity`);
             }
@@ -105,6 +111,13 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
                 this.show();
             } else {
                 this.hide();
+            }
+
+            if (this.model.get('entity') === 'ProductAttributeValue' && this.model.get('name') === 'value') {
+                this.$el.append(`<span style="color: #999; font-size: 12px">${this.translate('importByForAttributeValue', 'labels', 'ImportConfiguratorItem')}</span>`)
+                this.$el.closest('.cell').find('.label-text').text(this.translate('importByForListAttribute', 'fields', 'ImportConfiguratorItem'))
+            } else {
+                this.$el.closest('.cell').find('.label-text').text(this.translate('importBy', 'fields', 'ImportConfiguratorItem'))
             }
         },
 
