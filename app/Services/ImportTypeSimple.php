@@ -325,7 +325,11 @@ class ImportTypeSimple extends QueueManagerBase
 
         $collectionWhere = [];
         foreach ($rows as $row) {
-            $whereRow = $this->prepareWhere($entityType, $configuration, $row);
+            try {
+                $whereRow = $this->prepareWhere($entityType, $configuration, $row);
+            } catch (\Throwable $e) {
+                continue;
+            }
             foreach ($whereRow as $f => $v) {
                 if (!is_array($where[$f]) || !in_array($v, $where[$f])) {
                     $collectionWhere[$f][] = $v;
