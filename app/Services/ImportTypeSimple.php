@@ -812,6 +812,16 @@ class ImportTypeSimple extends QueueManagerBase
                 } elseif (!empty($entity) && !empty($attribute = $this->getEntityById('Attribute', $entity->get('attributeId')))) {
                     $type = $attribute->get('type');
                 }
+
+                if (in_array($fieldName, ['valueFrom', 'valueTo'])) {
+                    if ($type === 'rangeInt') {
+                        $type = 'int';
+                    } elseif ($type === 'rangeFloat') {
+                        $type = 'float';
+                    } else {
+                        $type = 'varchar';
+                    }
+                }
             }
 
             if ($fieldName === 'valueUnitId') {
