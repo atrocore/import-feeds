@@ -177,8 +177,8 @@ class ImportTypeSimple extends QueueManagerBase
                         if ($item['entity'] === 'ProductAttributeValue' && in_array($item['name'], ['value', 'valueFrom', 'valueTo', 'valueUnitId'])) {
                             $item = json_decode(json_encode($item), true);
                             // if there is attributeId in input data (We have to put it in configurator item)
-                            if (!empty($row['attributeId'])) {
-                                $item['attributeId'] = $row['attributeId'];
+                            if (property_exists($input, 'attributeId')) {
+                                $item['attributeId'] = $input->attributeId;
                             }
                         }
 
