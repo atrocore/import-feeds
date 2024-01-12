@@ -275,7 +275,7 @@ class Link extends Varchar
         $entityName = $this->getForeignEntityName($configuration);
 
         $foreignKeys = $this->getMemoryStorage()->get(self::MEMORY_FOREIGN_KEYS);
-        if (isset($foreignKeys[$configuration['pos']])) {
+        if (isset($foreignKeys[$configuration['pos']][$entityName])) {
             return;
         }
 
@@ -287,11 +287,11 @@ class Link extends Varchar
             foreach ($collection as $entity) {
                 $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
                 $this->getMemoryStorage()->set($itemKey, $entity);
-                $foreignKeys[$configuration['pos']][] = $itemKey;
+                $foreignKeys[$configuration['pos']][$entityName][] = $itemKey;
 
                 $whereKey = $service->createWhereKey(array_keys($where), $entity);
 
-                $foreignWhereKeys[$configuration['pos']][$whereKey] = $itemKey;
+                $foreignWhereKeys[$configuration['pos']][$entityName][$whereKey] = $itemKey;
             }
 
             $this->getMemoryStorage()->set(self::MEMORY_FOREIGN_KEYS, $foreignKeys);
@@ -327,13 +327,14 @@ class Link extends Varchar
 
     protected function findEntityInMemory(array $where, array $config): ?Entity
     {
+        $entityName = $this->getForeignEntityName($config);
         $foreignWhereKeys = $this->getMemoryStorage()->get(self::MEMORY_WHERE_FOREIGN_KEYS) ?? [];
 
         ksort($where);
         $jsonWhere = json_encode($where);
 
-        if (isset($foreignWhereKeys[$config['pos']][$jsonWhere])) {
-            return $this->getMemoryStorage()->get($foreignWhereKeys[$config['pos']][$jsonWhere]);
+        if (isset($foreignWhereKeys[$config['pos']][$entityName][$jsonWhere])) {
+            return $this->getMemoryStorage()->get($foreignWhereKeys[$config['pos']][$entityName][$jsonWhere]);
         }
 
         return null;
