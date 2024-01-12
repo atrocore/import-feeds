@@ -1,20 +1,6 @@
 {
   "dynamicLogic": {
     "fields": {
-      "sourceEntity": {
-        "visible": {
-          "conditionGroup": [
-            {
-              "type": "in",
-              "attribute": "type",
-              "value": [
-                "__APPEND__",
-                "import"
-              ]
-            }
-          ]
-        }
-      },
       "importFeed": {
         "visible": {
           "conditionGroup": [
@@ -31,20 +17,6 @@
               "type": "equals",
               "attribute": "type",
               "value": "import"
-            }
-          ]
-        }
-      },
-      "payload": {
-        "visible": {
-          "conditionGroup": [
-            {
-              "type": "in",
-              "attribute": "type",
-              "value": [
-                "__APPEND__",
-                "import"
-              ]
             }
           ]
         }
