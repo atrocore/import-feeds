@@ -382,9 +382,11 @@ class ImportTypeSimple extends QueueManagerBase
         $this->getMemoryStorage()->delete(self::MEMORY_KEYS);
         $this->getMemoryStorage()->delete(self::MEMORY_WHERE_KEYS);
 
-        foreach ($this->getMemoryStorage()->get(Link::MEMORY_FOREIGN_KEYS) ?? [] as $keys) {
-            foreach ($keys as $key) {
-                $this->getMemoryStorage()->delete($key);
+        foreach ($this->getMemoryStorage()->get(Link::MEMORY_FOREIGN_KEYS) ?? [] as $entities) {
+            foreach ($entities as $keys) {
+                foreach ($keys as $key) {
+                    $this->getMemoryStorage()->delete($key);
+                }
             }
         }
         $this->getMemoryStorage()->delete(Link::MEMORY_FOREIGN_KEYS);
