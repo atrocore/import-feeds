@@ -15,7 +15,7 @@
       "type": "link",
       "notStorable": true,
       "virtualField": true,
-      "entity": "ExportFeed",
+      "entity": "ImportFeed",
       "filterDisabled": true,
       "massUpdateDisabled": true,
       "importDisabled": true
