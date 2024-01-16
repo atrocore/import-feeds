@@ -2,7 +2,7 @@
   "name": "atrocore/import-feeds",
   "description": "",
   "require": {
-    "atrocore/core": ">=1.7.22 <1.9.0",
+    "atrocore/core": "~1.8.12",
     "ext-simplexml": "*",
     "phpoffice/phpspreadsheet": "~1.16.0"
   },
