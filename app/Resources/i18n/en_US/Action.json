@@ -1,0 +1,11 @@
+{
+  "fields": {
+    "importFeed": "Import Feed",
+    "payload": "Payload"
+  },
+  "options": {
+    "type": {
+      "import": "Import Feed"
+    }
+  }
+}

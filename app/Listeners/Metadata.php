@@ -84,6 +84,10 @@ class Metadata extends AbstractListener
             'optionColors' => $data['entityDefs']['ImportJob']['fields']['state']['optionColors']
         ];
 
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['payload']['visible']['conditionGroup'][0]['type'] = 'in';
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['payload']['visible']['conditionGroup'][0]['attribute'] = 'type';
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['payload']['visible']['conditionGroup'][0]['value'][] = 'import';
+
         $event->setArgument('data', $data);
     }
 }
