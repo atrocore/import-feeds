@@ -46,20 +46,50 @@ class Import implements TypeInterface
     public function executeNow(Entity $action, \stdClass $input): bool
     {
         $payload = empty($action->get('payload')) ? '' : (string)$action->get('payload');
+        $templateData = [];
 
-        if (property_exists($input, 'entityId') && property_exists($input, 'entityType')) {
-            $entity = $this->getEntityManager()->getRepository($input->entityType)->get($input->entityId);
-            $payload = $this->container->get('twig')->renderTemplate($payload, ['entity' => $entity]);
+        if (!empty($action->get('sourceEntity'))) {
+            $service = $this->getServiceFactory()->create($action->get('sourceEntity'));
+            if (property_exists($input, 'entityId')) {
+                $params = [
+                    'disableCount' => true,
+                    'where'        => [['type' => 'in', 'attribute' => 'id', 'value' => [$input->entityId]]],
+                    'offset'       => 0,
+                    'maxSize'      => 1,
+                    'sortBy'       => 'createdAt',
+                    'asc'          => true
+                ];
+            }
+
+            if (property_exists($input, 'where')) {
+                $params = [
+                    'disableCount' => true,
+                    'where'        => json_decode(json_encode($input->where), true),
+                    'offset'       => 0,
+                    'maxSize'      => 60000,
+                    'sortBy'       => 'createdAt',
+                    'asc'          => true
+                ];
+            }
+
+            if (!empty($params)) {
+                $res = $service->findEntities($params);
+                if (!empty($res['collection'][0])) {
+                    $templateData['sourceEntities'] = $res['collection'];
+                    $templateData['sourceEntitiesIds'] = array_column($res['collection']->toArray(), 'id');
+                }
+            }
         }
 
+        $payload = $this->container->get('twig')->renderTemplate($payload, $templateData);
+        $payload = @json_decode((string)$payload, true);
+
         if (!empty($input->_relationData)) {
-            $payload = @json_decode($payload, true);
             $payload['relation'] = [
                 'action'       => $input->_relationData['action'],
                 'relationName' => $input->_relationData['relationName'],
                 'foreignId'    => $input->_relationData['foreignId']
             ];
-            $payload = json_encode($payload);
         }
 
         /** @var \Import\Services\ImportFeed $service */
@@ -70,27 +100,9 @@ class Import implements TypeInterface
             return false;
         }
 
-        $attachmentId = $importFeed->get('fileId');
+        $payload['executeNow'] = empty($action->get('inBackground'));
 
-        if (!empty($payload)) {
-            $attachmentService = $this->getServiceFactory()->create('Attachment');
-            $attachment = $attachmentService->createEntity(
-                (object)[
-                    'contents'    => $payload,
-                    'name'        => 'import_' . md5(uniqid()) . '.json',
-                    'type'        => 'application/json',
-                    'role'        => 'Attachment',
-                    'relatedType' => 'ImportFeed',
-                    'field'       => 'importFile'
-                ]
-            );
-            if (empty($attachment)) {
-                return false;
-            }
-            $attachmentId = $attachment->get('id');
-        }
-
-        $service->runImport($importFeed->get('id'), $attachmentId);
+        $service->runImport($importFeed->get('id'), '', empty($payload) ? null : json_decode(json_encode($payload)));
 
         return true;
     }

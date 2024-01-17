@@ -8,11 +8,11 @@
       "filterDisabled": true,
       "massUpdateDisabled": true,
       "importDisabled": true,
-      "useDisabledTextareaInViewMode": true,
-      "tooltip": true
+      "useDisabledTextareaInViewMode": true
     },
     "importFeed": {
       "type": "link",
+      "view": "import:views/action/fields/import-feed",
       "notStorable": true,
       "virtualField": true,
       "entity": "ImportFeed",
