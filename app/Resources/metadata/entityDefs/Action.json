@@ -8,8 +8,7 @@
       "filterDisabled": true,
       "massUpdateDisabled": true,
       "importDisabled": true,
-      "useDisabledTextareaInViewMode": true,
-      "tooltip": true
+      "useDisabledTextareaInViewMode": true
     },
     "importFeed": {
       "type": "link",
