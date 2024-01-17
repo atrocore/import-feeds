@@ -13,6 +13,7 @@
     },
     "importFeed": {
       "type": "link",
+      "view": "import:views/action/fields/import-feed",
       "notStorable": true,
       "virtualField": true,
       "entity": "ImportFeed",
