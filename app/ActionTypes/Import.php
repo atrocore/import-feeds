@@ -78,6 +78,8 @@ class Import implements TypeInterface
                 if (!empty($res['collection'][0])) {
                     $templateData['sourceEntities'] = $res['collection'];
                     $templateData['sourceEntitiesIds'] = array_column($res['collection']->toArray(), 'id');
+
+                    $templateData['entity'] = $res['collection'][0]; // for backward compatibility
                 }
             }
         }
