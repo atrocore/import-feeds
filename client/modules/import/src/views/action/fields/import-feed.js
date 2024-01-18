@@ -15,9 +15,14 @@ Espo.define('import:views/action/fields/import-feed', 'views/fields/link', Dep =
         setup() {
             Dep.prototype.setup.call(this);
 
-            this.listenTo(this.model, 'change:type', () => {
-                if (this.model.get('type') === 'import'){
-                    this.model.set('payload', '{"sourceEntitiesIds": {{ sourceEntitiesIds|json_encode|raw}}}');
+            this.listenTo(this.model, 'change:type change:usage', () => {
+                if (this.model.get('type') === 'import') {
+                    if (this.model.get('usage') === 'record') {
+                        this.model.set('payload', '{"sourceEntitiesIds": {{ sourceEntitiesIds|json_encode|raw}}}');
+                    }
+                    if (this.model.get('usage') === 'entity') {
+                        this.model.set('payload', '');
+                    }
                 }
             });
         },
