@@ -159,21 +159,7 @@ class Csv extends Injectable implements FileParserInterface
 
     protected static function createColumnName(int $k, array $data): string
     {
-        $value = (string)($k + 1);
-        if (isset($data[1][$k])) {
-            $firstRowValue = trim((string)$data[1][$k]);
-            if (empty($firstRowValue) && $firstRowValue !== '0' && $firstRowValue !== 0) {
-                return $value;
-            }
-            $cropped = mb_substr($firstRowValue, 0, 24);
-            $value .= ' ‹ ' . $cropped;
-
-            if ($firstRowValue != $cropped) {
-                $value .= '...';
-            }
-        }
-
-        return $value;
+        return (string)($k + 1);
     }
 
     public function getLocalFilePath(Attachment $attachment): string

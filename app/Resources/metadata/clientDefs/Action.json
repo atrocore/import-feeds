@@ -1,0 +1,26 @@
+{
+  "dynamicLogic": {
+    "fields": {
+      "importFeed": {
+        "visible": {
+          "conditionGroup": [
+            {
+              "type": "equals",
+              "attribute": "type",
+              "value": "import"
+            }
+          ]
+        },
+        "required": {
+          "conditionGroup": [
+            {
+              "type": "equals",
+              "attribute": "type",
+              "value": "import"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

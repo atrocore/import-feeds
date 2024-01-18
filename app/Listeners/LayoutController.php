@@ -31,6 +31,28 @@ class LayoutController extends \Atro\Listeners\AbstractListener
         }
     }
 
+    protected function modifyActionDetail(Event $event): void
+    {
+        $result = Json::decode($event->getArgument('result'), true);
+
+        if (strpos(json_encode($result[0]['rows']), '"name":"importFeed"') === false) {
+            $result[0]['rows'][] = [['name' => 'importFeed'], false];
+        }
+
+        if (strpos(json_encode($result[0]['rows']), '"name":"payload"') !== false) {
+            $result[0]['rows'] = json_decode(str_replace(',[{"name":"payload","fullWidth":true}]', '', json_encode($result[0]['rows'])), true);
+        }
+
+        $result[0]['rows'][] = [['name' => 'payload', 'fullWidth' => true]];
+
+        $event->setArgument('result', Json::encode($result));
+    }
+
+    protected function modifyActionDetailSmall(Event $event): void
+    {
+        $this->modifyActionDetail($event);
+    }
+
     protected function modifyScheduledJobDetail(Event $event): void
     {
         $result = Json::decode($event->getArgument('result'), true);

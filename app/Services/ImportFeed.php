@@ -264,10 +264,16 @@ class ImportFeed extends Base
                 'payload'      => $payload,
                 'priority'     => $priority
             ];
-            $this->getInjection('queueManager')->push($name, 'ImportJobCreator', $qmJobData);
+
+            if (!empty($payload) && !empty($payload->executeNow)) {
+                $this->getServiceFactory()->create('ImportJobCreator')->run($qmJobData);
+            } else {
+                $this->getInjection('queueManager')->push($name, 'ImportJobCreator', $qmJobData);
+            }
         } else {
             $serviceName = $this->getImportTypeService($importFeed);
             $data = $this->getServiceFactory()->create($serviceName)->prepareJobData($importFeed, $attachmentId);
+            $data['payload'] = $payload;
             if (!empty($priority)) {
                 $data['data']['priority'] = $priority;
             }
@@ -395,6 +401,28 @@ class ImportFeed extends Base
 
         if (isset($data['data']['priority'])) {
             $dto->setPriority($data['data']['priority']);
+        }
+
+        if (!empty($data['payload']) && !empty($data['payload']->executeNow)) {
+            if (empty($data['data']['importJobId'])) {
+                return false;
+            }
+            $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($data['data']['importJobId']);
+            if (empty($importJob)) {
+                return false;
+            }
+            $importJob->set('sortOrder', time() - (new \DateTime('2023-01-01'))->getTimestamp());
+            try {
+                $this->getServiceFactory()->create($dto->getServiceName())->run($dto->getData());
+                $importJob->set('state', 'Success');
+            } catch (\Throwable $e) {
+                $importJob->set('state', 'Failed');
+                $importJob->set('message', $e->getMessage());
+            }
+
+            $this->getEntityManager()->saveEntity($importJob);
+
+            return true;
         }
 
         $id = $this->getInjection('queueManager')->createQueueItem($dto);

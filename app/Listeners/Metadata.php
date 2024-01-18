@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Import\Listeners;
 
 use Atro\Core\EventManager\Event;
+use Atro\Core\KeyValueStorages\StorageInterface;
 use Atro\Listeners\AbstractListener;
 
 class Metadata extends AbstractListener
@@ -84,6 +85,49 @@ class Metadata extends AbstractListener
             'optionColors' => $data['entityDefs']['ImportJob']['fields']['state']['optionColors']
         ];
 
+        foreach ($this->getMemoryStorage()->get('dynamic_action') ?? [] as $action) {
+            if ($action['type'] === 'import') {
+                if ($action['usage'] === 'record' && !empty($action['source_entity'])) {
+                    $data['clientDefs'][$action['source_entity']]['dynamicRecordActions'][] = [
+                        'id'         => $action['id'],
+                        'name'       => $action['name'],
+                        'display'    => $action['display'],
+                        'massAction' => !empty($action['mass_action']),
+                        'acl'        => [
+                            'scope'  => 'ImportFeed',
+                            'action' => 'read',
+                        ]
+                    ];
+                }
+                if ($action['usage'] === 'entity' && !empty($action['source_entity'])) {
+                    $data['clientDefs'][$action['source_entity']]['dynamicEntityActions'][] = [
+                        'id'      => $action['id'],
+                        'name'    => $action['name'],
+                        'display' => $action['display'],
+                        'acl'     => [
+                            'scope'  => 'ImportFeed',
+                            'action' => 'read',
+                        ]
+                    ];
+                }
+            }
+        }
+
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['sourceEntity']['visible']['conditionGroup'][0]['type'] = 'in';
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['sourceEntity']['visible']['conditionGroup'][0]['attribute'] = 'type';
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['sourceEntity']['visible']['conditionGroup'][0]['value'][] = 'import';
+
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['payload']['visible']['conditionGroup'][0]['type'] = 'in';
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['payload']['visible']['conditionGroup'][0]['attribute'] = 'type';
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['payload']['visible']['conditionGroup'][0]['value'][] = 'import';
+
+        $data['clientDefs']['Action']['dynamicLogic']['fields']['inBackground']['visible']['conditionGroup'][0]['value'][] = 'import';
+
         $event->setArgument('data', $data);
+    }
+
+    protected function getMemoryStorage(): StorageInterface
+    {
+        return $this->getContainer()->get('memoryStorage');
     }
 }
