@@ -531,7 +531,9 @@ class ImportFeed extends Base
             if ($configuratorItem->type === 'Fixed value') {
                 continue;
             }
-            $sourceFields[] = $configuratorItem->column;
+            if (!empty($configuratorItem->column)) {
+                $sourceFields[] = $configuratorItem->column;
+            }
         }
         if (empty($sourceFields)) {
             $sourceFields = ['ID'];
@@ -562,7 +564,9 @@ class ImportFeed extends Base
             $attachment = new \stdClass();
             $attachment->importFeedId = $importFeed->id;
             $attachment->name = $configuratorItem->name;
-            $attachment->column = [$configuratorItem->column];
+            if (!empty($configuratorItem->column)) {
+                $attachment->column = [$configuratorItem->column];
+            }
             $attachment->type = $configuratorItem->type;
             $attachment->scope = $configuratorItem->scope;
             $attachment->locale = $configuratorItem->language;
