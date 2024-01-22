@@ -107,7 +107,6 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
                 'address',
                 'attachmentMultiple',
                 'currencyConverted',
-                'file',
                 'linkParent',
                 'personName',
                 'autoincrement'
