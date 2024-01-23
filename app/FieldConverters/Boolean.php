@@ -21,14 +21,17 @@ class Boolean extends Varchar
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $default = empty($config['default']) ? null : $config['default'];
+        if ($default === 'f'){
+            $default = false;
+        }
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
             $this->deletePAV($value, $config);
-            if (strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
+            if (!is_bool($value) && strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
                 $value = $default;
             }
-            if (strtolower((string)$value) === strtolower((string)$config['nullValue'])) {
+            if (!is_bool($value) && strtolower((string)$value) === strtolower((string)$config['nullValue'])) {
                 $value = null;
             }
         } else {
