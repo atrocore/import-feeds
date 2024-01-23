@@ -21,9 +21,6 @@ class Boolean extends Varchar
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $default = empty($config['default']) ? null : $config['default'];
-        if ($default === 'f'){
-            $default = false;
-        }
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
@@ -38,11 +35,6 @@ class Boolean extends Varchar
             $value = $default;
         }
 
-        if (is_null(filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))) {
-            $type = $this->translate('bool', 'fieldTypes', 'Admin');
-            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
-        }
-
         if (is_string($value) && (strtolower($value) === 'no' || strtolower($value) === 'false' || $value === '0' || $value === 'f')) {
             $value = false;
         }
@@ -55,8 +47,9 @@ class Boolean extends Varchar
             return;
         }
 
-        if ($value !== null && !is_bool($value)) {
-            $value = (bool)$value;
+        if (is_null(filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE))) {
+            $type = $this->translate('bool', 'fieldTypes', 'Admin');
+            throw new BadRequest(sprintf($this->translate('unexpectedFieldType', 'exceptions', 'ImportFeed'), $value, $type));
         }
 
         $inputRow->{$config['name']} = !empty($value);
