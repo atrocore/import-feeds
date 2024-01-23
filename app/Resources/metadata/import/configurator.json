@@ -56,6 +56,9 @@
     },
     "datetime": {
       "converter": "\\Import\\FieldConverters\\DateTime"
+    },
+    "file": {
+      "converter": "\\Import\\FieldConverters\\File"
     }
   }
 }

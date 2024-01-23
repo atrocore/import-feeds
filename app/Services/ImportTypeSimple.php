@@ -693,15 +693,7 @@ class ImportTypeSimple extends QueueManagerBase
                         'default' => $item['scope']
                     ]
                 );
-                if ($item['scope'] === 'Channel') {
-                    $configurator[] = array_merge($common, [
-                            'type'    => 'Field',
-                            'name'    => 'channelId',
-                            'column'  => [],
-                            'default' => $item['channelId']
-                        ]
-                    );
-                }
+
                 $configurator[] = array_merge($common, [
                     'type'             => 'Field',
                     'name'             => $item['attributeValue'] ?? 'value',
@@ -725,6 +717,17 @@ class ImportTypeSimple extends QueueManagerBase
                     "product",
                     "attribute"
                 ];
+
+                if ($item['scope'] === 'Channel') {
+                    $configurator[] = array_merge($common, [
+                            'type'    => 'Field',
+                            'name'    => 'channelId',
+                            'column'  => [],
+                            'default' => $item['channelId']
+                        ]
+                    );
+                    $pavData['data']['idField'][] = 'channelId';
+                }
 
                 if (isset($pavData['sourceFields'])) {
                     unset($pavData['sourceFields']);
