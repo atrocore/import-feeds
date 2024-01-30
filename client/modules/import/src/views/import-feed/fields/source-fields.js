@@ -72,12 +72,12 @@ Espo.define('import:views/import-feed/fields/source-fields', 'views/fields/multi
         },
 
         loadFileColumns() {
-            this.model.set('sourceFields', [], {silent: true});
-
             let fileId = this.model.get('fileId');
             if (!fileId) {
                 return;
             }
+
+            this.model.set('sourceFields', [], {silent: true});
 
             let data = {
                 importFeedId: this.model.get('id'),
