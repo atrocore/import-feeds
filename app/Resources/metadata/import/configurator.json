@@ -58,7 +58,7 @@
       "converter": "\\Import\\FieldConverters\\DateTime"
     },
     "file": {
-      "converter": "\\Import\\FieldConverters\\File"
+      "converter": "\\Import\\FieldConverters\\Asset"
     }
   }
 }

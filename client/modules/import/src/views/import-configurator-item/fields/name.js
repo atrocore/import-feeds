@@ -66,8 +66,11 @@ Espo.define('import:views/import-configurator-item/fields/name', 'views/fields/e
 
             if (this.model.get('type') === 'Field') {
                 let type = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'fields', this.model.get('name'), 'type']);
-                if (type === 'image' || type === 'asset' || type === 'link' || type === 'linkMultiple' || type === 'extensibleEnum' || type === 'extensibleMultiEnum') {
-                    const entityName = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'links', this.model.get('name'), 'entity']);
+                if (['file', 'image', 'asset', 'link', 'linkMultiple', 'extensibleEnum', 'extensibleMultiEnum'].includes(type)) {
+                    let entityName = this.getMetadata().get(['entityDefs', this.model.get('entity'), 'links', this.model.get('name'), 'entity']);
+                    if (type === 'file') {
+                        entityName = 'Asset'
+                    }
                     let translated = [];
                     this.model.get('importBy').forEach(field => {
                         translated.push(this.translate(field, 'fields', entityName));

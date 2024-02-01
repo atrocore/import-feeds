@@ -152,7 +152,7 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
 
             this.prepareDefaultModel(type, options);
 
-            if (this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`) === 'asset') {
+            if (['asset', 'file'].includes(this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.type`))) {
                 type = 'link';
                 this.model.defs.links["default"] = {
                     type: 'belongsTo',
