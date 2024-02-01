@@ -46,7 +46,7 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             }
 
             let foreignEntity = null;
-            if (type === 'asset') {
+            if (type === 'asset' || type === 'file') {
                 foreignEntity = 'Asset';
             } else if (type && ['extensibleEnum', 'extensibleMultiEnum'].includes(type)) {
                 foreignEntity = 'ExtensibleEnumOption';
