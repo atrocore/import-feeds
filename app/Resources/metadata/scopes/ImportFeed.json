@@ -16,5 +16,5 @@
   "hasAssignedUser": true,
   "hasTeam": true,
   "hasAccount": true,
-  "hasActive": true
+  "isActiveUnavailable": true
 }
