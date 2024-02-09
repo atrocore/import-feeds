@@ -12,6 +12,9 @@
     "extensibleEnum": {
       "converter": "\\Import\\FieldConverters\\ExtensibleEnum"
     },
+    "measure": {
+      "converter": "\\Import\\FieldConverters\\Measure"
+    },
     "extensibleMultiEnum": {
       "converter": "\\Import\\FieldConverters\\ExtensibleMultiEnum"
     },
@@ -58,7 +61,7 @@
       "converter": "\\Import\\FieldConverters\\DateTime"
     },
     "file": {
-      "converter": "\\Import\\FieldConverters\\Asset"
+      "converter": "\\Import\\FieldConverters\\File"
     }
   }
 }
