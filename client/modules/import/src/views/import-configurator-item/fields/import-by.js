@@ -48,6 +48,8 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             let foreignEntity = null;
             if (type === 'asset' || type === 'file') {
                 foreignEntity = 'Asset';
+            } else if (type === 'measure') {
+                foreignEntity = 'Unit'
             } else if (type && ['extensibleEnum', 'extensibleMultiEnum'].includes(type)) {
                 foreignEntity = 'ExtensibleEnumOption';
             } else if (this.model.get('name') === 'mainImage' || ['Product', 'Category'].includes(this.model.get('entity')) && this.model.get('name') === 'image') {

@@ -103,6 +103,9 @@ Espo.define('import:views/import-configurator-item/fields/default-container', 'v
             } else if (type === 'extensibleEnum' || type === 'extensibleMultiEnum') {
                 this.params.extensibleEnumId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.extensibleEnumId`);
                 this.model.defs.fields["default"]['extensibleEnumId'] = this.params.extensibleEnumId;
+            } else if (type === 'measure') {
+                this.params.measureId = this.getMetadata().get(`entityDefs.${this.model.get('entity')}.fields.${this.model.get('name')}.measureId`);
+                this.model.defs.fields["default"]['measureId'] = this.params.measureId;
             }
 
             if (this.model.get('type') === 'Attribute' && this.model.get('attributeId')) {

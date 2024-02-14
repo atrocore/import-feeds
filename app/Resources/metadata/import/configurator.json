@@ -12,6 +12,9 @@
     "extensibleEnum": {
       "converter": "\\Import\\FieldConverters\\ExtensibleEnum"
     },
+    "measure": {
+      "converter": "\\Import\\FieldConverters\\Measure"
+    },
     "extensibleMultiEnum": {
       "converter": "\\Import\\FieldConverters\\ExtensibleMultiEnum"
     },
