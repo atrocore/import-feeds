@@ -14,6 +14,10 @@
     "maximumHoursToLookBack": {
       "type": "float",
       "min": 0
+    },
+    "maximumDaysForJobExist": {
+      "type": "int",
+      "min": 0
     }
   },
   "links": {
