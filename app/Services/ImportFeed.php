@@ -556,6 +556,8 @@ class ImportFeed extends Base
 
         $sourceFields = [];
         foreach ($exportFeed->configuratorItems as $configuratorItem) {
+            $this->getRecordService("ExportConfiguratorItem")->prepareEntityForOutput($configuratorItem);
+
             if ($configuratorItem->type === 'Fixed value') {
                 continue;
             }
