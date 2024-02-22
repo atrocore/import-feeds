@@ -27,9 +27,8 @@ class ImportJob extends Base
 {
     protected $mandatorySelectAttributeList = ['message', 'uploadedFileId', 'uploadedFileName', 'attachmentId', 'attachmentName'];
 
-    public function deleteOld(): bool
+    public function deleteOld(int $days): bool
     {
-        $days = $this->getConfig()->get('importJobsMaxDays', 21);
         if ($days === 0) {
             return true;
         }

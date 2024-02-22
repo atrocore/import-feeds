@@ -2,7 +2,8 @@
   "fields": {
     "importFeed": "Імпортний фід",
     "importFeeds": "Імпортні канали",
-    "maximumHoursToLookBack": "Максимальна кількість годин для ретроспективи"
+    "maximumHoursToLookBack": "Максимальна кількість годин для ретроспективи",
+    "maximumDaysForJobExist": "Максимальний термін зберігання в днях"
   },
   "links": {
     "importFeed": "Імпортний фід",
@@ -11,7 +12,8 @@
   "options": {
     "job": {
       "ImportFeed": "Імпортний фід",
-      "TrialImport": "Повторне виконання невиконаних завдань імпорту"
+      "TrialImport": "Повторне виконання невиконаних завдань імпорту",
+      "ImportJobRemove": "Видалення завдань імпорту"
     }
   },
   "tooltips": {
