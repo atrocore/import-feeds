@@ -95,6 +95,10 @@ class ImportJobCreator extends QueueManagerBase
                 ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachment->get('id'), $payload, $jobAttachment->get('id'))
                 ->get('id');
 
+            if (!empty($data['jobData']) && is_array($data['jobData'])) {
+                $jobData = array_merge($jobData, $data['jobData']);
+            }
+
             $importFeedService->push($importFeedService->getName($importFeed) . ' (' . $partNumber . ')', $serviceName, $jobData);
 
             $offset = $offset + $maxPerJob;
