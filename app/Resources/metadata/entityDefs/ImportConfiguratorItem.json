@@ -76,19 +76,6 @@
       "importDisabled": true,
       "emHidden": true
     },
-    "scope": {
-      "type": "enum",
-      "prohibitedEmptyValue": true,
-      "optionsIds": [
-        "Global",
-        "Channel"
-      ],
-      "options": [
-        "Global",
-        "Channel"
-      ],
-      "default": "Global"
-    },
     "channel": {
       "type": "link"
     },

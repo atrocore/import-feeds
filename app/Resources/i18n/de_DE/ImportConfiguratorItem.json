@@ -11,7 +11,6 @@
     "locale": "Sprache",
     "attribute": "Attribut",
     "channel": "Kanal",
-    "scope": "Scope",
     "sourceFields": "Quellfelder",
     "type": "Typ",
     "foreignColumn": "Quellfeld(er)",
