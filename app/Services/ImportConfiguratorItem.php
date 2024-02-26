@@ -31,7 +31,6 @@ class ImportConfiguratorItem extends Base
             'default',
             'type',
             'attributeId',
-            'scope',
             'locale',
             'sortOrder',
             'foreignColumn',
