@@ -134,7 +134,6 @@ class ImportFeed extends Base
                 'importBy'                  => $item->get('importBy'),
                 'type'                      => $item->get('type'),
                 'attributeId'               => $item->get('attributeId'),
-                'scope'                     => $item->get('scope'),
                 'channelId'                 => $item->get('channelId'),
                 'locale'                    => $item->get('locale'),
                 'entity'                    => $result['entity'],

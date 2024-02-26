@@ -686,13 +686,6 @@ class ImportTypeSimple extends QueueManagerBase
                     'column'  => [],
                     'default' => $item['locale']
                 ]);
-                $configurator[] = array_merge($common, [
-                        'type'    => 'Field',
-                        'name'    => 'scope',
-                        'column'  => [],
-                        'default' => $item['scope']
-                    ]
-                );
 
                 $configurator[] = array_merge($common, [
                     'type'             => 'Field',
@@ -707,27 +700,24 @@ class ImportTypeSimple extends QueueManagerBase
                     'attributeType'    => $attribute->get('type')
                 ]);
 
+                $configurator[] = array_merge($common, [
+                        'type'    => 'Field',
+                        'name'    => 'channelId',
+                        'column'  => [],
+                        'default' => $item['channelId']
+                    ]
+                );
+
                 $pavData = $productImportData;
                 $pavData['offset'] = $importFeed->isFileHeaderRow() ? 1 : 0;
                 $pavData['action'] = 'create_update';
                 $pavData['data']['entity'] = 'ProductAttributeValue';
                 $pavData['data']['idField'] = [
                     "language",
-                    "scope",
+                    "channelId",
                     "product",
                     "attribute"
                 ];
-
-                if ($item['scope'] === 'Channel') {
-                    $configurator[] = array_merge($common, [
-                            'type'    => 'Field',
-                            'name'    => 'channelId',
-                            'column'  => [],
-                            'default' => $item['channelId']
-                        ]
-                    );
-                    $pavData['data']['idField'][] = 'channelId';
-                }
 
                 if (isset($pavData['sourceFields'])) {
                     unset($pavData['sourceFields']);

@@ -45,11 +45,9 @@
       ],
       [
         {
-          "name": "scope"
-        },
-        {
           "name": "channel"
-        }
+        },
+        false
       ],
       [
         {
