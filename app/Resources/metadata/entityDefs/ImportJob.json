@@ -137,6 +137,13 @@
       "noLoad": true,
       "importDisabled": true
     },
+    "parent": {
+      "type": "link"
+    },
+    "children": {
+      "type": "linkMultiple",
+      "noLoad": true
+    },
     "payload": {
       "type": "jsonObject",
       "notStorable": true,
@@ -175,6 +182,16 @@
       "type": "belongsTo",
       "foreign": "importJobs",
       "entity": "ImportFeed"
+    },
+    "parent": {
+      "type": "belongsTo",
+      "foreign": "children",
+      "entity": "ImportJob"
+    },
+    "children": {
+      "type": "hasMany",
+      "foreign": "parent",
+      "entity": "ImportJob"
     },
     "queueItem": {
       "type": "belongsTo",

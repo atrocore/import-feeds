@@ -26,6 +26,12 @@
     "importJobs": {
       "create": false,
       "select": false,
+      "where": [
+        {
+          "type": "isNull",
+          "attribute": "parentId"
+        }
+      ],
       "rowActionsView": "import:views/import-job/record/row-actions/relationship",
       "view": "import:views/import-feed/record/panels/import-jobs"
     }
