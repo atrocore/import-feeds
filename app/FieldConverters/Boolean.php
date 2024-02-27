@@ -39,7 +39,7 @@ class Boolean extends Varchar
             $value = false;
         }
 
-        if (is_string($value) && (strtolower($value) === 'yes' || strtolower($value) === 'true' || $value === '1')) {
+        if (is_string($value) && (strtolower($value) === 'yes' || strtolower($value) === 'true' || $value === '1' || $value === 't')) {
             $value = true;
         }
 
