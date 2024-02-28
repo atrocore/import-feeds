@@ -30,7 +30,7 @@ class ImportJobCreator extends QueueManagerBase
             return false;
         }
 
-        $payload = json_decode(json_encode($data['payload']));
+        $payload = !empty($data['payload']) ? json_decode(json_encode($data['payload'])) : new \stdClass();
         $priority = $data['priority'];
 
         /** @var \Espo\Core\ServiceFactory $serviceFactory */
@@ -64,6 +64,11 @@ class ImportJobCreator extends QueueManagerBase
 
         $serviceName = $importFeedService->getImportTypeService($importFeed);
         $service = $serviceFactory->create($serviceName);
+
+        $parentPayload = new \stdClass();
+        $parentPayload->isParentJob = true;
+        $parentJob = $importFeedService->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachment->get('id'), $parentPayload);
+        $payload->parentJobId = $parentJob->get('id');
 
         $maxPerJob = (int)$importFeed->get('maxPerJob');
         $partNumber = 1;
@@ -104,6 +109,9 @@ class ImportJobCreator extends QueueManagerBase
             $offset = $offset + $maxPerJob;
             $partNumber++;
         }
+
+        $parentJob->set('state', 'Success');
+        $this->getEntityManager()->saveEntity($parentJob);
 
         return true;
     }

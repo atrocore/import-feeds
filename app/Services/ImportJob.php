@@ -329,6 +329,17 @@ class ImportJob extends Base
         if (empty($entity->_withCount)){
             $data = $this->getRepository()->getJobsCounts([$entity->get('id')]);
 
+
+
+//            if ($entity->isAttributeChanged('state') && !empty($entity->get('parentId'))) {
+//                $parent = $this->get($entity->get('parentId'));
+//                $children = $parent->get('children');
+//                // if all pending than pending
+//                // if all failed than failed
+//                // if all done or failed than done
+//                // else running
+//            }
+
             $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
             $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
             $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);

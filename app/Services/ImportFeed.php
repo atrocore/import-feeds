@@ -411,7 +411,6 @@ class ImportFeed extends Base
             if (empty($importJob)) {
                 return false;
             }
-            $importJob->set('sortOrder', time() - (new \DateTime('2023-01-01'))->getTimestamp());
             try {
                 $this->getServiceFactory()->create($dto->getServiceName())->run($dto->getData());
                 $importJob->set('state', 'Success');
@@ -510,6 +509,7 @@ class ImportFeed extends Base
         $entity->set('entityName', $entityType);
         $entity->set('uploadedFileId', $uploadedFileId);
         $entity->set('attachmentId', empty($attachmentId) ? $uploadedFileId : $attachmentId);
+        $entity->set('sortOrder', time() - (new \DateTime('2023-01-01'))->getTimestamp());
 
         if (!empty($payload)) {
             $entity->set('payload', $payload);

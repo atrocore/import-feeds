@@ -16,6 +16,12 @@
   },
   "iconClass": "fas fa-archive",
   "relationshipPanels": {
+    "children": {
+      "create": false,
+      "select": false,
+      "rowActionsView": "import:views/import-job/record/row-actions/relationship",
+      "view": "import:views/import-feed/record/panels/import-jobs"
+    },
     "importJobLogs": {
       "create": false,
       "select": false,

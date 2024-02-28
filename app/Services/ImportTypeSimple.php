@@ -726,8 +726,9 @@ class ImportTypeSimple extends QueueManagerBase
                 $pavData['data']['configuration'] = $configurator;
 
                 $payload = new \stdClass();
-                $payload->parentJobId = $importJob->get('id');
-
+                if (!empty($importJob->get('parentId'))){
+                    $payload->parentJobId = $importJob->get('parentId');
+                }
                 $pavJob = $importService->createImportJob($importFeed, 'ProductAttributeValue', $pavData['attachmentId'], $payload);
 
                 $pavData['data']['importJobId'] = $pavJob->get('id');
