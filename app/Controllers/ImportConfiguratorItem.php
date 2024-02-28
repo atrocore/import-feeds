@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Import\Controllers;
 
+use Atro\Core\Container;
 use Espo\Core\Exceptions\Forbidden;
 use Atro\Core\Templates\Controllers\Base;
 
 class ImportConfiguratorItem extends Base
 {
+
     public function actionList($params, $data, $request)
     {
         throw new Forbidden();
