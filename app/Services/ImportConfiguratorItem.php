@@ -40,6 +40,16 @@ class ImportConfiguratorItem extends Base
 
     protected array $attributes = [];
 
+    public function getSelectAttributeList($params)
+    {
+        $res = parent::getSelectAttributeList($params);
+        if (!empty($this->getMetadata()->get(['scopes', 'Channel']))) {
+            $res = array_merge($res, ['channelId', 'channelName']);
+        }
+
+        return $res;
+    }
+
     public function prepareCollectionForOutput(EntityCollection $collection, array $selectParams = []): void
     {
         parent::prepareCollectionForOutput($collection, $selectParams);
