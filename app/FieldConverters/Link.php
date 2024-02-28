@@ -144,6 +144,13 @@ class Link extends Varchar
 
         $fieldName = $this->getFieldName($config);
 
+        /**
+         * Hack for product|classification attribute scoping
+         */
+        if ($fieldName === 'channelId' && in_array($config['entity'], ['ProductAttributeValue', 'ClassificationAttribute']) && $value === null) {
+            $value = '';
+        }
+
         $inputRow->$fieldName = $value;
 
         if ($config['entity'] === 'ProductAttributeValue' && !empty($entity) && $entity->getEntityType() === 'Attribute') {
@@ -172,13 +179,6 @@ class Link extends Varchar
         $fieldName = $this->getFieldName($configuration);
 
         if (!property_exists($inputRow, $fieldName)) {
-            /**
-             * Hack for product attribute scoping
-             */
-            if ($fieldName === 'channelId' && $configuration['entity'] === 'ProductAttributeValue') {
-                return;
-            }
-
             throw new BadRequest("System cannot find value for '$fieldName'. Please, check configuration.");
         }
 
