@@ -209,31 +209,22 @@ class ImportJob extends Base
         }
 
         // select count
-        $qb = $this->getConnection()->createQueryBuilder()
+        $qbRes = $this->getConnection()->createQueryBuilder()
             ->select('id, state')
-            ->addSelect(
-                "(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='create' AND entity_name=:entityName AND (import_job_id=import_job.id OR import_job_id IN (SELECT t33.id FROM import_job t33 WHERE t33.deleted=:false AND t33.parent_id=import_job.id))) created_count"
-            )
-            ->addSelect(
-                "(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='update' AND entity_name=:entityName AND (import_job_id=import_job.id OR import_job_id IN (SELECT t33.id FROM import_job t33 WHERE t33.deleted=:false AND t33.parent_id=import_job.id))) updated_count"
-            )
-            ->addSelect(
-                "(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='delete' AND entity_name=:entityName AND (import_job_id=import_job.id OR import_job_id IN (SELECT t33.id FROM import_job t33 WHERE t33.deleted=:false AND t33.parent_id=import_job.id))) deleted_count"
-            )
-            ->addSelect(
-                "(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='error' AND (import_job_id=import_job.id OR import_job_id IN (SELECT t33.id FROM import_job t33 WHERE t33.deleted=:false AND t33.parent_id=import_job.id))) errors_count"
-            )
-            ->addSelect(
-                "(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='skip' AND entity_name=:entityName AND (import_job_id=import_job.id OR import_job_id IN (SELECT t33.id FROM import_job t33 WHERE t33.deleted=:false AND t33.parent_id=import_job.id))) skipped_count"
-            )
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='create' AND import_job_id=import_job.id) created_count")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='update' AND import_job_id=import_job.id) updated_count")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='delete' AND import_job_id=import_job.id) deleted_count")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='error' AND import_job_id=import_job.id) errors_count")
+            ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='skip' AND import_job_id=import_job.id) skipped_count")
             ->from('import_job')
             ->where('id IN (:ids)')
             ->setParameter('entityName', $entity->get('entityName'))
             ->setParameter('false', false, ParameterType::BOOLEAN)
-            ->setParameter('ids', $ids, $this->getConnection()::PARAM_STR_ARRAY);
+            ->setParameter('ids', $ids, $this->getConnection()::PARAM_STR_ARRAY)
+            ->fetchAllAssociative();
 
         $res = [];
-        foreach ($qb->fetchAllAssociative() as $v) {
+        foreach ($qbRes as $v) {
             $res[$v['id']] = $v;
             // update count
             if (in_array($v['state'], ['Success', 'Failed'])) {
