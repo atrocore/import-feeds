@@ -13,7 +13,7 @@ namespace Import\Migrations;
 
 use Atro\Core\Migration\Base;
 
-class V1Dot5Dot61 extends Base
+class V1Dot5Dot62 extends Base
 {
     public function up(): void
     {
