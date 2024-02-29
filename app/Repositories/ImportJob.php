@@ -187,12 +187,58 @@ class ImportJob extends Base
         parent::afterRemove($entity, $options);
     }
 
+    /**
+     * Count the number of updates for the Product if parent job
+     */
+    public function calculateProductParentUpdates(array $ids): array
+    {
+        $res = [];
+
+        $records = $this->getConnection()->createQueryBuilder()
+            ->select('t1.*, t2.parent_id')
+            ->from('import_job_log', 't1')
+            ->leftJoin('t1', 'import_job', 't2', 't1.import_job_id=t2.id')
+            ->where('t1.import_job_id IN (SELECT t33.id FROM import_job t33 WHERE t33.deleted=:false AND t33.parent_id IN (:ids))')
+            ->andWhere('t1.deleted=:false')
+            ->andWhere('t1.type IN (:types)')
+            ->setParameter('entityName', 'ProductAttributeValue')
+            ->setParameter('false', false, ParameterType::BOOLEAN)
+            ->setParameter('ids', $ids, $this->getConnection()::PARAM_STR_ARRAY)
+            ->setParameter('types', ['create', 'update'], $this->getConnection()::PARAM_STR_ARRAY)
+            ->fetchAllAssociative();
+
+        foreach ($records as $record) {
+            if ($record['entity_name'] === 'Product') {
+                if ($record['type'] !== 'update') {
+                    continue;
+                }
+                if (empty($res[$record['parent_id']])) {
+                    $res[$record['parent_id']] = [];
+                }
+                if (!in_array($record['name'], $res[$record['parent_id']])) {
+                    $res[$record['parent_id']][] = $record['name'];
+                }
+            }
+            if ($record['entity_name'] === 'ProductAttributeValue') {
+                if (empty($res[$record['parent_id']])) {
+                    $res[$record['parent_id']] = [];
+                }
+                if (!in_array($record['name'], $res[$record['parent_id']])) {
+                    $res[$record['parent_id']][] = $record['name'];
+                }
+            }
+        }
+
+        return $res;
+    }
+
     public function getJobsCounts(EntityCollection $collection): array
     {
-        if (empty($collection[0])) {
+        if (empty($entity = $collection[0])) {
             return [];
         }
 
+        // select the records for which we want to calculate the count
         $ids = $this->getConnection()->createQueryBuilder()
             ->select('id')
             ->from('import_job')
@@ -207,6 +253,7 @@ class ImportJob extends Base
             return [];
         }
 
+        // select count
         $qb = $this->getConnection()->createQueryBuilder()
             ->select('id, state')
             ->addSelect(
@@ -226,14 +273,19 @@ class ImportJob extends Base
             )
             ->from('import_job')
             ->where('id IN (:ids)')
-            ->setParameter('entityName', $collection[0]->get('entityName'))
+            ->setParameter('entityName', $entity->get('entityName'))
             ->setParameter('false', false, ParameterType::BOOLEAN)
             ->setParameter('ids', $ids, $this->getConnection()::PARAM_STR_ARRAY);
+
+        if ($entity->get('entityName') === 'Product') {
+            $updatedProducts = $this->calculateProductParentUpdates($ids);
+        }
 
         $res = [];
         foreach ($qb->fetchAllAssociative() as $v) {
             $res[$v['id']] = $v;
-            if ($v['state'] === 'Success') {
+            // update count
+            if (in_array($v['state'], ['Success', 'Failed'])) {
                 $this->getConnection()->createQueryBuilder()
                     ->update('import_job')
                     ->set('created_count', ':created_count')
@@ -243,7 +295,7 @@ class ImportJob extends Base
                     ->set('skipped_count', ':skipped_count')
                     ->where('id = :id')
                     ->setParameter('created_count', $v['created_count'])
-                    ->setParameter('updated_count', $v['updated_count'])
+                    ->setParameter('updated_count', isset($updatedProducts[$v['id']]) ? count($updatedProducts[$v['id']]) : $v['updated_count'])
                     ->setParameter('deleted_count', $v['deleted_count'])
                     ->setParameter('errors_count', $v['errors_count'])
                     ->setParameter('skipped_count', $v['skipped_count'])
