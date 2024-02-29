@@ -110,9 +110,6 @@ class ImportJobCreator extends QueueManagerBase
             $partNumber++;
         }
 
-        $parentJob->set('state', 'Success');
-        $this->getEntityManager()->saveEntity($parentJob);
-
         return true;
     }
 }

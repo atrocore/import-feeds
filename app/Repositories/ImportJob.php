@@ -74,6 +74,72 @@ class ImportJob extends Base
         }
 
         parent::afterSave($entity, $options);
+
+        if (!$entity->isNew() && $entity->isAttributeChanged('state')) {
+            $this->updateParentState($entity);
+        }
+    }
+
+    public function updateParentState(Entity $entity): void
+    {
+        if (empty($entity->get('parentId')) || empty($parent = $entity->get('parent'))) {
+            return;
+        }
+
+        if ($entity->get('state') === 'Running' && $parent->get('state') !== 'Running') {
+            $parent->set('state', 'Running');
+            $this->getEntityManager()->saveEntity($parent);
+            return;
+        }
+
+        if (in_array($entity->get('state'), ['Success', 'Failed'])) {
+            $children = $this->getConnection()->createQueryBuilder()
+                ->select('id, state')
+                ->from('import_job')
+                ->where('parent_id = :id')
+                ->andWhere('deleted = :false')
+                ->setParameter('false', false, ParameterType::BOOLEAN)
+                ->setParameter('id', $parent->get('id'))
+                ->fetchAllAssociative();
+
+            $states = array_unique(array_column($children, 'state'));
+
+            if (in_array('Canceled', $states) && count($states) === 1) {
+                $parent->set('state', 'Canceled');
+                $this->getEntityManager()->saveEntity($parent);
+                return;
+            }
+
+            // unset Canceled from data array
+            $key = array_search('Canceled', $states);
+            if ($key !== false) {
+                unset($states[$key]);
+            }
+
+            if (in_array('Failed', $states) && count($states) === 1) {
+                $parent->set('state', 'Failed');
+                $this->getEntityManager()->saveEntity($parent);
+                return;
+            }
+
+            if (in_array('Success', $states) && count($states) === 1) {
+                $parent->set('state', 'Success');
+                $this->getEntityManager()->saveEntity($parent);
+                return;
+            }
+
+            if (in_array('Failed', $states) && in_array('Success', $states) && count($states) === 2) {
+                $parent->set('state', 'Success');
+                $this->getEntityManager()->saveEntity($parent);
+                return;
+            }
+
+            if (in_array('Failed', $states) && in_array('Success', $states) && count($states) === 2) {
+                $parent->set('state', 'Success');
+                $this->getEntityManager()->saveEntity($parent);
+                return;
+            }
+        }
     }
 
     protected function afterRemove(Entity $entity, array $options = [])
