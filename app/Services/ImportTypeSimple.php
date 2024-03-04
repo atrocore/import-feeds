@@ -206,7 +206,7 @@ class ImportTypeSimple extends QueueManagerBase
                         }
                     }
 
-                    $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_data", ['id' => $id, 'input' => $input]);
+                    $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_data", ['id' => $id, 'input' => $input, 'rowNumberPart' => $data['rowNumberPart'] ?? 0]);
 
                     if (empty($id)) {
                         if ($action == 'delete_found') {

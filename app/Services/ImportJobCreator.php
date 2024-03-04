@@ -55,6 +55,7 @@ class ImportJobCreator extends QueueManagerBase
         $fileParser->convertAttachmentToUTF8($attachment);
 
         $offset = 0;
+        $rowNumberPart = 0;
 
         $header = [];
         if ($isFileHeaderRow) {
@@ -91,6 +92,7 @@ class ImportJobCreator extends QueueManagerBase
                 $jobData['data']['priority'] = $priority;
             }
             $jobData['sheet'] = 0;
+            $jobData['rowNumberPart'] = $rowNumberPart;
             $jobData['data']['importJobId'] = $importFeedService
                 ->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachment->get('id'), $payload, $jobAttachment->get('id'))
                 ->get('id');
@@ -102,6 +104,7 @@ class ImportJobCreator extends QueueManagerBase
             $importFeedService->push($importFeedService->getName($importFeed) . ' (' . $partNumber . ')', $serviceName, $jobData);
 
             $offset = $offset + $maxPerJob;
+            $rowNumberPart = $rowNumberPart + $maxPerJob;
             $partNumber++;
         }
 

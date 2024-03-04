@@ -92,6 +92,14 @@ class ImportJobLog extends Base
         }
 
         $parentJob = $this->getEntityManager()->getRepository('ImportJob')->get($importJob->get('parentId'));
+        if (empty($parentJob)) {
+            return;
+        }
+
+        $memData = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
+
+        $rowNumber = $memData['rowNumberPart'] + $entity->get('rowNumber');
+
         if ($parentJob->get('entityName') === $entity->get('entityName')) {
             $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
             $parentLog->set('name', $entity->get('name'));
@@ -99,7 +107,7 @@ class ImportJobLog extends Base
             $parentLog->set('entityId', $entity->get('entityId'));
             $parentLog->set('importJobId', $importJob->get('parentId'));
             $parentLog->set('type', $entity->get('type'));
-            $parentLog->set('rowNumber', $entity->get('rowNumber'));
+            $parentLog->set('rowNumber', $rowNumber);
             $parentLog->set('message', $entity->get('message'));
             try {
                 $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
@@ -118,8 +126,6 @@ class ImportJobLog extends Base
                         return;
                 }
 
-                $memData = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
-
                 if (!property_exists($memData['input'], 'productId')) {
                     return;
                 }
@@ -130,7 +136,7 @@ class ImportJobLog extends Base
                 $parentLog->set('entityId', $memData['input']->productId);
                 $parentLog->set('importJobId', $importJob->get('parentId'));
                 $parentLog->set('type', $type);
-                $parentLog->set('rowNumber', $entity->get('rowNumber'));
+                $parentLog->set('rowNumber', $rowNumber);
                 $parentLog->set('message', null);
                 try {
                     $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
