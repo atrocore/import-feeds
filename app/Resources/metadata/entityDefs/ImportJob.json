@@ -81,24 +81,29 @@
     },
     "createdCount": {
       "type": "int",
+      "notStorable": true,
       "readOnly": true,
       "view": "import:views/import-job/fields/created-count"
     },
     "updatedCount": {
       "type": "int",
+      "notStorable": true,
       "readOnly": true,
       "view": "import:views/import-job/fields/updated-count"
     },
     "deletedCount": {
       "type": "int",
+      "notStorable": true,
       "readOnly": true
     },
     "skippedCount": {
       "type": "int",
+      "notStorable": true,
       "readOnly": true
     },
     "errorsCount": {
       "type": "int",
+      "notStorable": true,
       "readOnly": true,
       "view": "import:views/import-job/fields/errors-count"
     },

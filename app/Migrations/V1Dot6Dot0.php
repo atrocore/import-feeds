@@ -19,11 +19,6 @@ class V1Dot6Dot0 extends Base
     {
         $this->exec("ALTER TABLE import_job ADD parent_id VARCHAR(24) DEFAULT NULL");
         $this->exec("CREATE INDEX IDX_IMPORT_JOB_PARENT_ID ON import_job (parent_id, deleted)");
-        $this->exec("ALTER TABLE import_job ADD created_count INT DEFAULT NULL");
-        $this->exec("ALTER TABLE import_job ADD updated_count INT DEFAULT NULL");
-        $this->exec("ALTER TABLE import_job ADD deleted_count INT DEFAULT NULL");
-        $this->exec("ALTER TABLE import_job ADD skipped_count INT DEFAULT NULL");
-        $this->exec("ALTER TABLE import_job ADD errors_count INT DEFAULT NULL");
     }
 
     public function down(): void
