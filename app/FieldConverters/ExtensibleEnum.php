@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Import\FieldConverters;
 
+use Atro\ORM\DB\RDB\Mapper;
 use Espo\ORM\Entity;
 
 class ExtensibleEnum extends Link
@@ -74,5 +75,23 @@ class ExtensibleEnum extends Link
         }
 
         return $extensibleEnumId;
+    }
+
+    protected function beforeWhereKeyCreated($entity, array &$where)
+    {
+        $extensibleEnumId = $where['extensibleEnumId'];
+        $optionExists = $this->getEntityManager()
+            ->getConnection()
+            ->createQueryBuilder()
+            ->from('extensible_enum_extensible_enum_option')
+            ->select('id')
+            ->where('extensible_enum_id=:extensibleEnumId AND extensible_enum_option_id=:extensibleEnumOptionId')
+            ->setParameter('extensibleEnumId', $extensibleEnumId, Mapper::getParameterType($extensibleEnumId))
+            ->setParameter('extensibleEnumOptionId', $id = $entity->get('id'), Mapper::getParameterType($id))
+            ->fetchOne();
+
+        if($optionExists){
+            $entity->set('extensibleEnumId', $extensibleEnumId);
+        }
     }
 }

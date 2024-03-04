@@ -83,6 +83,7 @@ class Link extends Varchar
                     // find in memory
                     $entity = $this->findEntityInMemory($where, $config);
 
+
                     if (empty($entity) && empty($config['createIfNotExist'])) {
                         throw new BadRequest(
                             sprintf($this->translate('noRecordsFoundFor', 'exceptions', 'ImportFeed'), $this->translate($entityName, 'scopeNames'), json_encode($where))
@@ -288,7 +289,7 @@ class Link extends Varchar
                 $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
                 $this->getMemoryStorage()->set($itemKey, $entity);
                 $foreignKeys[$configuration['pos']][$entityName][] = $itemKey;
-
+                $this->beforeWhereKeyCreated( $entity, $where);
                 $whereKey = $service->createWhereKey(array_keys($where), $entity);
 
                 $foreignWhereKeys[$configuration['pos']][$entityName][$whereKey] = $itemKey;
@@ -338,5 +339,9 @@ class Link extends Varchar
         }
 
         return null;
+    }
+
+    protected function beforeWhereKeyCreated($entity, array &$where)
+    {
     }
 }
