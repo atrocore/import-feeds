@@ -330,9 +330,10 @@ class ImportJob extends Base
     {
         $entity = parent::readEntity($id);
 
-        $this->prepareCounts(new EntityCollection([$entity], $entity->getEntityType()));
-
-        $entity->set('hasConvertedFile', !empty($this->getRepository()->getQmJob($entity)));
+        if (!empty($entity)){
+            $this->prepareCounts(new EntityCollection([$entity], $entity->getEntityType()));
+            $entity->set('hasConvertedFile', !empty($this->getRepository()->getQmJob($entity)));
+        }
 
         return $entity;
     }
