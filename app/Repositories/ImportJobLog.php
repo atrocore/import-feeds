@@ -87,53 +87,55 @@ class ImportJobLog extends Base
         }
 
         $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
-        if (!empty($importJob->get('parentId'))) {
-            $parentJob = $this->getEntityManager()->getRepository('ImportJob')->get($importJob->get('parentId'));
-            if ($parentJob->get('entityName') === $entity->get('entityName')) {
+        if (empty($importJob->get('parentId'))) {
+            return;
+        }
+
+        $parentJob = $this->getEntityManager()->getRepository('ImportJob')->get($importJob->get('parentId'));
+        if ($parentJob->get('entityName') === $entity->get('entityName')) {
+            $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
+            $parentLog->set('name', $entity->get('name'));
+            $parentLog->set('entityName', $entity->get('entityName'));
+            $parentLog->set('entityId', $entity->get('entityId'));
+            $parentLog->set('importJobId', $importJob->get('parentId'));
+            $parentLog->set('type', $entity->get('type'));
+            $parentLog->set('rowNumber', $entity->get('rowNumber'));
+            $parentLog->set('message', $entity->get('message'));
+            try {
+                $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        } else {
+            if ($entity->get('entityName') === 'ProductAttributeValue') {
+                $type = $entity->get('type');
+                switch ($type) {
+                    case 'create':
+                    case 'delete':
+                        $type = 'update';
+                        break;
+                    case 'skip':
+                        return;
+                }
+
+                $memData = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
+
+                if (!property_exists($memData['input'], 'productId')) {
+                    return;
+                }
+
                 $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
                 $parentLog->set('name', $entity->get('name'));
-                $parentLog->set('entityName', $entity->get('entityName'));
-                $parentLog->set('entityId', $entity->get('entityId'));
+                $parentLog->set('entityName', 'Product');
+                $parentLog->set('entityId', $memData['input']->productId);
                 $parentLog->set('importJobId', $importJob->get('parentId'));
-                $parentLog->set('type', $entity->get('type'));
+                $parentLog->set('type', $type);
                 $parentLog->set('rowNumber', $entity->get('rowNumber'));
-                $parentLog->set('message', $entity->get('message'));
+                $parentLog->set('message', null);
                 try {
                     $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
                 } catch (\Throwable $e) {
                     // ignore
-                }
-            } else {
-                if ($entity->get('entityName') === 'ProductAttributeValue') {
-                    $type = $entity->get('type');
-                    switch ($type) {
-                        case 'create':
-                        case 'delete':
-                            $type = 'update';
-                            break;
-                        case 'skip':
-                            return;
-                    }
-
-                    $memData = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
-
-                    if (!property_exists($memData['input'], 'productId')) {
-                        return;
-                    }
-
-                    $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
-                    $parentLog->set('name', $entity->get('name'));
-                    $parentLog->set('entityName', 'Product');
-                    $parentLog->set('entityId', $memData['input']->productId);
-                    $parentLog->set('importJobId', $importJob->get('parentId'));
-                    $parentLog->set('type', $type);
-                    $parentLog->set('rowNumber', $entity->get('rowNumber'));
-                    $parentLog->set('message', null);
-                    try {
-                        $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
-                    } catch (\Throwable $e) {
-                        // ignore
-                    }
                 }
             }
         }
