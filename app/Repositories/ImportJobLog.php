@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Import\Repositories;
 
 use Atro\Core\Templates\Repositories\Base;
+use Doctrine\DBAL\ParameterType;
 use Espo\ORM\Entity;
 
 class ImportJobLog extends Base
@@ -43,6 +44,40 @@ class ImportJobLog extends Base
         parent::afterSave($entity, $options);
 
         $this->createParentJobLog($entity, $options);
+    }
+
+    public function prepareMessage(Entity $entity): void
+    {
+        if ($entity->get('type') !== 'error' || $entity->get('message') !== null) {
+            return;
+        }
+
+        $res = $this->getConnection()->createQueryBuilder()
+            ->select('message')
+            ->from('import_job_log')
+            ->where('deleted=:false')
+            ->andWhere('type=:errorType')
+            ->andWhere('row_number=:rowNumber')
+            ->andWhere('import_job_id IN (SELECT id FROM import_job WHERE deleted=:false AND parent_id=:id)')
+            ->orderBy('created_at', 'ASC')
+            ->setParameter('false', false, ParameterType::BOOLEAN)
+            ->setParameter('id', $entity->get('importJobId'))
+            ->setParameter('rowNumber', $entity->get('rowNumber'))
+            ->setParameter('errorType', 'error')
+            ->fetchFirstColumn();
+
+        $entity->set('message', implode(' ; ', $res));
+
+        $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
+        if (in_array($importJob->get('state'), ['Failed', 'Canceled', 'Success'])) {
+            $this->getConnection()->createQueryBuilder()
+                ->update('import_job_log')
+                ->set('message', ':message')
+                ->where('id=:id')
+                ->setParameter('id', $entity->get('id'))
+                ->setParameter('message', $entity->get('message'))
+                ->executeQuery();
+        }
     }
 
     public function createParentJobLog(Entity $entity, array $options): void
@@ -93,7 +128,7 @@ class ImportJobLog extends Base
                     $parentLog->set('importJobId', $importJob->get('parentId'));
                     $parentLog->set('type', $type);
                     $parentLog->set('rowNumber', $entity->get('rowNumber'));
-                    $parentLog->set('message', $entity->get('message'));
+                    $parentLog->set('message', null);
                     try {
                         $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
                     } catch (\Throwable $e) {

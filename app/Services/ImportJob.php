@@ -55,7 +55,7 @@ class ImportJob extends Base
                 ->where([
                     'modifiedAt<' => (new \DateTime())->modify("-$days days")->format('Y-m-d H:i:s'),
                     'serviceName' => ['ImportJobCreator', 'ImportTypeSimple'],
-                    'status' => ['Success', 'Failed', 'Canceled']
+                    'status'      => ['Success', 'Failed', 'Canceled']
                 ])
                 ->limit(0, 2000)
                 ->order('modifiedAt')
@@ -101,18 +101,17 @@ class ImportJob extends Base
             throw new BadRequest("Import job '$jobId' does not exist.");
         }
 
-        $errorLogs = $this
-            ->getEntityManager()
-            ->getRepository('ImportJobLog')
-            ->select(['rowNumber', 'message'])
+        /** @var \Import\Repositories\ImportJobLog $importJobLogRepo */
+        $importJobLogRepo = $this->getEntityManager()->getRepository('ImportJobLog');
+
+        $errorLogs = $importJobLogRepo
             ->where([
                 'importJobId' => $importJob->get('id'),
                 'type'        => 'error'
             ])
-            ->find()
-            ->toArray();
+            ->find();
 
-        if (empty($errorLogs)) {
+        if (empty($errorLogs[0])) {
             throw new BadRequest($this->translate('errorFileCreatingFailed', 'exceptions', 'ImportJob'));
         }
 
@@ -148,8 +147,9 @@ class ImportJob extends Base
         }
 
         foreach ($errorLogs as $log) {
-            $rowNumber = (int)$log['rowNumber'];
-            $errorsRowsNumbers[$rowNumber] = $log['message'];
+            $importJobLogRepo->prepareMessage($log);
+            $rowNumber = (int)$log->get('rowNumber');
+            $errorsRowsNumbers[$rowNumber] = $log->get('message');
         }
 
         if (empty($attachmentId) || empty($attachment = $this->getEntityManager()->getEntity('Attachment', $attachmentId))) {
@@ -326,7 +326,7 @@ class ImportJob extends Base
     {
         parent::prepareEntityForOutput($entity);
 
-        if (empty($entity->_withCount)){
+        if (empty($entity->_withCount)) {
             $data = $this->getRepository()->getJobsCounts([$entity->get('id')]);
             $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
             $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
