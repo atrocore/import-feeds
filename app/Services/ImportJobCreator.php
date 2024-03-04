@@ -65,11 +65,6 @@ class ImportJobCreator extends QueueManagerBase
         $serviceName = $importFeedService->getImportTypeService($importFeed);
         $service = $serviceFactory->create($serviceName);
 
-        $parentPayload = new \stdClass();
-        $parentPayload->isParentJob = true;
-        $parentJob = $importFeedService->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachment->get('id'), $parentPayload);
-        $payload->parentJobId = $parentJob->get('id');
-
         $maxPerJob = (int)$importFeed->get('maxPerJob');
         $partNumber = 1;
         while (!empty($fileData = $fileParser->getFileData($attachment, $offset, $maxPerJob))) {

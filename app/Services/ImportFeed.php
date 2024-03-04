@@ -258,17 +258,28 @@ class ImportFeed extends Base
         if ((int)$importFeed->get('maxPerJob') > 0 && in_array($importFeed->getFeedField('format'), ['CSV', 'Excel'])) {
             $name = $this->getInjection('language')->translate('createImportJobs', 'labels', 'ImportFeed');
             $name = sprintf($name, $importFeed->get('name'));
+
             $qmJobData = [
                 'importFeedId' => $importFeed->get('id'),
                 'attachmentId' => $attachmentId,
-                'payload'      => $payload,
+                'payload'      => $payload ?? new \stdClass(),
                 'priority'     => $priority
             ];
+
+            $parentJob = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, new \stdClass());
+            $qmJobData['payload']->parentJobId = $parentJob->get('id');
 
             if (!empty($payload) && !empty($payload->executeNow)) {
                 $this->getServiceFactory()->create('ImportJobCreator')->run($qmJobData);
             } else {
-                $this->getInjection('queueManager')->push($name, 'ImportJobCreator', $qmJobData);
+                $id = $this->getInjection('queueManager')->createQueueItem($name, 'ImportJobCreator', $qmJobData);
+                $this->getEntityManager()->getConnection()->createQueryBuilder()
+                    ->update('import_job')
+                    ->set('queue_item_id', ':queueItemId')
+                    ->where('id = :id')
+                    ->setParameter('queueItemId', $id)
+                    ->setParameter('id', $parentJob->get('id'))
+                    ->executeQuery();
             }
         } else {
             $serviceName = $this->getImportTypeService($importFeed);

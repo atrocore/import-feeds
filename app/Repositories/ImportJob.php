@@ -79,6 +79,15 @@ class ImportJob extends Base
         if (!$entity->isNew() && $entity->isAttributeChanged('state')) {
             $this->updateParentState($entity);
         }
+
+        if ($entity->isAttributeChanged('state') && $entity->get('state') === 'Canceled') {
+            foreach ($entity->get('children') as $child) {
+                if (in_array($child->get('state'), ['Pending', 'Running'])) {
+                    $child->set('state', 'Canceled');
+                    $this->getEntityManager()->saveEntity($child);
+                }
+            }
+        }
     }
 
     public function updateParentState(Entity $entity): void
