@@ -80,16 +80,16 @@ class ImportJobLog extends Base
                             return;
                     }
 
-                    $data = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
+                    $memData = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
 
-                    if (!property_exists($data['input'], 'productId')) {
+                    if (!property_exists($memData['input'], 'productId')) {
                         return;
                     }
 
                     $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
                     $parentLog->set('name', $entity->get('name'));
                     $parentLog->set('entityName', 'Product');
-                    $parentLog->set('entityId', $data['input']->productId);
+                    $parentLog->set('entityId', $memData['input']->productId);
                     $parentLog->set('importJobId', $importJob->get('parentId'));
                     $parentLog->set('type', $type);
                     $parentLog->set('rowNumber', $entity->get('rowNumber'));
