@@ -38,4 +38,29 @@ class ImportJobLog extends Base
 
         parent::beforeSave($entity, $options);
     }
+
+    protected function afterSave(Entity $entity, array $options = [])
+    {
+        parent::afterSave($entity, $options);
+
+        if (empty($options['skipParentLog'])) {
+            $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
+            if (!empty($importJob->get('parentId'))) {
+                $parentJob = $this->getEntityManager()->getRepository('ImportJob')->get($importJob->get('parentId'));
+                if ($parentJob->get('entityName') === $entity->get('entityName')) {
+                    $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
+                    $parentLog->set('name', $entity->get('name'));
+                    $parentLog->set('entityName', $entity->get('entityName'));
+                    $parentLog->set('entityId', $entity->get('entityId'));
+                    $parentLog->set('importJobId', $importJob->get('parentId'));
+                    $parentLog->set('type', $entity->get('type'));
+                    $parentLog->set('rowNumber', $entity->get('rowNumber'));
+                    $parentLog->set('message', $entity->get('message'));
+                    $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
+                } else {
+                    // @todo finish for pav
+                }
+            }
+        }
+    }
 }
