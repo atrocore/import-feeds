@@ -310,6 +310,11 @@ class ImportJob extends Base
     {
         parent::prepareCollectionForOutput($collection, $selectParams);
 
+        $this->prepareCounts($collection);
+    }
+
+    public function prepareCounts(EntityCollection $collection): void
+    {
         $data = $this->getRepository()->getJobsCounts(array_column($collection->toArray(), 'id'));
 
         foreach ($collection as $entity) {
@@ -318,23 +323,18 @@ class ImportJob extends Base
             $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
             $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
             $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
-            $entity->_withCount = true;
         }
     }
 
-    public function prepareEntityForOutput(Entity $entity)
+    public function readEntity($id)
     {
-        parent::prepareEntityForOutput($entity);
+        $entity = parent::readEntity($id);
 
-        if (empty($entity->_withCount)) {
-            $data = $this->getRepository()->getJobsCounts([$entity->get('id')]);
-            $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
-            $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
-            $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
-            $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
-            $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
-            $entity->_withCount = true;
-        }
+        $this->prepareCounts(new EntityCollection([$entity], $entity->getEntityType()));
+
+        $entity->set('hasConvertedFile', !empty($this->getRepository()->getQmJob($entity)));
+
+        return $entity;
     }
 
     protected function init()
