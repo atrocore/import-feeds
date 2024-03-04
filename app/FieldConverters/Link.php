@@ -283,6 +283,7 @@ class Link extends Varchar
 
         if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
             $whereForCollection = $this->prepareWhereForCollection($configuration, $rows);
+            $whereForCollection = $whereForCollection + $where;
             $collection = $this->getEntityManager()->getRepository($entityName)->where($whereForCollection)->find();
             foreach ($collection as $entity) {
                 $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
