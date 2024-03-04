@@ -187,30 +187,10 @@ class ImportJob extends Base
         parent::afterRemove($entity, $options);
     }
 
-    public function getJobsCounts(EntityCollection $collection): array
+    public function getJobsCounts(array $ids): array
     {
-        if (empty($entity = $collection[0])) {
-            return [];
-        }
-
-        // select the records for which we want to calculate the count
-        $ids = $this->getConnection()->createQueryBuilder()
+        $data = $this->getConnection()->createQueryBuilder()
             ->select('id')
-            ->from('import_job')
-            ->where('id IN (:ids)')
-            ->andWhere('deleted=:false')
-            ->andWhere('created_count IS NULL OR updated_count IS NULL OR deleted_count IS NULL OR errors_count IS NULL OR skipped_count IS NULL')
-            ->setParameter('ids', array_column($collection->toArray(), 'id'), $this->getConnection()::PARAM_STR_ARRAY)
-            ->setParameter('false', false, ParameterType::BOOLEAN)
-            ->fetchFirstColumn();
-
-        if (empty($ids)) {
-            return [];
-        }
-
-        // select count
-        $qbRes = $this->getConnection()->createQueryBuilder()
-            ->select('id, state')
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='create' AND import_job_id=import_job.id) created_count")
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='update' AND import_job_id=import_job.id) updated_count")
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='delete' AND import_job_id=import_job.id) deleted_count")
@@ -218,32 +198,14 @@ class ImportJob extends Base
             ->addSelect("(SELECT COUNT(id) FROM import_job_log WHERE deleted=:false AND type='skip' AND import_job_id=import_job.id) skipped_count")
             ->from('import_job')
             ->where('id IN (:ids)')
-            ->setParameter('entityName', $entity->get('entityName'))
-            ->setParameter('false', false, ParameterType::BOOLEAN)
+            ->andWhere('deleted=:false')
             ->setParameter('ids', $ids, $this->getConnection()::PARAM_STR_ARRAY)
+            ->setParameter('false', false, ParameterType::BOOLEAN)
             ->fetchAllAssociative();
 
         $res = [];
-        foreach ($qbRes as $v) {
+        foreach ($data as $v) {
             $res[$v['id']] = $v;
-            // update count
-            if (in_array($v['state'], ['Success', 'Failed'])) {
-                $this->getConnection()->createQueryBuilder()
-                    ->update('import_job')
-                    ->set('created_count', ':created_count')
-                    ->set('updated_count', ':updated_count')
-                    ->set('deleted_count', ':deleted_count')
-                    ->set('errors_count', ':errors_count')
-                    ->set('skipped_count', ':skipped_count')
-                    ->where('id = :id')
-                    ->setParameter('created_count', $v['created_count'])
-                    ->setParameter('updated_count', isset($updatedProducts[$v['id']]) ? count($updatedProducts[$v['id']]) : $v['updated_count'])
-                    ->setParameter('deleted_count', $v['deleted_count'])
-                    ->setParameter('errors_count', $v['errors_count'])
-                    ->setParameter('skipped_count', $v['skipped_count'])
-                    ->setParameter('id', $v['id'])
-                    ->executeQuery();
-            }
         }
 
         return $res;

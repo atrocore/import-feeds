@@ -310,16 +310,14 @@ class ImportJob extends Base
     {
         parent::prepareCollectionForOutput($collection, $selectParams);
 
-        $data = $this->getRepository()->getJobsCounts($collection);
+        $data = $this->getRepository()->getJobsCounts(array_column($collection->toArray(), 'id'));
 
         foreach ($collection as $entity) {
-            if (isset($data[$entity->get('id')])) {
-                $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
-                $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
-                $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
-                $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
-                $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
-            }
+            $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
+            $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
+            $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
+            $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
+            $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
             $entity->_withCount = true;
         }
     }
@@ -328,15 +326,14 @@ class ImportJob extends Base
     {
         parent::prepareEntityForOutput($entity);
 
-        if (empty($entity->_withCount)) {
-            $data = $this->getRepository()->getJobsCounts(new EntityCollection([$entity], $entity->getEntityType()));
-            if (isset($data[$entity->get('id')])) {
-                $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
-                $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
-                $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
-                $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
-                $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
-            }
+        if (empty($entity->_withCount)){
+            $data = $this->getRepository()->getJobsCounts([$entity->get('id')]);
+            $entity->set('createdCount', $data[$entity->get('id')]['created_count'] ?? 0);
+            $entity->set('updatedCount', $data[$entity->get('id')]['updated_count'] ?? 0);
+            $entity->set('deletedCount', $data[$entity->get('id')]['deleted_count'] ?? 0);
+            $entity->set('skippedCount', $data[$entity->get('id')]['skipped_count'] ?? 0);
+            $entity->set('errorsCount', $data[$entity->get('id')]['errors_count'] ?? 0);
+            $entity->_withCount = true;
         }
     }
 
