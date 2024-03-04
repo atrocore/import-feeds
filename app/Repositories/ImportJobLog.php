@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Import\Repositories;
 
-use Espo\Core\Exceptions\BadRequest;
 use Atro\Core\Templates\Repositories\Base;
 use Espo\ORM\Entity;
 
@@ -43,22 +42,63 @@ class ImportJobLog extends Base
     {
         parent::afterSave($entity, $options);
 
-        if (empty($options['skipParentLog'])) {
-            $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
-            if (!empty($importJob->get('parentId'))) {
-                $parentJob = $this->getEntityManager()->getRepository('ImportJob')->get($importJob->get('parentId'));
-                if ($parentJob->get('entityName') === $entity->get('entityName')) {
+        $this->createParentJobLog($entity, $options);
+    }
+
+    public function createParentJobLog(Entity $entity, array $options): void
+    {
+        if (!empty($options['skipParentLog'])) {
+            return;
+        }
+
+        $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
+        if (!empty($importJob->get('parentId'))) {
+            $parentJob = $this->getEntityManager()->getRepository('ImportJob')->get($importJob->get('parentId'));
+            if ($parentJob->get('entityName') === $entity->get('entityName')) {
+                $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
+                $parentLog->set('name', $entity->get('name'));
+                $parentLog->set('entityName', $entity->get('entityName'));
+                $parentLog->set('entityId', $entity->get('entityId'));
+                $parentLog->set('importJobId', $importJob->get('parentId'));
+                $parentLog->set('type', $entity->get('type'));
+                $parentLog->set('rowNumber', $entity->get('rowNumber'));
+                $parentLog->set('message', $entity->get('message'));
+                try {
+                    $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+            } else {
+                if ($entity->get('entityName') === 'ProductAttributeValue') {
+                    $type = $entity->get('type');
+                    switch ($type) {
+                        case 'create':
+                        case 'delete':
+                            $type = 'update';
+                            break;
+                        case 'skip':
+                            return;
+                    }
+
+                    $data = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
+
+                    if (!property_exists($data['input'], 'productId')) {
+                        return;
+                    }
+
                     $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
                     $parentLog->set('name', $entity->get('name'));
-                    $parentLog->set('entityName', $entity->get('entityName'));
-                    $parentLog->set('entityId', $entity->get('entityId'));
+                    $parentLog->set('entityName', 'Product');
+                    $parentLog->set('entityId', $data['input']->productId);
                     $parentLog->set('importJobId', $importJob->get('parentId'));
-                    $parentLog->set('type', $entity->get('type'));
+                    $parentLog->set('type', $type);
                     $parentLog->set('rowNumber', $entity->get('rowNumber'));
                     $parentLog->set('message', $entity->get('message'));
-                    $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
-                } else {
-                    // @todo finish for pav
+                    try {
+                        $this->getEntityManager()->saveEntity($parentLog, ['skipParentLog' => true]);
+                    } catch (\Throwable $e) {
+                        // ignore
+                    }
                 }
             }
         }

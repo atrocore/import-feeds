@@ -206,6 +206,8 @@ class ImportTypeSimple extends QueueManagerBase
                         }
                     }
 
+                    $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_data", ['id' => $id, 'input' => $input]);
+
                     if (empty($id)) {
                         if ($action == 'delete_found') {
                             $logAction = 'delete';
