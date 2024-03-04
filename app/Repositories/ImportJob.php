@@ -194,6 +194,10 @@ class ImportJob extends Base
         }
 
         parent::afterRemove($entity, $options);
+
+        foreach ($entity->get('children') as $child) {
+            $this->getEntityManager()->removeEntity($child);
+        }
     }
 
     public function getJobsCounts(array $ids): array
