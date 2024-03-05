@@ -258,17 +258,28 @@ class ImportFeed extends Base
         if ((int)$importFeed->get('maxPerJob') > 0 && in_array($importFeed->getFeedField('format'), ['CSV', 'Excel'])) {
             $name = $this->getInjection('language')->translate('createImportJobs', 'labels', 'ImportFeed');
             $name = sprintf($name, $importFeed->get('name'));
+
             $qmJobData = [
                 'importFeedId' => $importFeed->get('id'),
                 'attachmentId' => $attachmentId,
-                'payload'      => $payload,
+                'payload'      => $payload ?? new \stdClass(),
                 'priority'     => $priority
             ];
+
+            $parentJob = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, new \stdClass());
+            $qmJobData['payload']->parentJobId = $parentJob->get('id');
 
             if (!empty($payload) && !empty($payload->executeNow)) {
                 $this->getServiceFactory()->create('ImportJobCreator')->run($qmJobData);
             } else {
-                $this->getInjection('queueManager')->push($name, 'ImportJobCreator', $qmJobData);
+                $id = $this->getInjection('queueManager')->createQueueItem($name, 'ImportJobCreator', $qmJobData);
+                $this->getEntityManager()->getConnection()->createQueryBuilder()
+                    ->update('import_job')
+                    ->set('queue_item_id', ':queueItemId')
+                    ->where('id = :id')
+                    ->setParameter('queueItemId', $id)
+                    ->setParameter('id', $parentJob->get('id'))
+                    ->executeQuery();
             }
         } else {
             $serviceName = $this->getImportTypeService($importFeed);
@@ -411,7 +422,6 @@ class ImportFeed extends Base
             if (empty($importJob)) {
                 return false;
             }
-            $importJob->set('sortOrder', time() - (new \DateTime('2023-01-01'))->getTimestamp());
             try {
                 $this->getServiceFactory()->create($dto->getServiceName())->run($dto->getData());
                 $importJob->set('state', 'Success');
@@ -510,6 +520,7 @@ class ImportFeed extends Base
         $entity->set('entityName', $entityType);
         $entity->set('uploadedFileId', $uploadedFileId);
         $entity->set('attachmentId', empty($attachmentId) ? $uploadedFileId : $attachmentId);
+        $entity->set('sortOrder', time() - (new \DateTime('2023-01-01'))->getTimestamp());
 
         if (!empty($payload)) {
             $entity->set('payload', $payload);

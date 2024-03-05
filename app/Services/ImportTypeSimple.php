@@ -206,6 +206,8 @@ class ImportTypeSimple extends QueueManagerBase
                         }
                     }
 
+                    $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_data", ['id' => $id, 'input' => $input, 'rowNumberPart' => $data['rowNumberPart'] ?? 0]);
+
                     if (empty($id)) {
                         if ($action == 'delete_found') {
                             $logAction = 'delete';
@@ -726,8 +728,9 @@ class ImportTypeSimple extends QueueManagerBase
                 $pavData['data']['configuration'] = $configurator;
 
                 $payload = new \stdClass();
-                $payload->parentJobId = $importJob->get('id');
-
+                if (!empty($importJob->get('parentId'))){
+                    $payload->parentJobId = $importJob->get('parentId');
+                }
                 $pavJob = $importService->createImportJob($importFeed, 'ProductAttributeValue', $pavData['attachmentId'], $payload);
 
                 $pavData['data']['importJobId'] = $pavJob->get('id');
