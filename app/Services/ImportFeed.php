@@ -255,6 +255,20 @@ class ImportFeed extends Base
 
     public function pushJobs(ImportFeedEntity $importFeed, string $attachmentId, ?\stdClass $payload = null, ?string $priority = null): void
     {
+        $hasParent = (int)$importFeed->get('maxPerJob') > 0;
+        if (!$hasParent && $importFeed->getFeedField('entity') === 'Product') {
+            $configuratorItemTypes = array_column($importFeed->get('configuratorItems')->toArray(), 'type');
+            $hasParent = in_array('Attribute', $configuratorItemTypes);
+        }
+
+        if ($hasParent) {
+            $parentJob = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, new \stdClass());
+            if ($payload === null) {
+                $payload = new \stdClass();
+            }
+            $payload->parentJobId = $parentJob->get('id');
+        }
+
         if ((int)$importFeed->get('maxPerJob') > 0 && in_array($importFeed->getFeedField('format'), ['CSV', 'Excel'])) {
             $name = $this->getInjection('language')->translate('createImportJobs', 'labels', 'ImportFeed');
             $name = sprintf($name, $importFeed->get('name'));
@@ -262,12 +276,9 @@ class ImportFeed extends Base
             $qmJobData = [
                 'importFeedId' => $importFeed->get('id'),
                 'attachmentId' => $attachmentId,
-                'payload'      => $payload ?? new \stdClass(),
+                'payload'      => $payload,
                 'priority'     => $priority
             ];
-
-            $parentJob = $this->createImportJob($importFeed, $importFeed->getFeedField('entity'), $attachmentId, new \stdClass());
-            $qmJobData['payload']->parentJobId = $parentJob->get('id');
 
             if (!empty($payload) && !empty($payload->executeNow)) {
                 $this->getServiceFactory()->create('ImportJobCreator')->run($qmJobData);
