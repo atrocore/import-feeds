@@ -168,6 +168,8 @@ class ImportTypeSimple extends QueueManagerBase
 
                     $this->sortConfigurator($data);
 
+                    $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_rowNumberPart", $data['rowNumberPart'] ?? 0);
+
                     foreach ($data['data']['configuration'] as $item) {
                         // skip if for attribute
                         if ($item['type'] === 'Attribute') {
@@ -186,6 +188,7 @@ class ImportTypeSimple extends QueueManagerBase
 
                         try {
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->convert($input, $item, $row);
+                            $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_input", $input);
                         } catch (DeleteProductAttributeValue $e) {
                             $action = 'delete_found';
                             break;
@@ -205,8 +208,6 @@ class ImportTypeSimple extends QueueManagerBase
                             $this->getService('ImportConfiguratorItem')->getFieldConverter($type)->prepareValue($restore, $entity, $item);
                         }
                     }
-
-                    $this->getMemoryStorage()->set("import_job_{$importJob->get('id')}_data", ['id' => $id, 'input' => $input, 'rowNumberPart' => $data['rowNumberPart'] ?? 0]);
 
                     if (empty($id)) {
                         if ($action == 'delete_found') {

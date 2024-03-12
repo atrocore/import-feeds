@@ -66,7 +66,7 @@ class ImportJobLog extends Base
             ->setParameter('errorType', 'error')
             ->fetchFirstColumn();
 
-        $entity->set('message', implode(' ; ', $res));
+        $entity->set('message', implode(' | ', $res));
 
         $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
         if (in_array($importJob->get('state'), ['Failed', 'Canceled', 'Success'])) {
@@ -96,9 +96,11 @@ class ImportJobLog extends Base
             return;
         }
 
-        $memData = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_data");
+        $input = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_input");
 
-        $rowNumber = $memData['rowNumberPart'] + $entity->get('rowNumber');
+        $rowNumberPart = $this->getMemoryStorage()->get("import_job_{$importJob->get('id')}_rowNumberPart") ?? 0;
+
+        $rowNumber = $rowNumberPart + $entity->get('rowNumber');
 
         if ($parentJob->get('entityName') === $entity->get('entityName')) {
             $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
@@ -126,14 +128,14 @@ class ImportJobLog extends Base
                         return;
                 }
 
-                if (!property_exists($memData['input'], 'productId')) {
+                if (!property_exists($input, 'productId')) {
                     return;
                 }
 
                 $parentLog = $this->getEntityManager()->getEntity('ImportJobLog');
                 $parentLog->set('name', $entity->get('name'));
                 $parentLog->set('entityName', 'Product');
-                $parentLog->set('entityId', $memData['input']->productId);
+                $parentLog->set('entityId', $input->productId);
                 $parentLog->set('importJobId', $importJob->get('parentId'));
                 $parentLog->set('type', $type);
                 $parentLog->set('rowNumber', $rowNumber);
