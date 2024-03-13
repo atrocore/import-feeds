@@ -53,20 +53,32 @@ class ImportJobLog extends Base
         }
 
         $res = $this->getConnection()->createQueryBuilder()
-            ->select('t.message')
+            ->select('t.id, t.row_number, t.message, qi.data')
             ->from('import_job_log', 't')
+            ->leftJoin('t', 'import_job', 'ij', 'ij.id=t.import_job_id')
+            ->leftJoin('ij', 'queue_item', 'qi', 'qi.id=ij.queue_item_id')
             ->where('t.deleted=:false')
             ->andWhere('t.type=:errorType')
-            ->andWhere('t.row_number=:rowNumber')
-            ->andWhere('t.import_job_id IN (SELECT id FROM import_job WHERE deleted=:false AND parent_id=:id)')
+            ->andWhere('ij.parent_id=:id')
             ->orderBy('t.created_at', 'ASC')
             ->setParameter('false', false, ParameterType::BOOLEAN)
             ->setParameter('id', $entity->get('importJobId'))
-            ->setParameter('rowNumber', $entity->get('rowNumber'), ParameterType::INTEGER)
             ->setParameter('errorType', 'error')
-            ->fetchFirstColumn();
+            ->fetchAllAssociative();
 
-        $entity->set('message', implode(' | ', $res));
+        $messages = [];
+        foreach ($res as $item) {
+            $data = @json_decode((string)$item['data'], true);
+            if (!is_array($data)) {
+                continue;
+            }
+            $rowNumber = $item['row_number'] + ($data['rowNumberPart'] ?? 0);
+            if ($rowNumber === $entity->get('rowNumber')) {
+                $messages[] = $item['message'];
+            }
+        }
+
+        $entity->set('message', implode(' | ', $messages));
 
         $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
         if (in_array($importJob->get('state'), ['Failed', 'Canceled', 'Success'])) {
