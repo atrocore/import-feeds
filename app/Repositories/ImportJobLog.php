@@ -52,6 +52,12 @@ class ImportJobLog extends Base
             return;
         }
 
+        $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
+        if (!in_array($importJob->get('state'), ['Failed', 'Canceled', 'Success'])) {
+            $entity->set('message', '...');
+            return;
+        }
+
         $res = $this->getConnection()->createQueryBuilder()
             ->select('t.id, t.row_number, t.message, qi.data')
             ->from('import_job_log', 't')
@@ -80,16 +86,13 @@ class ImportJobLog extends Base
 
         $entity->set('message', implode(' | ', $messages));
 
-        $importJob = $this->getEntityManager()->getRepository('ImportJob')->get($entity->get('importJobId'));
-        if (in_array($importJob->get('state'), ['Failed', 'Canceled', 'Success'])) {
-            $this->getConnection()->createQueryBuilder()
-                ->update('import_job_log')
-                ->set('message', ':message')
-                ->where('id=:id')
-                ->setParameter('id', $entity->get('id'))
-                ->setParameter('message', $entity->get('message'))
-                ->executeQuery();
-        }
+        $this->getConnection()->createQueryBuilder()
+            ->update('import_job_log')
+            ->set('message', ':message')
+            ->where('id=:id')
+            ->setParameter('id', $entity->get('id'))
+            ->setParameter('message', $entity->get('message'))
+            ->executeQuery();
     }
 
     public function createParentJobLog(Entity $entity, array $options): void
