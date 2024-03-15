@@ -285,13 +285,13 @@ class Link extends Varchar
         if (!empty($configuration['importBy']) && !empty($configuration['column'])) {
             $whereForCollection = $this->prepareWhereForCollection($configuration, $rows);
             $collection = $this->getEntityManager()->getRepository($entityName)->where($whereForCollection)->find();
+            $collection = $this->prepareCollectionBeforeWhereKeysCreated($collection);
+
             foreach ($collection as $entity) {
                 $itemKey = $service->createMemoryKey($entity->getEntityType(), $entity->get('id'));
                 $this->getMemoryStorage()->set($itemKey, $entity);
                 $foreignKeys[$configuration['pos']][$entityName][] = $itemKey;
-                $this->beforeWhereKeyCreated( $entity, $where);
                 $whereKey = $service->createWhereKey(array_keys($where), $entity);
-
                 $foreignWhereKeys[$configuration['pos']][$entityName][$whereKey] = $itemKey;
             }
 
@@ -341,7 +341,8 @@ class Link extends Varchar
         return null;
     }
 
-    protected function beforeWhereKeyCreated($entity, array &$where)
+    protected function prepareCollectionBeforeWhereKeysCreated($collection): EntityCollection
     {
+        return $collection;
     }
 }

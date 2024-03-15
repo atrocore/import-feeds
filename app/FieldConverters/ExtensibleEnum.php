@@ -77,21 +77,33 @@ class ExtensibleEnum extends Link
         return $extensibleEnumId;
     }
 
-    protected function beforeWhereKeyCreated($entity, array &$where)
+    protected function prepareCollectionBeforeWhereKeysCreated($collection): \Espo\ORM\EntityCollection
     {
-        $extensibleEnumId = $where['extensibleEnumId'];
-        $optionExists = $this->getEntityManager()
-            ->getConnection()
-            ->createQueryBuilder()
-            ->from('extensible_enum_extensible_enum_option')
-            ->select('id')
-            ->where('extensible_enum_id=:extensibleEnumId AND extensible_enum_option_id=:extensibleEnumOptionId')
-            ->setParameter('extensibleEnumId', $extensibleEnumId, Mapper::getParameterType($extensibleEnumId))
-            ->setParameter('extensibleEnumOptionId', $id = $entity->get('id'), Mapper::getParameterType($id))
-            ->fetchOne();
+        $collectionTmp = clone $collection;
+        if(!empty($collection[0]) && $collection[0]->getEntityType() === "ExtensibleEnumOption"){
+            foreach ($collection as $key => $option){
+                $extensibleEnumsIds = $this->getEntityManager()
+                    ->getConnection()
+                    ->createQueryBuilder()
+                    ->from('extensible_enum_extensible_enum_option')
+                    ->select('extensible_enum_id')
+                    ->where('extensible_enum_option_id=:extensibleEnumOptionId')
+                    ->setParameter('extensibleEnumOptionId', $id = $option->get('id'), Mapper::getParameterType($id))
+                    ->fetchAllAssociative();
 
-        if($optionExists){
-            $entity->set('extensibleEnumId', $extensibleEnumId);
+                $extensibleEnumsIds = array_column($extensibleEnumsIds, 'extensible_enum_id');
+
+                $collectionTmp[$key]->set('extensibleEnumId', array_shift($extensibleEnumsIds));
+
+                foreach ($extensibleEnumsIds as $extensibleEnumId){
+                     $cloneOption = clone $option;
+                     $cloneOption->set('extensibleEnumId', $extensibleEnumId);
+                     $collectionTmp[]= $cloneOption;
+                }
+            }
+
         }
+
+        return $collectionTmp;
     }
 }
