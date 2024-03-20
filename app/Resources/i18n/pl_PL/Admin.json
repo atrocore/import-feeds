@@ -1,0 +1,8 @@
+{
+	"labels": {
+		"importFeed": "Importuj kanały"
+	},
+	"descriptions": {
+		"importFeed": "Konfiguracja szablonów importu do użycia podczas importowania danych do jednostek"
+	}
+}

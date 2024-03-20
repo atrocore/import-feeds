@@ -1,0 +1,16 @@
+{
+	"fields": {
+		"rowNumber": "Numer wiersza",
+		"importJob": "Zadanie importu",
+		"type": "Typ",
+		"entityName": "Nazwa jednostki",
+		"entityId": "Identyfikator jednostki",
+		"message": "Komunikat błędu"
+	},
+	"links": {
+		"importJob": "Zadanie importu"
+	},
+	"labels": {
+		"Create ImportJobLog": "Utwórz dziennik zadania importu"
+	}
+}

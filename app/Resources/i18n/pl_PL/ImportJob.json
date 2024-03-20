@@ -1,0 +1,46 @@
+{
+  "fields": {
+    "importFeed": "Importuj Źródło",
+    "state": "Stan",
+    "message": "Wiadomość",
+    "start": "Rozpocznij",
+    "end": "Zakończ",
+    "createdCount": "Utworzone",
+    "updatedCount": "Zaktualizowane",
+    "deletedCount": "Usunięte",
+    "skippedCount": "Pominięte",
+    "errorsCount": "Błędy",
+    "attachment": "Zaimportowany Plik",
+    "uploadedFile": "Plik Przesłany",
+    "convertedFile": "Plik Skonwertowany",
+    "errorsAttachment": "Plik Błędów",
+    "importJobLogs": "Logi Błędów"
+  },
+  "links": {
+    "importFeed": "Importuj Źródło",
+    "importJobLogs": "Logi Błędów"
+  },
+  "labels": {
+    "Create ImportJob": "Utwórz Zadanie Importu",
+    "Pending": "Oczekujące",
+    "Success": "Sukces",
+    "Running": "Trwa",
+    "Failed": "Niepowodzenie",
+    "Canceled": "Anulowane",
+    "generate": "Generuj",
+    "generating": "Generowanie",
+    "tryAgain": "Importuj ponownie"
+  },
+  "tooltips": {
+    "errorsAttachment": "Wiersze z 'Zaimportowanego pliku', które nie zostały zaimportowane."
+  },
+  "exceptions": {
+    "errorFileCreatingFailed": "Nie można utworzyć pliku błędów.",
+    "convertedFileNotExist": "Plik skonwertowany nie istnieje. Proszę najpierw go wygenerować."
+  },
+  "boolFilters": {
+    "onlyImportFailed24Hours": "Tylko Zadania Importu, które nie powiodły się w ciągu ostatnich 24 godzin",
+    "onlyImportFailed7Days": "Tylko Zadania Importu, które nie powiodły się w ciągu ostatnich 7 dni",
+    "onlyImportFailed28Days": "Tylko Zadania Importu, które nie powiodły się w ciągu ostatnich 28 dni"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "fields": {
+    "entityIdentifier": "Identyfikator",
+    "name": "Pole",
+    "column": "Pole źródłowe",
+    "defaultContainer": "Wartość domyślna",
+    "default": "Wartość domyślna",
+    "importFeed": "Importuj źródło",
+    "importBy": "Powiązane pola encji",
+    "createIfNotExist": "Utwórz rekord danych powiązanych",
+    "locale": "Język",
+    "attribute": "Atrybut",
+    "channel": "Kanał",
+    "sourceFields": "Pola źródłowe",
+    "type": "Typ",
+    "foreignColumn": "Pole źródłowe",
+    "foreignImportBy": "Powiązane pola encji",
+    "replaceArray": "Zastąp",
+    "attributeValue": "Wartość atrybutu",
+    "importByForListAttribute": "Powiązane pola encji dla list"
+  },
+  "options": {
+    "attributeValue": {
+      "value": "Wartość",
+      "valueFrom": "Wartość od",
+      "valueTo": "Wartość do",
+      "valueUnitId": "Jednostka wartości"
+    }
+  },
+  "links": {
+    "importFeed": "Importuj źródło",
+    "channel": "Kanał"
+  },
+  "labels": {
+    "main": "Główne",
+    "mapping": "Mapowanie pola do wstawienia",
+    "search": "Mapowanie pola do wyszukiwania",
+    "additionalInformation": "Dodatkowe informacje",
+    "importByForAttributeValue": "Dotyczy tylko atrybutu typu Lista lub Lista wielowartościowa"
+  },
+  "exceptions": {
+    "importByIsRequired": "Pola powiązanej encji są wymagane.",
+    "columnOrDefaultValueIsRequired": "Pole źródłowe lub wartość domyślna powinny być wypełnione.",
+    "wrongFieldsNumber": "Dla wyszukiwania liczba pól źródłowych powinna być taka sama jak liczba pól powiązanej encji.",
+    "wrongForeignFieldsNumber": "Dla wstawiania liczba pól źródłowych powinna być taka sama jak liczba pól powiązanej encji.",
+    "foreignColumnsAndFieldsEmpty": "Pola źródłowe i Pola powiązanej encji nie mogą być puste."
+  },
+  "tooltips": {
+    "column": "Ta(te) wartość(i) pola będą używane do wyszukiwania, czy rekord danych powiązanych już istnieje.",
+    "importBy": "Wybierz pola powiązanej encji w swoim systemie, które powinny być użyte do wyszukiwania na podstawie danych dostarczonych w polu wyboru \"Pola źródłowe\". Jeśli dostarczono tylko jedno pole danych, może być stosowany \"Separator pól dla relacji\". W innych przypadkach liczba dostarczonych pól danych i \"Pól powiązanej encji\" powinna być taka sama.",
+    "createIfNotExist": "Nowy rekord danych dla powiązanej encji zostanie utworzony, jeśli na podstawie dostarczonych danych nic nie zostanie znalezione.",
+    "foreignColumn": "Ta(te) wartość(i) pola będą używane do utworzenia rekordu danych powiązanych.",
+    "foreignImportBy": "Wybierz pola powiązanej encji w swoim systemie, które powinny być użyte do wstawiania na podstawie danych dostarczonych w polu wyboru \"Pola źródłowe\". Jeśli dostarczono tylko jedno pole danych, może być stosowany \"Separator pól dla relacji\". W innych przypadkach liczba dostarczonych pól danych i \"Pól powiązanej encji\" powinna być taka sama.",
+    "replaceArray": "Domyślnie dostarczone rekordy są dodawane do istniejących. Zaznacz to pole wyboru, jeśli te ostatnie powinny zostać zastąpione."
+  }
+}
