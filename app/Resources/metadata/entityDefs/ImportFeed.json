@@ -314,7 +314,8 @@
       "dataField": true,
       "filterDisabled": true,
       "required": false,
-      "default": ""
+      "default": "",
+      "tooltip": true
     },
     "nullValue": {
       "type": "varchar",
@@ -322,7 +323,8 @@
       "dataField": true,
       "filterDisabled": true,
       "required": false,
-      "default": "Null"
+      "default": "Null",
+      "tooltip": true
     },
     "markForNoRelation": {
       "type": "varchar",
@@ -330,7 +332,8 @@
       "dataField": true,
       "filterDisabled": true,
       "required": false,
-      "default": "Null"
+      "default": "Null",
+      "tooltip": true
     },
     "sourceFields": {
       "type": "array",

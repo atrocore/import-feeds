@@ -125,7 +125,10 @@
   "tooltips": {
     "keptStringNodes": "Add here nodes which should be considered as leaf nodes, so that all data behind it is considered to be a single array.",
     "file": "This file will be used to create the configuration. It could be an example file or file to be imported.",
-    "repeatProcessing": "Data record repeating is determined by identifiers in the configurator."
+    "repeatProcessing": "Data record repeating is determined by identifiers in the configurator.",
+    "markForNoRelation": "Marks relation which should not be linked to the respective entity.",
+    "nullValue": "Value will be interpreted as \"NULL\" value.",
+    "emptyValue": "Value will be interpreted as \"empty\" value additionally to the empty cell."
   },
   "boolFilters": {
     "onlyImportFailed24Hours": "Only Import Feeds that failed during last 24 hours",
