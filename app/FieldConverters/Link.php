@@ -40,7 +40,7 @@ class Link extends Varchar
                 }
             }
 
-            if ($value !== null && $value !== (string)$config['emptyValue'] && $value !== (string)$config['markForNoRelation']) {
+            if ($value !== null && $value !== (string)$config['emptyValue'] && $value !== (string)$config['markForNoRelation'] && $value !== (string)$config['skipValue']) {
                 if (isset($config['relEntityName'])) {
                     $entityName = $config['relEntityName'];
                 } else {
@@ -131,7 +131,7 @@ class Link extends Varchar
             $value = $default;
         }
 
-        if ($value === null) {
+        if ($value === (string)$config['skipValue']) {
             return;
         }
 
@@ -210,7 +210,11 @@ class Link extends Varchar
     protected function getSearchValue($column, array $config, array $row)
     {
         $value = $row[$column] ?? null;
+        $this->skipPAV($value, $config);
         $this->deletePAV($value, $config);
+        if (strtolower((string)$value) === strtolower((string)$config['skipValue'])) {
+            return null;
+        }
         if (strtolower((string)$value) === strtolower((string)$config['emptyValue'])) {
             $value = (string)$config['emptyValue'];
         }

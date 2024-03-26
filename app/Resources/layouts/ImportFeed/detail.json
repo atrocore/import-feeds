@@ -137,6 +137,12 @@
       ],
       [
         {
+          "name": "skipValue"
+        },
+        false
+      ],
+      [
+        {
           "name": "repeatProcessing"
         },
         false

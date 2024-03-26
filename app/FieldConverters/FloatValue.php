@@ -49,7 +49,11 @@ class FloatValue extends Varchar
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
+            $this->skipPAV($value, $config);
             $this->deletePAV($value, $config);
+            if (strtolower((string)$value) === strtolower((string)$config['skipValue'])) {
+                return;
+            }
             if (strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
                 $value = $default;
             }
@@ -60,9 +64,7 @@ class FloatValue extends Varchar
             $value = $default;
         }
 
-        if ($value !== null) {
-            $name = $config['name'];
-            $inputRow->{$name} = $this->prepareFloatValue((string)$value, $config);
-        }
+        $name = $config['name'];
+        $inputRow->{$name} = $value != null ? $this->prepareFloatValue((string)$value, $config) : $value;
     }
 }

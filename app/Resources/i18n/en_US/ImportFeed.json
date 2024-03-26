@@ -30,6 +30,7 @@
     "configuratorItems": "Configurator",
     "emptyValue": "Empty Value",
     "nullValue": "Null Value",
+    "skipValue": "Skip Value",
     "markForNoRelation": "Marking for no relation",
     "fieldDelimiterForRelation": "Field Delimiter for Relation"
   },

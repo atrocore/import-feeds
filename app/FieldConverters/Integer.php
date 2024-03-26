@@ -31,7 +31,11 @@ class Integer extends Varchar
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
+            $this->skipPAV($value, $config);
             $this->deletePAV($value, $config);
+            if (strtolower((string)$value) === strtolower((string)$config['skipValue'])) {
+                return;
+            }
             if (strtolower((string)$value) === strtolower((string)$config['emptyValue']) || $value === '') {
                 $value = $default;
             }
@@ -42,10 +46,8 @@ class Integer extends Varchar
             $value = $default;
         }
 
-        if ($value !== null) {
-            $name = $config['name'];
-            $inputRow->{$name} = $this->prepareIntValue((string)$value, $config);
-        }
+        $name = $config['name'];
+        $inputRow->{$name} = $value != null ? $this->prepareIntValue((string)$value, $config) : $value;
     }
 
     public function prepareIntValue(string $value, array $config): int

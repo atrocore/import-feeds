@@ -26,6 +26,7 @@
     "configuratorItems": "Konfigurator",
     "emptyValue": "Leerer Wert",
     "nullValue": "Nullwert",
+    "skipValue": "Wert überspringen",
     "markForNoRelation": "Markierung für fehlende Relationen",
     "fieldDelimiterForRelation": "Feldtrennzeichen für Relation"
   },

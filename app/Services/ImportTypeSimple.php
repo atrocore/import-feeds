@@ -620,7 +620,8 @@ class ImportTypeSimple extends QueueManagerBase
             'decimalMark',
             'thousandSeparator',
             'markForNoRelation',
-            'fieldDelimiterForRelation'
+            'fieldDelimiterForRelation',
+            'skipValue'
         ];
 
         /**
