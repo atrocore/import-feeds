@@ -29,6 +29,7 @@
     "configuratorItems": "Конфігуратор",
     "emptyValue": "Порожнє значення",
     "nullValue": "Нульове значення",
+    "skipValue": "Пропуск значення",
     "markForNoRelation": "Отметка об отсутствии отношений",
     "fieldDelimiterForRelation": "Роздільник полів для зв'язку"
   },

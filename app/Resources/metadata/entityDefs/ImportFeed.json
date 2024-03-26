@@ -335,6 +335,14 @@
       "default": "Null",
       "tooltip": true
     },
+    "skipValue": {
+      "type": "varchar",
+      "notStorable": true,
+      "dataField": true,
+      "filterDisabled": true,
+      "required": false,
+      "default": "Skip"
+    },
     "sourceFields": {
       "type": "array",
       "view": "import:views/import-feed/fields/source-fields"
