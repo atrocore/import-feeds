@@ -38,17 +38,12 @@ class Wysiwyg
     public function convert(\stdClass $inputRow, array $config, array $row): void
     {
         $default = empty($config['default']) ? '' : $config['default'];
-        $skipValue = empty($config['skipValue']) ? 'Skip' : (string)$config['skipValue'];
         $emptyValue = empty($config['emptyValue']) ? '' : (string)$config['emptyValue'];
         $nullValue = empty($config['nullValue']) ? 'Null' : (string)$config['nullValue'];
 
         if (isset($config['column'][0]) && isset($row[$config['column'][0]])) {
             $value = $row[$config['column'][0]];
-            $this->skipPAV($value, $config);
             $this->deletePAV($value, $config);
-            if (strtolower((string)$value) === strtolower($skipValue)) {
-                return;
-            }
             if (strtolower((string)$value) === strtolower($emptyValue) || $value === '') {
                 $value = $default;
             }
@@ -132,17 +127,6 @@ class Wysiwyg
 
         if ($value === $config['markForNoRelation']) {
             throw new DeleteProductAttributeValue();
-        }
-    }
-
-    protected function skipPAV($value, array $config): void
-    {
-        if (!isset($config['attributeType'])) {
-            return;
-        }
-
-        if ($value === $config['skipValue']) {
-            throw new NotModified();
         }
     }
 }

@@ -341,7 +341,8 @@
       "dataField": true,
       "filterDisabled": true,
       "required": false,
-      "default": "Skip"
+      "default": "Skip",
+      "tooltip": true
     },
     "sourceFields": {
       "type": "array",

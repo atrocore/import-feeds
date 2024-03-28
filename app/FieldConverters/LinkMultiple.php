@@ -30,11 +30,7 @@ class LinkMultiple extends Varchar
         $fieldName = $this->getFieldName($config);
 
         foreach ($config['column'] as $column) {
-            $this->skipPAV($row[$column], $config);
             $this->deletePAV($row[$column], $config);
-            if ($row[$column] === $config['skipValue']) {
-                return;
-            }
             if ($row[$column] === $config['markForNoRelation']) {
                 $inputRow->$fieldName = [];
                 return;

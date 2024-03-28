@@ -25,7 +25,6 @@ class Text extends Wysiwyg
 
         $value = (string)$inputRow->{$config['name']};
 
-        $this->skipPAV($value, $config);
         $this->deletePAV($value, $config);
 
 //        $value = str_replace(['<br>', '<br/>', '<br />', '\n'], ["\n", "\n", "\n", "\n"], $value);
