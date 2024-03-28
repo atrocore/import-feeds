@@ -38,8 +38,6 @@
     "importByForAttributeValue": "Це лише для атрибутів типу List або Multi-value list"
   },
   "exceptions": {
-    "importByIsRequired": "Поля пов'язаних сутностей обов'язкові.",
-    "columnOrDefaultValueIsRequired": "Колонка або За замовчуванням повинні бути заповнені.",
     "wrongFieldsNumber": "Для пошуку кількість вихідних полів має бути такою самою, як кількість полів пов'язаних сутностей.",
     "wrongForeignFieldsNumber": "Для вставки кількість вихідних полів має бути такою самою, як кількість пов'язаних полів об'єкта.",
     "foreignColumnsAndFieldsEmpty": "Поле(я) джерела і поле(я) пов'язаної сутності не можуть бути порожніми."
