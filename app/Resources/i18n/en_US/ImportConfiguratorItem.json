@@ -39,8 +39,6 @@
     "importByForAttributeValue": "This is only for Attribute of type List or Multi-value list"
   },
   "exceptions": {
-    "importByIsRequired": "Related Entity Fields are required.",
-    "columnOrDefaultValueIsRequired": "Column or Default should be filled.",
     "wrongFieldsNumber": "For search the amount of source fields should be the same as the amount of related entity fields.",
     "wrongForeignFieldsNumber": "For insert the amount of source fields should be the same as the amount of related entity fields.",
     "foreignColumnsAndFieldsEmpty": "Source Field(s) and Related entity field(s) cannot be empty."

@@ -39,8 +39,6 @@
     "importByForAttributeValue": "Dotyczy tylko atrybutu typu Lista lub Lista wielowartościowa"
   },
   "exceptions": {
-    "importByIsRequired": "Pola powiązanej encji są wymagane.",
-    "columnOrDefaultValueIsRequired": "Pole źródłowe lub wartość domyślna powinny być wypełnione.",
     "wrongFieldsNumber": "Dla wyszukiwania liczba pól źródłowych powinna być taka sama jak liczba pól powiązanej encji.",
     "wrongForeignFieldsNumber": "Dla wstawiania liczba pól źródłowych powinna być taka sama jak liczba pól powiązanej encji.",
     "foreignColumnsAndFieldsEmpty": "Pola źródłowe i Pola powiązanej encji nie mogą być puste."
