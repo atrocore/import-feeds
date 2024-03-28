@@ -188,7 +188,7 @@ class ImportTypeSimple extends QueueManagerBase
 
                         try {
                             // skip import item if needed
-                            $skip = $item['skipValue'] ?? 'Skip';
+                            $skip = array_key_exists('skipValue', $item) ? $item['skipValue'] : 'Skip';
                             if (isset($item['column']) && is_array($item['column'])) {
                                 foreach ($item['column'] as $column) {
                                     if (array_key_exists($column, $row) && $row[$column] == $skip) {
