@@ -31,13 +31,6 @@ Espo.define('import:views/import-configurator-item/fields/import-by', 'views/fie
             });
         },
 
-        isRequired: function () {
-            if (this.model.get('entity') === 'ProductAttributeValue' && this.model.get('name') === 'value') {
-                return false
-            }
-            return this.params.options.length > 0 && !this.model.get('defaultId') && !this.model.get('defaultIds');
-        },
-
         getForeignEntity() {
             let type = null;
             let attribute = null;
