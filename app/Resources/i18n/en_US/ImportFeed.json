@@ -94,6 +94,7 @@
     "moreThanOneFound": "More than one data record with identifier '%s' found.",
     "wrongImportByValuesCount": "The amount of the received values for the related entity '%s' should not be smaller than the amount of the related entity fields.",
     "nullNoneSame": "None and null value cannot be the same.",
+    "skipNoneSame": "Empty and skip value cannot be the same/Null and skip value cannot be the same.",
     "unexpectedFieldType": "Value '%s' is not a valid '%s'.",
     "incorrectCurrencyValue": "Currency value format is invalid. Value like \"12 EUR\" is expected.",
     "incorrectCurrency": "Currency '%s' for the field '%s' is incorrect.",
@@ -129,7 +130,8 @@
     "repeatProcessing": "Data record repeating is determined by identifiers in the configurator.",
     "markForNoRelation": "Marks relation which should not be linked to the respective entity.",
     "nullValue": "Value will be interpreted as \"NULL\" value.",
-    "emptyValue": "Value will be interpreted as \"empty\" value additionally to the empty cell."
+    "emptyValue": "Value will be interpreted as \"empty\" value.",
+    "skipValue": "Will be interpreted as value to be skipped."
   },
   "boolFilters": {
     "onlyImportFailed24Hours": "Only Import Feeds that failed during last 24 hours",

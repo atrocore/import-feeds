@@ -90,6 +90,7 @@
     "moreThanOneFound": "Mehr als ein Datensatz mit der Kennung '%s' gefunden.",
     "wrongImportByValuesCount": "Die Anzahl der empfangenen Werte für die zugehörige Entität '%s' sollte nicht kleiner als die Anzahl der zugehörigen Entitätsfelder sein.",
     "nullNoneSame": "Keiner und Nullwert dürfen nicht identisch sein.",
+    "skipNoneSame": "Keiner und Nullwert dürfen nicht identisch sein/Keiner und überspringen dürfen nicht identisch sein/Nullwert und überspringen dürfen nicht identisch sein.",
     "unexpectedFieldType": "Der Wert '%s' is als '%s' ungültig.",
     "incorrectCurrencyValue": "Das Währungswertformat ist ungültig. Wert wie \"12 EUR\" wird erwartet.",
     "incorrectCurrency": "Die Währung '%s' für das Feld '%s' ist falsch.",
@@ -125,7 +126,8 @@
     "repeatProcessing": "Die Datensatzwiederholung wird durch Kennungen im Konfigurator bestimmt.",
     "markForNoRelation": "Markiert Beziehungen, die nicht mit der jeweiligen Entität verknüpft werden sollen.",
     "nullValue": "Der Wert wird als \"NULL\"-Wert interpretiert.",
-    "emptyValue": "Der Wert wird als \"leerer\" Wert zusätzlich zur leeren Zelle interpretiert."
+    "emptyValue": "Der Wert wird als \"leerer\" Wert zusätzlich zur leeren Zelle interpretiert.",
+    "skipValue": "Wird als zu übergehender Wert interpretiert."
   },
   "boolFilters": {
     "onlyImportFailed24Hours": "Nur Import Feeds, die in den letzten 24 Stunden fehlgeschlagen sind",
